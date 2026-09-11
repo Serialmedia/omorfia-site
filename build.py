@@ -1,0 +1,1331 @@
+#!/usr/bin/env python3
+"""Omorfia — v2: photo-forward multi-page site (upgraded Marion-style structure).
+Edit constants, run `python3 build.py`, deploy /site."""
+import json, os, re, html
+
+DOMAIN   = "https://omorfiapk.com"
+BOOK_URL = "tel:+18456944952"      # Boulevard self-booking link
+GIFT_URL = "tel:+18456944952"     # Boulevard gift card link (or leave = BOOK_URL)
+NAME     = "Omorfia Salon & Day Spa"
+STREET   = "751 Dutchess Turnpike"
+CITY     = "Poughkeepsie"
+STATE    = "NY"
+ZIP      = "12603"
+PHONE    = "(845) 694-4952"
+PHONE_TEL= "+18456944952"
+SAMEAS   = ["https://www.instagram.com/omorfiadayspa/",
+            "https://www.yelp.com/biz/omorfia-salon-and-spa-poughkeepsie"]
+OUT = os.path.join(os.path.dirname(__file__), "site")
+
+U = "https://images.unsplash.com/"
+Q = "?q=80&w=1600&auto=format&fit=crop"
+IMG = {
+ "hero":    U+"photo-1544161515-4ab6ce6db874"+Q,
+ "hair":    U+"photo-1560066984-138dadb4c035"+Q,
+ "nails":   U+"photo-1604654894610-df63bc536371"+Q,
+ "massage": U+"photo-1600334129128-685c5582fd35"+Q,
+ "facials": U+"photo-1570172619644-dfd03ed5d881"+Q,
+ "tanning": U+"photo-1517841905240-472988babdf9"+Q,
+ "makeup":  U+"photo-1487412947147-5cebf100ffc2"+Q,
+ "wedding": U+"photo-1519741497674-611481863552"+Q,
+ "feature": U+"photo-1540555700478-4be289fbecef"+Q,
+}
+
+# ------------------------------------------------------------------ schema
+def biz_node():
+    return {"@type":"DaySpa","@id":DOMAIN+"/#business","name":NAME,"url":DOMAIN+"/",
+        "image":DOMAIN+"/images/slides/s08.jpg","telephone":PHONE_TEL,
+        "address":{"@type":"PostalAddress","streetAddress":STREET,"addressLocality":CITY,
+                   "addressRegion":STATE,"postalCode":ZIP,"addressCountry":"US"},
+        "areaServed":["Poughkeepsie NY","Dutchess County NY","Hudson Valley NY"],
+        "openingHoursSpecification":[
+            {"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"09:00","closes":"20:00"},
+            {"@type":"OpeningHoursSpecification","dayOfWeek":["Friday","Saturday","Sunday"],"opens":"09:00","closes":"22:00"}],
+        "sameAs":SAMEAS,
+        "parentOrganization":{"@type":"Organization","name":"Kyriacou Beauty Group",
+                              "url":"https://kyriacoubeauty.com"},
+        "slogan":"Where Beauty Meets Relaxation"}
+
+def page_schema(p):
+    g=[biz_node()]
+    crumbs=[{"@type":"ListItem","position":1,"name":"Home","item":DOMAIN+"/"}]
+    if p["path"]:
+        crumbs.append({"@type":"ListItem","position":2,"name":p["nav"],
+                       "item":f'{DOMAIN}/{p["path"]}/'})
+    g.append({"@type":"BreadcrumbList","itemListElement":crumbs})
+    if p.get("service"):
+        g.append({"@type":"Service","name":p["service"],"serviceType":p["service"],
+                  "areaServed":"Poughkeepsie NY","provider":{"@id":DOMAIN+"/#business"}})
+    if p.get("persons"):
+        for nm,rl in p["persons"]:
+            g.append({"@type":"Person","name":nm,"jobTitle":rl,
+                      "worksFor":{"@id":DOMAIN+"/#business"}})
+    if p.get("faq"):
+        g.append({"@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,
+            "acceptedAnswer":{"@type":"Answer","text":a}} for q,a in p["faq"]]})
+    return json.dumps({"@context":"https://schema.org","@graph":g},indent=1)
+
+# ------------------------------------------------------------------ shell
+HEAD = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<link rel="canonical" href="{canon}">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:url" content="{canon}">
+<meta property="og:type" content="website">
+<meta property="og:image" content="{ogimg}">
+<meta property="og:site_name" content="Omorfia Salon &amp; Day Spa">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<script type="application/ld+json">
+{schema}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <a class="sh-word" href="/">OMORFIA</a>
+  <input type="checkbox" id="navtoggle" class="navtoggle" aria-label="Open menu">
+  <label for="navtoggle" class="burger"><span></span><span></span><span></span></label>
+  <nav class="sh-nav" aria-label="Main">
+    <div class="dd">
+      <a href="/hair/">Salon <svg class="chev" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
+      <div class="dd-menu">
+        <a href="/hair/">Hair</a>
+        <a href="/lashes-brows/">Lashes &amp; Brows</a>
+        <a href="/makeup/">Makeup</a>
+        <a href="/wedding/">Wedding &amp; Bridal</a>
+      </div>
+    </div>
+    <div class="dd">
+      <a href="/massage/">Spa <svg class="chev" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
+      <div class="dd-menu">
+        <a href="/massage/">Massage</a>
+        <a href="/facials/">Facials &amp; Esthetics</a>
+        <a href="/nails/">Nails</a>
+        <a href="/tanning/">Tanning</a>
+        <a href="https://omomedspa.com" target="_blank" rel="noopener">Med Spa</a>
+      </div>
+    </div>
+    <div class="dd">
+      <a href="/packages/">Packages <svg class="chev" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
+      <div class="dd-menu">
+        <a href="/memberships/">Memberships</a>
+        <a href="/packages/">Packages</a>
+      </div>
+    </div>
+    <div class="dd">
+      <a href="/about/">About <svg class="chev" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
+      <div class="dd-menu">
+        <a href="/about/">Our Story</a>
+        <a href="/team/">Meet the Team</a>
+        <a href="/reviews/">Reviews</a>
+        <a href="/specials/">Specials &amp; Offers</a>
+      </div>
+    </div>
+    <div class="dd">
+      <a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou <svg class="chev" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
+      <div class="dd-menu">
+        <a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou Cosmetics</a>
+        <a href="https://omomedspa.com" target="_blank" rel="noopener">OMO Med Spa</a>
+        <a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou Beauty Group</a>
+      </div>
+    </div>
+    <a href="/contact/">Location</a>
+  </nav>
+  <div class="sh-actions">
+    <a class="sh-book" href="{book}">Book</a>
+    <a class="sh-gift" href="/gift-cards/">Gift Cards</a>
+  </div>
+</header>
+<a class="book-float" href="{book}">Book Appointment</a>
+<main id="main">
+"""
+
+FOOT = """</main>
+<section class="cta-band">
+  <p class="cta-greek" aria-hidden="true">&omicron;&mu;&omicron;&rho;&phi;&iota;&#940;</p>
+  <h2>Ready when you are.</h2>
+  <p class="cta-sub">Book online in under a minute, or call the front desk.</p>
+  <div class="cta-actions">
+    <a class="btn btn-primary" href="{book}">Book Appointment</a>
+    <a class="btn btn-ghost" href="tel:{tel}">{phone}</a>
+  </div>
+</section>
+<footer class="foot">
+  <div class="foot-grid">
+    <div>
+      <p class="foot-brand">OMORFIA</p>
+      <p class="foot-def"><em>omorfi&aacute;</em> &mdash; Greek, &ldquo;beauty&rdquo;</p>
+      <p class="foot-addr">{street}<br>{city}, {state} {zip}<br><a href="tel:{tel}">{phone}</a></p>
+    </div>
+    <div>
+      <p class="foot-h">Hours</p>
+      <p class="foot-hours">Open 7 Days a Week<br>Mon&ndash;Thu 9 AM &ndash; 8 PM<br>Fri&ndash;Sun 9 AM &ndash; 10 PM</p>
+    </div>
+    <div>
+      <p class="foot-h">Salon &amp; Spa</p>
+      <p><a href="/hair/">Hair</a> &middot; <a href="/nails/">Nails</a> &middot; <a href="/massage/">Massage</a><br>
+      <a href="/facials/">Facials</a> &middot; <a href="/tanning/">Tanning</a> &middot; <a href="/makeup/">Makeup</a><br>
+      <a href="/wedding/">Wedding &amp; Bridal</a> &middot; <a href="/lashes-brows/">Lashes &amp; Brows</a></p>
+    </div>
+    <div>
+      <p class="foot-h">Explore</p>
+      <p><a href="/packages/">Packages</a> &middot; <a href="/memberships/">Memberships</a><br>
+      <a href="/specials/">Specials</a> &middot; <a href="/gift-cards/">Gift Cards</a><br>
+      <a href="/team/">Team</a> &middot; <a href="/reviews/">Reviews</a> &middot; <a href="/contact/">Contact</a></p>
+    </div>
+    <div>
+      <p class="foot-h">Family</p>
+      <p><a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou Beauty Group</a><br>
+      <a href="https://www.instagram.com/omorfiadayspa/" rel="noopener">Instagram</a></p>
+    </div>
+  </div>
+  <p class="foot-legal">&copy; 2026 Omorfia Salon &amp; Day Spa &middot; A Kyriacou Beauty Group company &middot; {city}, {state}</p>
+</footer>
+</body>
+</html>
+"""
+
+def faq_html(faq):
+    if not faq: return ""
+    items="\n".join(f'<details><summary>{html.escape(q)}</summary><p>{html.escape(a)}</p></details>' for q,a in faq)
+    return f'<section class="wrap faq"><p class="eyebrow">Questions</p><h2>Good to know</h2>{items}</section>'
+
+def svc_list(items):
+    rows="\n".join(f'<li><span class="svc-name">{html.escape(n)}</span><span class="svc-desc">{html.escape(d)}</span></li>' for n,d in items)
+    return f'<ul class="svc-list">{rows}</ul>'
+
+def _vslug(name):
+    t = name
+    for a,b in (("&amp;","and"),("&rsquo;",""),("&ndash;","-"),("&ecirc;","e"),("&nbsp;"," ")):
+        t = t.replace(a,b)
+    t = re.sub(r"[^a-z0-9]+","-", t.lower()).strip("-")
+    return t
+
+def _find_video(page_slug, item_name):
+    for cand in (_vslug(item_name), page_slug):
+        for ext in ("mp4","webm"):
+            if os.path.exists(f"site/videos/{cand}.{ext}"):
+                return f"/videos/{cand}.{ext}"
+    return None
+
+MODAL_JS = """<script>
+(function(){
+  if(window.__omModal)return; window.__omModal=1;
+  function open(id){var m=document.getElementById(id);if(!m)return;m.hidden=false;document.documentElement.classList.add('op-lock');
+    var v=m.querySelector('video');if(v){v.currentTime=0;v.play().catch(function(){});}}
+  function closeAll(){document.querySelectorAll('.tmodal').forEach(function(m){m.hidden=true;var v=m.querySelector('video');if(v)v.pause();});document.documentElement.classList.remove('op-lock');}
+  document.addEventListener('click',function(e){
+    var c=e.target.closest('[data-open]');
+    if(c){open(c.getAttribute('data-open'));return;}
+    if(e.target.closest('[data-tclose]'))closeAll();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape')closeAll();
+    if(e.key==='Enter'||e.key===' '){
+      var c=document.activeElement;
+      if(c&&c.hasAttribute&&c.hasAttribute('data-open')){e.preventDefault();open(c.getAttribute('data-open'));}
+    }
+  });
+})();
+</script>"""
+
+def menu_html(groups, page_slug):
+    out=[]; modals=[]; i=0
+    for title,rows in groups:
+        lis=[]
+        for r in rows:
+            n,p,d = r[0],r[1],r[2]
+            m = r[3] if len(r)>3 else None
+            longd = r[4] if len(r)>4 and r[4] else d
+            mid = f"sm-{page_slug}-{i}"; i+=1
+            desc = f'<p class="pl-desc">{d}</p>' if d else ''
+            if m:
+                desc += (f'<p class="pl-member"><span class="pl-member-tag">Members</span> {m} '
+                         f'<span class="pl-member-sep">&middot;</span> <a href="/memberships/">See member club</a></p>')
+            lis.append(f'<li role="button" tabindex="0" data-open="{mid}" aria-haspopup="dialog">'
+                       f'<div class="pl-row"><span class="pl-name">{n}</span>'
+                       f'<span class="pl-dots" aria-hidden="true"></span>'
+                       f'<span class="pl-price">{p}</span></div>{desc}</li>')
+            vid = _find_video(page_slug, n)
+            if vid:
+                media = f'<div class="tm-media"><video src="{vid}" autoplay muted loop playsinline preload="metadata"></video></div>'
+                card_cls = "tm-card"
+            else:
+                media = ""
+                card_cls = "tm-card tm-solo"
+            modals.append(
+              f'<div class="tmodal" id="{mid}" role="dialog" aria-modal="true" aria-label="{n}" hidden>'
+              f'<div class="tm-back" data-tclose></div>'
+              f'<div class="{card_cls}"><button class="tm-x" data-tclose aria-label="Close">&times;</button>'
+              f'{media}'
+              f'<div class="tm-info"><p class="eyebrow">{p}{(" &middot; Members "+m) if m else ""}</p><h3>{n}</h3>'
+              f'<p class="tm-bio">{longd}</p>'
+              + (f'<p class="tm-member">Members pay <strong>{m}</strong> for this service &mdash; <a href="/memberships/">join the Omorfia Member Club</a>.</p>' if m else '')
+              + f'<a class="btn btn-primary" href="{{book}}">Book This Service</a></div>'
+              f'</div></div>')
+        out.append(f'<div class="menu-group"><h3>{title}</h3><ul class="price-list">{"".join(lis)}</ul></div>')
+    return '<div class="menu-grid">'+"".join(out)+'</div>' + "".join(modals) + MODAL_JS
+
+def service_video(slug, nav):
+    for ext in ("mp4","webm"):
+        p = f"site/videos/{slug}.{ext}"
+        if os.path.exists(p):
+            return f"""
+<section class="wrap vid-wrap">
+  <p class="eyebrow">See it for yourself</p>
+  <h2>{nav}, in motion</h2>
+  <video class="svc-video" autoplay muted loop playsinline preload="metadata" src="/videos/{slug}.{ext}"></video>
+</section>"""
+    return ""
+
+def service_page(slug,nav,service,title,desc,h1,intro,groups,faq,img,note=None):
+    body=f"""
+<section class="page-hero has-photo" style="background-image:url('{img}')">
+  <div class="ph-inner">
+    <p class="eyebrow">{nav} &middot; Poughkeepsie, NY</p>
+    <h1>{h1}</h1>
+    <p class="lead">{intro}</p>
+    <a class="btn btn-primary" href="{{book}}">Book {nav}</a>
+  </div>
+</section>
+<section class="wrap menu-wrap">
+  <p class="eyebrow">The menu</p>
+  <h2>Services &amp; pricing</h2>
+  {menu_html(groups, slug)}
+  {('<p class="menu-note brand-note">'+note+'</p>') if note else ''}
+  <p class="menu-note">Prices are starting points and may vary with length, density, and service time &mdash; your provider confirms an exact quote before beginning. Book online or call <a href="tel:{PHONE_TEL}">{PHONE}</a>.</p>
+</section>
+{faq_html(faq)}
+"""
+    return dict(path=slug,nav=nav,service=service,title=title,desc=desc,body=body,faq=faq,faq_done=True)
+
+REVIEWS = [
+ ("This was my first visit to Omorfia for a massage, and I couldn&rsquo;t have asked for a better experience. Debbie was absolutely amazing from start to finish. Her hands are truly magical &mdash; every touch was both deeply therapeutic and incredibly relaxing.","Massage &middot; Google review"),
+ ("Christie was fabulous &mdash; she listened to me and my hair was done exactly like I wanted. She also did my pedicure and that was excellent as well. It is such a welcoming, lovely salon.","Hair &amp; Nails &middot; Google review"),
+ ("My mom and I went today and both got pedicures from Christie and Patsy! They&rsquo;re amazing and we left feeling like celebrities! They took their time and I&rsquo;ve never been happier. Will definitely be back again!","Pedicures &middot; Google review"),
+ ("She is incredibly professional, attentive, and truly skilled at what she does. Her massages are not only relaxing but also therapeutic &mdash; she knows exactly how to target areas of tension and provide lasting relief.","Massage with Debbie &middot; Google review"),
+ ("Where do I start? Omorfia Spa is a hidden gem that I&rsquo;m so excited I found. I couldn&rsquo;t believe they were open on a SUNDAY for an appointment! I was able to book online without a problem and was greeted by Debby when I arrived&hellip; She has incorporated the use of crystals with my deep tissue body work and the difference with my mind and body being grounding is noticeable. The massage room is huge with ambiance that is perfect for peace.","Cassandra T. &middot; Google Review"),
+ ("I&rsquo;ve been going to Christie at Omorfia Beauty regularly for my cut and color, and she is absolutely great! She consistently delivers perfect results, listens to exactly what I want, and makes every visit wonderful. Highly recommend!","A. Hopkins &middot; Google Review"),
+ ("Georgia and Nevaeh were great! They took me in as a walk in and Georgia did a beautiful job!","Paige I. &middot; Google Review"),
+ ("My full body massage with Debbie today was both therapeutic and relaxing at the same time. She targeted my tight muscles with great skill and left me feeling completely refreshed. I highly recommend a session with her.","Google Review &middot; Massage"),
+ ("I really appreciate OMORFIA! Sandy does a great pedicure and mani &mdash; my smoky lavender pedicure looks so summery! Georgia is a delightful hair expert. I had my waist length hair blown out for a special date night. My hair has never looked and felt so lush&hellip; They are so welcoming and attentive upon arrival and departure.","Mia M. &middot; Google Review"),
+ ("I get nail services done and it&rsquo;s amazing! I recently joined the monthly membership and it&rsquo;s great. Highly recommend! Sandy is the best!","Jacqueline C. &middot; Google Review"),
+ ("Patsy is absolutely the best for your eyebrows. She will take care of them like they are her own!!!! I haven&rsquo;t had eyebrows in years and I have to tell you how much I love them. I actually cried when I looked in the mirror!!!! I had my doubts. I was scared, but I&rsquo;m so glad I went. Thank you, Patsy.","Debbie S. &middot; Google Review"),
+ ("What a beautiful experience. This was my first hot stone combo massage and it was incredible&hellip; Between the stones and Debbie&rsquo;s skill, I felt my muscles relaxing and elongating. Debbie is very in tune and intuitive and this was absolutely one of my favorite massage experiences. My body feels soft and relaxed, but also energized. Highly recommend!","Google Review &middot; Hot Stone Massage"),
+ ("Got a curly cut from Hailey! Excellent job, very efficient, awesome shape and provided some education on how to maintain my hair&rsquo;s health!","Quelania J. &middot; Google Review"),
+ ("I go to Erin here for my touch ups and color services. She&rsquo;s always going above and beyond to make sure I leave happy :) she&rsquo;s so trendy and chic! I can truly say that every time I go here, I leave with my expectations blown out of the water. Erin truly knows my hair by now too and that makes me so comfortable knowing she gets me.","Mitchie &middot; Google Review"),
+ ("Erin was my hair stylist, and she was so kind and sweet. We chatted throughout the appointment and I had a lot of fun with her. My hair turned out so great, I&rsquo;m so happy with it! If you come to Omorfia, I hope you&rsquo;re lucky enough to get Erin as your hair stylist.","Kristina L. &middot; Google Review"),
+ ("Wonderful massage by Debbie who is very experienced. Has a 90 minute deep tissue. Staff is very friendly and they offer a lot of other services. I will be back!!","Google Review &middot; Deep Tissue Massage")
+]
+def review_cards(rs):
+    slides = "".join(
+      f'<figure class="rvl">'
+      f'<div class="rvl-stars" aria-label="Rated 5 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'
+      f'<blockquote>&ldquo;{t}&rdquo;</blockquote>'
+      f'<hr class="rvl-rule">'
+      f'<figcaption>{w}</figcaption></figure>'
+      for t,w in rs)
+    return ('<div class="rvl-wrap">'
+      '<div class="rvl-scroll">'+slides+'</div>'
+      '</div>'
+      """<script>
+(function(){
+  document.querySelectorAll('.rvl-wrap').forEach(function(w){
+    if(w.dataset.rvl)return; w.dataset.rvl='1';
+    var sc=w.querySelector('.rvl-scroll');
+    var n=sc.children.length; if(n<2)return;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var i=0,paused=false;
+    sc.addEventListener('pointerenter',function(){paused=true;});
+    sc.addEventListener('pointerleave',function(){paused=false;});
+    sc.addEventListener('touchstart',function(){paused=true;},{passive:true});
+    sc.addEventListener('touchend',function(){setTimeout(function(){paused=false;},9000);},{passive:true});
+    sc.addEventListener('scroll',function(){var w2=sc.clientWidth||1;i=Math.round(sc.scrollLeft/w2);},{passive:true});
+    setInterval(function(){
+      if(paused||document.hidden)return;
+      i=(i+1)%n;
+      sc.scrollTo({left:i*sc.clientWidth,behavior:'smooth'});
+    },6000);
+  });
+})();
+</script>""")
+
+PAGES=[]
+
+# ---------------------------------------------------------------- home
+PAGES.append(dict(path="",nav="Home",
+ title="Day Spa in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ desc="Omorfia is a full-service salon and day spa in Poughkeepsie, NY — hair, nails, massage, facials, tanning, makeup and bridal. Open 7 days a week, including Sundays. Book online or call (845) 694-4952.",
+ body=f"""
+<section class="hero">
+  <div class="hero-slides-layer" id="heroSlides" aria-hidden="true"></div>
+  <div class="hero-veil" aria-hidden="true"></div>
+  <p class="hero-def"><em>omorfi&aacute;</em> &mdash; Greek, &ldquo;beauty&rdquo;</p>
+  <h1 class="hero-brand">OMORFIA</h1>
+  <div class="rule" aria-hidden="true"></div>
+  <p class="hero-sub">Salon &amp; Day Spa &nbsp;&middot;&nbsp; Poughkeepsie, New York</p>
+  <p class="hero-tag">Where Beauty Meets Relaxation</p>
+  <p class="hero-open">Open 7 Days a Week &middot; <span class="hero-star">&#9733;</span> 4.9 on Google</p>
+  <div class="primary-row"><a class="btn btn-primary" href="{{book}}">Book Appointment</a></div>
+  <div class="secondary-row">
+    <a class="btn-link" href="/packages/">Spa Packages</a><span class="dot">&middot;</span>
+    <a class="btn-link" href="#services">Explore Services</a><span class="dot">&middot;</span>
+    <a class="btn-link" href="/gift-cards/">Gift Cards</a>
+  </div>
+</section>
+<div class="offer-pop" id="offerPop" role="dialog" aria-modal="true" aria-label="First-time guest offer" hidden>
+  <div class="op-backdrop" data-close></div>
+  <div class="op-card">
+    <button class="op-x" data-close aria-label="Close">&times;</button>
+    <div class="op-top">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="8" width="18" height="4"/><rect x="5" y="12" width="14" height="9"/><line x1="12" y1="8" x2="12" y2="21"/><path d="M12 8c-2.5 0-4.5-1.2-4.5-2.8C7.5 3.9 8.6 3 9.9 3c1.7 0 2.1 2.4 2.1 5zm0 0c2.5 0 4.5-1.2 4.5-2.8C16.5 3.9 15.4 3 14.1 3 12.4 3 12 5.4 12 8z"/></svg>
+      <p class="op-eyebrow">First-Time Guest Offer</p>
+      <p class="op-big">$30 OFF</p>
+      <p class="op-sub">your first service over $100</p>
+    </div>
+    <div class="op-bottom">
+      <p>Book a first service of $100 or more and mention this offer at checkout &mdash; $30 off, no strings attached.</p>
+      <a class="btn btn-primary op-cta" href="{{book}}">Book My First Visit</a>
+      <button class="op-no" data-close>No thanks</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){{
+  var pop=document.getElementById('offerPop');if(!pop)return;
+  var KEY='omorfiaOfferSeen';
+  function seen(){{try{{return sessionStorage.getItem(KEY)==='1';}}catch(e){{return false;}}}}
+  function mark(){{try{{sessionStorage.setItem(KEY,'1');}}catch(e){{}}}}
+  function close(){{pop.hidden=true;document.documentElement.classList.remove('op-lock');mark();}}
+  if(seen())return;
+  setTimeout(function(){{pop.hidden=false;document.documentElement.classList.add('op-lock');}},1400);
+  pop.addEventListener('click',function(e){{if(e.target.closest('[data-close]'))close();}});
+  document.addEventListener('keydown',function(e){{if(e.key==='Escape'&&!pop.hidden)close();}});
+}})();
+</script>
+<script>
+(function(){{
+  var imgs=["/images/slides/s01.jpg","/images/slides/s02.jpg","/images/slides/s03.jpg","/images/slides/s04.jpg","/images/slides/s05.jpg","/images/slides/s06.jpg","/images/slides/s07.jpg","/images/slides/s08.jpg","/images/slides/s09.jpg","/images/slides/s10.jpg","/images/slides/s11.jpg","/images/slides/s12.jpg","/images/slides/s13.jpg","/images/slides/s14.jpg","/images/slides/s15.jpg","/images/slides/s16.jpg","/images/slides/s17.jpg","/images/slides/s18.jpg","/images/slides/s19.jpg","/images/slides/s20.jpg"];
+  for(var i=imgs.length-1;i>0;i--){{var j=Math.floor(Math.random()*(i+1));var t=imgs[i];imgs[i]=imgs[j];imgs[j]=t;}}
+  var wrap=document.getElementById('heroSlides');if(!wrap)return;
+  var a=document.createElement('div'),b=document.createElement('div');
+  a.className='hslide on';b.className='hslide';
+  wrap.appendChild(a);wrap.appendChild(b);
+  a.style.backgroundImage="url('"+imgs[0]+"')";
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var idx=0,front=a,back=b;
+  setInterval(function(){{
+    idx=(idx+1)%imgs.length;
+    var im=new Image();
+    im.onload=function(){{
+      back.style.backgroundImage="url('"+imgs[idx]+"')";
+      back.classList.add('on');front.classList.remove('on');
+      var t=front;front=back;back=t;
+    }};
+    im.src=imgs[idx];
+  }},5200);
+}})();
+</script>
+<section class="wrap welcome">
+  <p class="eyebrow">Welcome</p>
+  <h2>The Hudson Valley&rsquo;s full-service salon &amp; day spa</h2>
+  <p class="lead">We&rsquo;re glad you&rsquo;re here. From precision cuts, dimensional color and bridal beauty to massage, facials, nails and a sunless glow, Omorfia brings every service under one roof in Poughkeepsie &mdash; delivered by hand-picked providers with a thoughtful approach to every guest.</p>
+  <div class="welcome-ctas">
+    <a class="btn btn-outline" href="#services">Explore Services</a>
+    <a class="btn btn-outline" href="/specials/">New Guest Offer</a>
+    <a class="btn btn-outline" href="/gift-cards/">Gift Cards</a>
+  </div>
+</section>
+<section class="photo-grid-sec" id="services">
+  <div class="wrap-wide">
+    <p class="eyebrow">Salon &amp; Spa</p>
+    <h2>Everything under one appointment</h2>
+    <div class="pgrid">
+      <a class="pcard" href="/hair/"><span class="pimg" style="background-image:url('/images/home-hair.jpg')"></span><span class="pc-n">Hair</span><span class="pc-d">Cuts, color, balayage &amp; blowouts</span></a>
+      <a class="pcard" href="/nails/"><span class="pimg" style="background-image:url('/images/home-nails.jpg')"></span><span class="pc-n">Nails</span><span class="pc-d">Manicures, pedicures &amp; gel</span></a>
+      <a class="pcard" href="/massage/"><span class="pimg" style="background-image:url('/images/home-massage.jpg')"></span><span class="pc-n">Massage</span><span class="pc-d">Swedish, deep tissue &amp; couples</span></a>
+      <a class="pcard" href="/facials/"><span class="pimg" style="background-image:url('/images/home-facials.jpg')"></span><span class="pc-n">Facials</span><span class="pc-d">Esthetics, peels &amp; skin care</span></a>
+      <a class="pcard" href="/tanning/"><span class="pimg" style="background-image:url('/images/home-tanning.jpg')"></span><span class="pc-n">Tanning</span><span class="pc-d">A natural sunless glow</span></a>
+      <a class="pcard" href="/makeup/"><span class="pimg" style="background-image:url('{IMG["makeup"]}')"></span><span class="pc-n">Makeup</span><span class="pc-d">Events, weddings &amp; lessons</span></a>
+    </div>
+  </div>
+</section>
+<section class="feature" style="background-image:linear-gradient(rgba(11,11,11,.62),rgba(11,11,11,.62)),url('/images/slides/s08.jpg')">
+  <div class="feat-inner">
+    <p class="eyebrow inv">Beauty, wellness &amp; expertise under one roof</p>
+    <h2>A day spa, not a chain</h2>
+    <p>Locally owned and operated on Dutchess Turnpike, Omorfia was built to be a safe, warm space where Poughkeepsie comes to slow down &mdash; hand-picked providers, deliberate product lines, and a front desk that knows your name by the second visit. And we&rsquo;re open seven days a week &mdash; because your schedule doesn&rsquo;t take Sundays off.</p>
+    <a class="btn btn-primary" href="/about/">Our Story</a>
+  </div>
+</section>
+<section class="wrap reviews-sec">
+  <p class="eyebrow">Loved by the Hudson Valley</p>
+  <h2>What guests say</h2>
+  {review_cards(REVIEWS)}
+  <p class="center"><a class="btn-link" href="/reviews/">Read more reviews &rarr;</a></p>
+</section>
+<section class="wrap split">
+  <div>
+    <p class="eyebrow">Make it a ritual</p>
+    <h2>Memberships</h2>
+    <p>A membership banks your favorite service every month at member pricing. It&rsquo;s the difference between treating yourself once and actually taking care of yourself.</p>
+    <p><a class="btn-link" href="/memberships/">See memberships &rarr;</a></p>
+  </div>
+  <div>
+    <p class="eyebrow">Design your day</p>
+    <h2>Spa packages</h2>
+    <p>Bundle massage, facial, nails and hair into one appointment at a saving over &agrave; la carte &mdash; arrive once, hand over your afternoon, leave new.</p>
+    <p><a class="btn-link" href="/packages/">See packages &rarr;</a></p>
+  </div>
+</section>
+<section class="gift-band">
+  <div class="wrap gift-inner">
+    <div>
+      <p class="eyebrow">The easiest gift in the Hudson Valley</p>
+      <h2>Give an Omorfia day</h2>
+      <p>Gift cards work across every service &mdash; hair, spa, packages, all of it.</p>
+    </div>
+    <a class="btn btn-primary" href="/gift-cards/">Gift Cards</a>
+  </div>
+</section>
+<section class="wrap visit">
+  <p class="eyebrow">Visit us</p>
+  <h2>751 Dutchess Turnpike, Poughkeepsie</h2>
+  <p class="lead">Open seven days a week &mdash; yes, Sundays too &mdash; until 8 PM weeknights, 10 PM Friday through Sunday &middot; <a href="tel:{{tel}}">{{phone}}</a> &middot; <a class="btn-link" href="/contact/">Directions &amp; contact &rarr;</a></p>
+</section>
+""",
+ faq=[("Are you open on Sundays?","Yes — Omorfia is open seven days a week, including Sundays and evenings, so a massage, facial or blowout fits around your week instead of the other way around."),
+      ("Where is Omorfia Salon & Day Spa located?","We're at 751 Dutchess Turnpike (Route 44), Poughkeepsie, NY 12603 — the former Marlene Weber building, the grey and white building sharing a parking lot with Adams Fairacre Farms, minutes from Arlington and Vassar College."),
+      ("Do I need an appointment?","Booking online is the best way to guarantee your time and provider, but call the front desk at (845) 694-4952 and we'll fit you in whenever we can."),
+      ("Can I book multiple services in one visit?","Yes — that's the point of a day spa. Stack hair, nails, massage and a facial into one appointment, or let us design the day for you with a package.")]))
+
+# ---------------------------------------------------------------- services
+PAGES.append(service_page("hair","Hair","Hair Salon",
+ "Hair Salon in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ "Haircuts, color, balayage, extensions and treatments with full pricing at Omorfia, a full-service hair salon in Poughkeepsie, NY.",
+ "A hair salon that listens.",
+ "Cuts that fall into place, color that reads expensive, and stylists who ask questions before they pick up the shears. Full menu and pricing below.",
+ [("Cuts & Styling",[
+   ("Haircut Consultation","Complimentary","Talk through the change before the shears come out."),
+   ("Women&rsquo;s Cut","$70+","Precision cut for your length and texture, finished with a styled blowout.","$50/month club &mdash; a cut every month"),
+   ("Men&rsquo;s Cut","$55+","Clean, tailored cut &mdash; clippers, shears, or both.","$40/month club &mdash; a cut every month"),
+   ("Kids Cut (12 &amp; Under)","$40+","Gentle, patient cuts for our youngest guests."),
+   ("Bang Trim","$30+","A quick tune-up between full cuts."),
+   ("Wash &amp; Blow Dry","$60+","Shampoo, condition, and a polished blowout.","$30 per blowout &middot; $120/mo for 4"),
+   ("Blow Dry Add-On","$25+","Add a finished blowout to any service."),
+   ("Hot Tool Finish","$30+","Curls or waves set with a hot tool."),
+   ("Flat Iron / Curls","$30+","Sleek and straight, or soft and curled."),
+   ("Braiding","$60+","From one statement braid to a fully braided style."),
+   ("Half Up / Half Down","$70+","Polished event styling with movement left in."),
+   ("Updo","$115+","Full formal styling for weddings, proms, and galas.")]),
+  ("Color",[
+   ("Color Retouch (Roots)","$100+","Refresh regrowth to match your existing color.","$90/month club &mdash; a root retouch every month"),
+   ("All Over Color","$130+","Single-process color from roots to ends."),
+   ("Semi-Permanent Color","$95+","Gentle shine and tone that fades gracefully."),
+   ("Toner / Glaze","$45+","Neutralize brass and add gloss between services."),
+   ("Root Smudge","$35+","Soften the line between roots and color."),
+   ("Vivid Hair Consultation","Complimentary","Plan the path to fashion shades before you commit."),
+   ("Vivid Color","$200+","Bold fashion shades, applied for staying power."),
+   ("Extra Bowl of Color","$35+","For longer, denser hair that needs more product."),
+   ("Per Foil","$12+","Add individual foils to any color service.")]),
+  ("Highlights & Balayage",[
+   ("Face Framing Highlight","$80+","Brightness right where it catches the light."),
+   ("Partial Highlight","$180+","Foiled dimension through the top and crown."),
+   ("Full Highlight","$220+","All-over foiled dimension, root to ends."),
+   ("Baby Lights","$200+","Ultra-fine foils for a sun-kissed, natural finish."),
+   ("Balayage Consultation","Complimentary","Map placement and tone before your appointment."),
+   ("Partial Balayage","$200+","Hand-painted dimension through the top layers."),
+   ("Full Balayage","$320+","Full hand-painted, lived-in color.")]),
+  ("Texture & Smoothing",[
+   ("Perm","$125+","Lasting curl and body, tailored to your length."),
+   ("Keratin Consultation","Complimentary","Find the right smoothing treatment for your hair."),
+   ("Keratin Smoothing Treatment (30-Day)","$150+","A frizz-taming reset that lasts about a month."),
+   ("Keratin Relaxing Treatment (4-Month)","$350+","Deep smoothing that holds for a season."),
+   ("Magic Sleek Treatment","$300+","Salon-grade straightening system for lasting sleekness."),
+   ("B Blowout","$250+","Professional smoothing blowout for long-wear frizz control.")]),
+  ("Treatments",[
+   ("Scalp Treatment","$35+","Exfoliate and rebalance where healthy hair starts."),
+   ("Conditioning Treatment","$40+","Deep moisture for dry, thirsty hair."),
+   ("Deep Conditioning Mask","$50+","An intensive mask for serious repair."),
+   ("Olaplex Hair Treatment","$50+","Bond-rebuilding repair for color-treated hair."),
+   ("Aveda Hot Oil Treatment","$50+","Warm botanical oils for shine and softness."),
+   ("Kerasilk Recovery Mask","$50+","Luxury smoothing mask for stressed strands."),
+   ("Amika Soul Food Mask","$30+","Nourishing moisture mask with a cult following."),
+   ("Amika Anti-Frizz Treatment","$20+","A quick humidity shield for smoother wear."),
+   ("Rich Repair Serum","$25+","Concentrated repair for damaged lengths."),
+   ("Blondes &amp; Highlights Serum","$25+","Tone-protecting care made for lightened hair."),
+   ("Color Protecting Serum","$25+","Seal and extend the life of your color."),
+   ("60 SEC Bond Pro Mask","$25+","One-minute bond repair added to any visit."),
+   ("Malibu C Headlab","$25+","Wellness treatment that lifts mineral buildup."),
+   ("L&rsquo;Oreal Prolonger","$15+","An in-salon boost that extends your style&rsquo;s wear."),
+   ("Charity Tinsel","$10+","Sparkle strands &mdash; proceeds go to charity.")]),
+  ("Extensions",[
+   ("Extension Consultation","Complimentary","Match method, length, and color to your goals."),
+   ("K-Tip Extensions","$175+","Keratin-bonded strands for seamless length."),
+   ("I-Tip Extensions","$150+","Bead-set strands &mdash; no heat, no glue."),
+   ("Tape-In Extensions","$125+","Fast, flat, comfortable panels of length."),
+   ("Weft Extensions","$300+","A full sewn-in row for maximum fullness."),
+   ("Extension Blowdry","$70+","A blowout styled around your extensions."),
+   ("Extension Removal","$100+","Safe removal that protects your natural hair.")]),
+  ("Head Spa",[
+   ("Japanese Head Spa Conditioning Treatment (60 Min)","$150+","A meditative scalp ritual &mdash; cleanse, massage, and condition."),
+   ("Japanese Head Spa Facial Treatment (60 Min)","$150+","The head spa ritual, paired with facial care."),
+   ("Express Japanese Head Spa","$75+","The signature ritual, condensed.")])],
+ [("How do I choose a stylist?","Tell us what you're looking for when you book — the front desk matches new guests with the stylist whose strengths fit the service."),
+  ("Why are some prices 'starting points'?","Length, density and color history change how much product and time a service takes; your stylist confirms the exact quote before starting."),
+  ("Do you do consultations?","Yes — haircut, balayage, vivid, keratin and extension consultations are all complimentary.")],IMG["hair"]))
+
+PAGES.append(service_page("nails","Nails","Nail Salon",
+ "Nail Salon in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ "Manicures, pedicures, gel, acrylic and dip with full pricing at Omorfia, the nail studio inside Poughkeepsie's full-service day spa.",
+ "Clean, calm, meticulous nails.",
+ "Spa standards in a nail studio: hospital-grade sanitation, unhurried appointments, and a full menu below.",
+ [("Manicures & Pedicures",[
+   ("Nail Groom","$20","Shape, buff, and cuticle care &mdash; no polish."),
+   ("Regular Manicure","$30","Classic shape, cuticle work, and polish.","$25"),
+   ("Regular Pedicure","$45","Soak, shape, callus care, and polish.","$25"),
+   ("Spa Manicure","$45","The classic, elevated with exfoliation and massage."),
+   ("Spa Pedicure","$65","Extended soak, scrub, mask, and massage."),
+   ("Luxury Manicure","$50","Our most indulgent hand ritual."),
+   ("Luxury Pedicure","$70","The full throne experience, top to toe.")]),
+  ("Gel",[
+   ("Gel Manicure","$45","Chip-resistant color cured to a two-week shine."),
+   ("Gel Pedicure","$50","Long-wear gel color for sandal-proof toes."),
+   ("Luxury Gel Manicure","$60","Gel wear with the full spa treatment."),
+   ("Luxury Gel Pedicure","$80","Our richest pedicure, finished in gel."),
+   ("New Set Gel X","$75","Full-coverage soft-gel extensions &mdash; light and natural."),
+   ("New UV Gel Set","$85","Sculpted UV gel extensions built to last."),
+   ("Fill UV Gel Set","$65","Maintenance fill for your UV gel set."),
+   ("Gel Soak-Off","$20","Gentle removal that protects the natural nail.")]),
+  ("Acrylic & Dip",[
+   ("New Set Acrylic","$75","Classic sculpted length and strength."),
+   ("Acrylic Fill-In","$70","Keep your set fresh as it grows out."),
+   ("Dip Powder","$55","Lightweight, durable color without UV curing.")]),
+  ("Finishing Touches",[
+   ("French Add-On","$7","The classic white tip on any service."),
+   ("Gel French Add-On","$10","A crisp French finish in long-wear gel.")])],
+ [("How do you sanitize tools?","Implements are sterilized between every guest and single-use items are exactly that — single use."),
+  ("How long does gel last?","Two to three weeks for most guests, depending on your nails and how you use your hands."),
+  ("Can I pair nails with another service?","Absolutely — nails and a massage or facial is the most common pairing on our books.")],IMG["nails"]))
+
+PAGES.append(service_page("massage","Massage","Massage Therapy",
+ "Massage in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ "60, 90 and 120 minute massage at Omorfia Day Spa in Poughkeepsie, NY — pay for time, choose Swedish, deep tissue or hot stone when you arrive. Pre-natal and Reiki available.",
+ "Massage that melts the week off.",
+ "Licensed massage therapists, quiet rooms, and sessions that never feel rushed. <strong>You pay for time, not type</strong> &mdash; book 60, 90 or 120 minutes, then choose Swedish, deep tissue, hot stone or a blend with your therapist when you arrive.",
+ [("Massage &middot; Choose your style when you arrive",[
+   ("60 Minute Massage","$135","The classic hour &mdash; any style, chosen when you arrive.","$100","The classic hour. You book the time and choose the style with your therapist when you arrive &mdash; Swedish for a full-body reset, deep tissue for stubborn knots, or a blend of both. No decisions required in advance; just come in."),
+   ("90 Minute Massage","$195","Full body plus real time on problem areas &mdash; any style, chosen when you arrive.","$160","Ninety minutes gives your therapist real time on problem areas without shortchanging the rest of you. Swedish, deep tissue, or a blend &mdash; decided together when you arrive. You pay for the time, not the type."),
+   ("120 Minute Massage","$270","Two unhurried hours, head to toe &mdash; any style, chosen when you arrive.","$235","Two unhurried hours, head to toe. Any style, any combination, chosen with your therapist when you arrive &mdash; the full reset for anyone who never gets enough. You pay for the time, not the type."),
+   ("Pre-Natal Massage","$140","Safe, supported comfort for moms-to-be.")]),
+  ("Enhancements",[
+   ("Hot Stones","$30","Add heated stones to any massage."),
+   ("Amethyst Crystals","$30","Crystal-enhanced session for deeper calm."),
+   ("Reiki Energy Work","$30","Add energy balancing to your massage."),
+   ("Aromatherapy","$10","Essential oils chosen for your session.")]),
+  ("Reiki",[
+   ("Reiki Service","$125","A full energy-balancing session with a practitioner.")])],
+ [("How should I prepare for a massage?","Arrive a few minutes early, hydrate, and tell your therapist about problem areas and pressure preference — then let them work."),
+  ("Do I need to choose Swedish or deep tissue when I book?","No — you book the time, not the type. Choose Swedish, deep tissue, hot stone or a blend with your therapist when you arrive, and change your mind on the table if you like. Same price for any style."),
+  ("Which length should I book?","60 minutes handles full-body maintenance; 90 gives real focus time on problem areas; 120 is the full reset. Whatever you pick, the style is chosen when you're here."),
+  ("Can I get a massage on a Sunday?","Yes — we're open seven days a week, Sundays included, and Sunday massages are a guest favorite. Book online to lock in your time."),
+  ("Do you offer gift cards?","Yes — massage is our most-gifted service. Grab one on our gift cards page or at the front desk.")],IMG["massage"]))
+
+PAGES.append(service_page("facials","Facials","Facials & Esthetics",
+ "Facials & Waxing in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ "Customized facials, advanced treatments and waxing with full pricing at Omorfia Day Spa in Poughkeepsie, NY.",
+ "Skin care with a plan.",
+ "Every facial starts with a skin analysis and ends with a plan you can follow at home. Facials, advanced treatments and waxing — full menu below.",
+ [("Facials",[
+   ("Skincare Consultation","Complimentary","Analyze your skin and map the plan."),
+   ("European Facial","$135","A luxurious tailored treatment that deeply cleanses, re-balances, and hydrates your skin.","$100","Treat yourself to the ultimate all-in-one skincare indulgence. A timeless skincare essential, this customized treatment is tailored to address your skin&rsquo;s unique needs &mdash; meticulously designed to purify, balance, and hydrate. It begins with a deep cleanse using the T-Zone Balance Cleansing Complex, effectively removing impurities while maintaining skin&rsquo;s natural moisture. A gentle exfoliation follows with the aromatic Honey and Almond Scrub, a natural blend of pure honey, oatmeal, and almond meal, to refine skin texture and promote a smooth, glowing complexion. Unwind with a signature European facial massage performed with Aqua Massage Cream, enhancing circulation and relaxation and preparing your skin for optimal absorption of nutrients. The Balancing Hydrating Mask, enriched with St. John&rsquo;s Wort, Green Tea, and White Tea, soothes and revitalizes, restoring equilibrium to your skin. A customized moisturizer finishes the treatment, leaving skin toned, hydrated, and glowing."),
+   ("Anti-Aging Cellusea Massage / Facial","$160","Marine-based firming facial with sculpting massage."),
+   ("Redout Facial","$185","A soothing treatment that reduces redness, strengthens the skin barrier, and restores balance.",None,"Discover the ultimate in skin-soothing luxury with this plastic surgeon-approved, clinically tested facial. The treatment harnesses nature&rsquo;s finest ingredients, including Laminaria digitata seaweed, ultra-hydrating hyaluronic acid, and powerful antioxidants like quercetin and rutin, alongside the soothing Mirabilis Jalapa extract. The Red-Out&reg; Facial begins with a gentle cleanse, followed by Red-Out&reg; Soothing Essence Mist to prep and awaken the skin. Next, the powerful Red-Out&reg; Serum is applied and massaged in, hydrating and temporarily reducing the appearance of redness and dryness. An intensive calming mask visibly soothes, while Eye Rescue Pads provide an indulgent eye contour treatment designed to reduce puffiness. Another splash of Soothing Essence Mist and a final application of Red-Out&reg; Soothing Moisturizer complete this rejuvenating treatment, leaving skin refreshed and radiant. Experience the ultimate sanctuary for sensitive skin."),
+   ("Biolight Facial","$200","Gently resurfaces, refines and revitalizes &mdash; diminishing the look of dark spots and discoloration.",None,"Experience the miracle of flawless, luminous skin through the Rep&ecirc;chage&reg; Biolight&reg; Miracle Facial, a breakthrough treatment that helps fade the look of dark spots, evens skin tone, and restores brilliance without compromising delicate skin. Powered by Laminaria digitata seaweed, this facial enriches skin with essential nutrients, while the Glyco-Sea&reg; Glycolic Peel gently resurfaces, smoothing away dullness and imperfections. Brightening agents like Licorice Root Extract and clinically proven Daisy Flower Extract help reduce the look of hyperpigmentation, restoring clarity and an even-toned glow. Gotu Kola (CICA) and Willow Bark Extract soothe and refine, leaving skin perfectly hydrated and balanced. Each step is carefully designed to resurface, hydrate, and illuminate, making way for a complexion that looks flawlessly smooth, youthful, and radiant."),
+   ("Back Facial","$200","The full facial protocol for hard-to-reach skin."),
+   ("Extraction Facial","$235","Thorough, methodical decongestion of the pores."),
+   ("Vita Cura Facial","$250","The ultimate age-defying facial &mdash; enzymatic micropeel, two massages, firming seaweed mask and an instant lift.",None,"Endorsed by plastic surgeons for its remarkable firming and rejuvenating effects, the Vita Cura&reg; 5 Phase Firming Facial is designed to restore youthful vitality to mature skin. This luxurious treatment begins with an Enzymatic Micropeel, infused with Papaya Enzyme and Salicylic Acid, to gently exfoliate and reveal a more even-toned, radiant complexion. Two targeted massages follow, using the Vita Cura&reg; Renewal Serum and Triple Firming Cream, enriched with Laminaria digitata Seaweed Extract, Hyaluronic Acid, Ginkgo Biloba, and Horse Chestnut Extracts, to deeply hydrate and refine skin texture. A cooling Spirulina Seaweed Mask, formulated with bio-mimetic pentapeptide, firms and smooths the skin, visibly reducing fine lines and wrinkles. The final step, Vita Cura&reg; Opti-Lift&reg; Serum, harnesses the power of Acetyl Hexapeptide-8 and Pure Almond Protein Biopolymer, delivering an immediate lifting effect for a sculpted, youthful glow &mdash; the perfect non-invasive alternative for those seeking plastic surgeon-recommended results without downtime. Always wear sun protection for one week after the treatment and avoid sun exposure."),
+   ("Triple Action Cryogenic Facial","$285","Advanced peptides, cooling cryo-therapy and nutrient-rich seaweed to visibly lift and smooth.",None,"Experience next-generation age management with the Triple Action Lift Peptide Cryo Facial, a transformative treatment designed to visibly firm, hydrate, and rejuvenate the skin. This facial begins with a layered application of peptide-enriched serums, followed by two invigorating facial massages that stimulate circulation and enhance absorption. A dual-layer mask system &mdash; combining cryo-cooling technology with marine minerals &mdash; revives the skin&rsquo;s appearance, helping to improve visible tone and support a firmer, more contoured look. Laminaria digitata seaweed and advanced peptides work in synergy to refine skin texture, smooth the look of fine lines, and restore a lifted, radiant glow. Ideal for all skin types seeking a non-invasive yet high-performance treatment, this facial delivers long-lasting hydration and visible rejuvenation."),
+   ("Extraction Hydrogen-Oxygen Facial","$325","Deep extraction plus hydrating oxygen infusion.")]),
+  ("Advanced & Add-On Treatments",[
+   ("Microdermabrasion","$35","Mechanical exfoliation for texture and tone."),
+   ("Glycolic Acid Treatment","$50","Chemical exfoliation for glow and smoothness."),
+   ("Peptide Mask","$50","Firming peptides in a single treatment mask."),
+   ("Rep&ecirc;chage Eye Treatment","$50","Fades dark circles, smooths fine lines and banishes puffiness for a lifted, youthful gaze.",None,"Turn back the clock on tired eyes with the transformative Opti-Firm&reg; Eye Contour Treatment. This professional therapy targets the delicate eye area to diminish dark circles, puffiness, and wrinkles. Harnessing the power of peptides, seaweed extracts, and clinically proven ingredients, it works to firm and smooth the eye contour, restoring a rested and vibrant appearance. Let your eyes reflect newfound vitality as they appear more lifted, luminous, and refreshed."),
+   ("Exfoliating Lip Treatment","$10","Smooth, conditioned lips in minutes."),
+   ("Red Light Therapy","$20","LED light to support collagen and calm."),
+   ("High Frequency Acne Treatment","$20","Targeted current to help clear breakouts.")]),
+  ("Waxing",[
+   ("Brow Wax","$30","Shape and define the arch.","$22/month club &mdash; a brow wax every month"),
+   ("Lip Wax","$21","Quick, clean upper-lip removal."),
+   ("Full Face Wax","$60","Brow, lip, chin, and cheeks in one visit."),
+   ("Neck Wax","$23","Clean up the neckline."),
+   ("Underarm Wax","$37","Smooth results that outlast shaving."),
+   ("Half Arm Wax","$47","Elbow down, silky smooth."),
+   ("Full Arm Wax","$58","Shoulder to wrist."),
+   ("Chest Wax","$74","Full chest, done properly."),
+   ("Back Wax","$74","Full back, shoulder to waist."),
+   ("Half Leg Wax","$58","Knee down &mdash; the sandal essential."),
+   ("Full Leg Wax","$84","Hip to ankle, completely smooth."),
+   ("Bikini Wax","$50","Clean lines along the bikini edge."),
+   ("French Bikini Wax","$70","Higher and deeper than the classic bikini."),
+   ("Brazilian Wax","$80","Everything, or nearly everything &mdash; your call.")])],
+ [("How often should I get a facial?","Every four to six weeks matches your skin's natural cycle; your esthetician will recommend a cadence for your goals."),
+  ("Will my skin be red afterward?","A signature facial leaves most guests glowing, not red. Stronger treatments can bring brief redness — we'll tell you exactly what to expect before we start."),
+  ("What about medical aesthetics?","For injectables and medical-grade treatments, our sister practice OMO Med Spa has you covered — ask the front desk.")],IMG["facials"],
+ note="We are a proud Rep&ecirc;chage&reg; spa partner using their professional skincare products and treatments for these services. The trademarks used in this menu and all rights thereto belong exclusively to Sarkli-Rep&ecirc;chage, Ltd. All rights reserved."))
+
+PAGES.append(service_page("lashes-brows","Lashes & Brows","Lash Extensions and Brows",
+ "Lash Extensions & Brows in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ "Classic and hybrid lash extensions, lash lifts, tints, brow lamination and microblading with full pricing at Omorfia in Poughkeepsie, NY.",
+ "Wake up ready.",
+ "Lash extensions, lifts and tints that make mascara optional &mdash; and brow work that frames the whole face. Full menu and pricing below.",
+ [("Lash Extensions",[
+   ("Classic Full Set","$150","One extension per lash for everyday definition."),
+   ("Classic 2 Week Fill","$65","Top up your classic set at two weeks."),
+   ("Classic 3 Week Fill","$75","A fuller refresh at the three-week mark."),
+   ("Hybrid Full Set","$190","Classic strands mixed with volume fans."),
+   ("Hybrid 2 Week Fill","$75","Keep your hybrid set dense at two weeks."),
+   ("Hybrid 3 Week Fill","$85","The three-week hybrid refresh."),
+   ("Individual Lashes","$60","Clusters placed exactly where you want impact.")]),
+  ("Lifts & Tints",[
+   ("Lash Lift &amp; Tint","$95","Curl and darken your natural lashes for weeks."),
+   ("Lash Tint","$25","Mascara-dark lashes, zero daily effort."),
+   ("Brow Tint","$25","Richer, fuller-looking brows in minutes."),
+   ("Brow Lamination &amp; Tint","$100","Brushed-up, set-in-place brows with tint.")]),
+  ("Brows",[
+   ("Brow Wax","$30","Shape and define the arch.","$22/month club &mdash; a brow wax every month"),
+   ("Microblading","$450","Hair-stroke brow tattooing for natural fullness."),
+   ("Microblade Fill","$250","Refresh strokes and color on existing work.")])],
+ [("How often do lash extensions need fills?","Every two to three weeks keeps a set full — that's why fills are priced at both marks."),
+  ("Classic or hybrid?","Classic is one extension per natural lash for an everyday look; hybrid mixes in volume fans for noticeably fuller, still-natural lashes."),
+  ("How long does microblading last?","Twelve to eighteen months for most guests, with a fill recommended to keep the strokes crisp.")],IMG["makeup"]))
+
+PAGES.append(service_page("tanning","Tanning","Tanning",
+ "Spray Tanning in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ "Show Stopper sunless glow — upper body $40, full body $80 — at Omorfia Day Spa in Poughkeepsie, NY.",
+ "A glow without the guesswork.",
+ "Even, natural-looking color with none of the orange and none of the streaks &mdash; timed to peak exactly on your event day.",
+ [("Sunless Glow",[
+   ("Show Stopper Upper Body Glow","$40","Face, arms, and shoulders &mdash; camera-ready.","$20/month club &mdash; an upper body glow every month"),
+   ("Show Stopper Full Body Glow","$80","Head-to-toe color, matched to your skin tone.","$40/month club &mdash; a full body glow every month")])],
+ [("When should I tan before an event?","One to two days before is the sweet spot — the color settles and any guide bronzer washes away."),
+  ("How do I make it last?","Exfoliate before your session, then moisturize daily and keep long hot showers to a minimum."),
+  ("Will it look natural?","That's the entire job. We match depth of color to your skin tone so it reads sun, not spray.")],IMG["tanning"]))
+
+PAGES.append(service_page("makeup","Makeup","Makeup Artistry",
+ "Makeup Artist in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ "Professional makeup application, lashes and bridal artistry with pricing at Omorfia Day Spa in Poughkeepsie, NY.",
+ "Makeup for the days that matter.",
+ "Camera-ready artistry for events and photoshoots. For weddings and bridal parties, see our full Wedding &amp; Bridal menu.",
+ [("Makeup Artistry",[
+   ("Traditional Application","$100","Full-face artistry for events and nights out."),
+   ("Strip Lashes","$15","Applied with any makeup service."),
+   ("Lash Clusters","$40","Buildable clusters for tailored drama.")]),
+  ("Bridal",[
+   ("Bridal Trial Makeup","$85","Lock the look before the big day."),
+   ("Full Bridal Menu","See Wedding &amp; Bridal","Hair, makeup, and the whole party &mdash; on one timeline.")])],
+ [("Should I book a trial?","For weddings, always. It locks the look, the timing and the products before the day itself."),
+  ("Do you work with lashes?","Yes — strip lashes and clusters for events, and full lash extensions through our esthetics studio."),
+  ("Can my whole party get ready here?","Yes — hair, makeup and nails for the full party is exactly what a day spa is for. See Wedding & Bridal.")],IMG["makeup"]))
+
+# ---------------------------------------------------------------- wedding
+PAGES.append(dict(path="wedding",nav="Wedding & Bridal",service="Bridal Hair and Makeup",
+ title="Bridal Hair & Makeup in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ desc="Wedding hair, bridal makeup, nails and party services in Poughkeepsie, NY. Trials, timelines and full bridal-party mornings at Omorfia Salon & Day Spa.",
+ body=f"""
+<section class="page-hero has-photo" style="background-image:url('{IMG["wedding"]}')">
+  <div class="ph-inner">
+    <p class="eyebrow">Wedding &amp; Bridal &middot; Hudson Valley</p>
+    <h1>The morning your day begins.</h1>
+    <p class="lead">Hair, makeup and nails for brides and bridal parties &mdash; run on a real timeline, by a team that does this every weekend. One roof, zero chaos, champagne optional.</p>
+    <a class="btn btn-primary" href="{{book}}">Start Your Bridal Booking</a>
+  </div>
+</section>
+<section class="wrap split">
+  <div>
+    <p class="eyebrow">For the bride</p>
+    <h2>Trial first, always</h2>
+    <p>Every bridal booking starts with a trial: we lock the look, the products, and the exact timing before the day itself. On the morning, your only job is to sit still and be celebrated.</p>
+  </div>
+  <div>
+    <p class="eyebrow">For the party</p>
+    <h2>The whole crew, one roof</h2>
+    <p>Bridesmaids, moms, flower girls &mdash; we schedule the full party across our hair, makeup and nail teams so everyone finishes on time and no one is fighting over a hotel mirror.</p>
+  </div>
+</section>
+<section class="wrap">
+  <p class="eyebrow">How it works</p>
+  <h2>Three steps to the aisle</h2>
+  {svc_list([("1. Consult","Tell us the date, the venue, the party size and the vibe — we'll map the morning."),
+             ("2. Trial","Bride's hair and makeup trial, photographed in daylight, refined until it's exactly right."),
+             ("3. The day","A locked timeline, your full party styled in sequence, everyone out the door on schedule.")])}
+  <p class="menu-note">Weekend dates book far in advance &mdash; reach out as soon as you have a date. Call <a href="tel:{{tel}}">{{phone}}</a> or book a consultation online.</p>
+</section>
+<section class="wrap menu-wrap">
+  <p class="eyebrow">Bridal menu</p>
+  <h2>Wedding day pricing</h2>
+  """+menu_html([("The Bride",[
+  ("Bridal Trial Hair &amp; Makeup","$300","The full run-through, refined until it&rsquo;s exactly right."),
+  ("Bridal Hair","$400","The morning-of style, executed on a timeline."),
+  ("Bridal Makeup","$150","Camera-proof artistry that lasts past the last dance."),
+  ("Bridal Lashes","$25","The finishing flutter.")]),
+ ("The Party",[
+  ("Bridal Party Member Hair","$150","Event styling for each member of the party."),
+  ("Bridal Party Makeup","$115","Coordinated looks for the whole crew."),
+  ("Groom Haircut","$55","Sharp and wedding-ready.")]),
+ ("Pre-Wedding Glow",[
+  ("Bridal Express Facial","$80","A pre-wedding glow, timed to the week of."),
+  ("Bridal Facial Wax","$65","Clean, photo-ready definition."),
+  ("Bridal 60-Min Massage","$150","An hour of calm before the chaos."),
+  ("Bridal 90-Min Massage","$200","Ninety minutes, for nerves that need it.")])], "wedding")+"""
+  <p class="menu-note">Party pricing is per person. Your consultation locks the full quote and the morning-of timeline.</p>
+</section>
+""",
+ faq=[("How far in advance should we book?","As soon as you have a date — popular Hudson Valley wedding weekends fill months out, and your trial should happen four to eight weeks before the day."),
+      ("Can you handle large bridal parties?","Yes — with hair, makeup and nail teams under one roof we sequence large parties without the bottleneck of a single traveling artist."),
+      ("Do you offer on-site services?","Ask during your consultation — depending on the date, venue and party size we'll recommend in-salon or discuss on-location options."),
+      ("What about grooms and guests?","Cuts, styling, and a pre-wedding glow-up for anyone in the party — everyone's welcome on the timeline.")],faq_done=False))
+
+# ---------------------------------------------------------------- specials
+PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
+ title="Specials & New Guest Offer | Omorfia Salon & Day Spa, Poughkeepsie NY",
+ desc="New to Omorfia? See our new-guest introductory offer and seasonal specials at Poughkeepsie's full-service salon and day spa.",
+ body="""
+<section class="page-hero">
+  <p class="eyebrow">Specials &middot; New guests</p>
+  <h1>First time? We&rsquo;d love to meet you.</h1>
+  <p class="lead">New guests get <strong>$30 off their first service over $100</strong> &mdash; mention it when you book, or ask the front desk. Seasonal specials rotate throughout the year and land on this page and our Instagram first.</p>
+  <a class="btn btn-primary" href="{book}">Book Your First Visit</a>
+</section>
+<section class="wrap split">
+  <div>
+    <p class="eyebrow">Introductory offer</p>
+    <h2>Your first visit, welcomed</h2>
+    <p><strong>$30 off any first service of $100 or more.</strong> It&rsquo;s our way of making the first appointment an easy yes. One per guest, on your first visit &mdash; mention it when you book.</p>
+  </div>
+  <div>
+    <p class="eyebrow">Seasonal</p>
+    <h2>Current specials</h2>
+    <p>Back-to-school, holiday and seasonal specials are posted here and on <a href="https://www.instagram.com/omorfiadayspa/" rel="noopener">Instagram</a> as they run. Follow along or ask the front desk what&rsquo;s on this month.</p>
+  </div>
+</section>
+""",
+ faq=[("Who counts as a new guest?","Anyone visiting Omorfia for the first time — welcome!"),
+      ("Can I combine specials?","One offer per visit; the front desk will always apply whichever saves you the most."),
+      ("How do I hear about specials first?","Follow us on Instagram — seasonal offers post there the day they launch.")]))
+
+# ---------------------------------------------------------------- gift cards
+PAGES.append(dict(path="gift-cards",nav="Gift Cards",service="Gift Cards",
+ title="Gift Cards | Omorfia Salon & Day Spa, Poughkeepsie NY",
+ desc="Give the gift of a spa day in Poughkeepsie, NY. Omorfia gift cards work across every service — hair, massage, facials, nails and packages.",
+ body="""
+<section class="page-hero">
+  <p class="eyebrow">Gift cards</p>
+  <h1>The gift nobody returns.</h1>
+  <p class="lead">An Omorfia gift card works across everything we do &mdash; a massage, a color appointment, a full spa-day package, or simply a card loaded with an amount and left to their imagination.</p>
+  <a class="btn btn-primary" href="{gift}">Buy a Gift Card</a>
+</section>
+<section class="wrap split">
+  <div>
+    <p class="eyebrow">Online</p>
+    <h2>Buy in a minute</h2>
+    <p>Purchase online and it&rsquo;s delivered by email &mdash; perfect for the birthday you remembered at 11 PM. Any amount, redeemable across all services.</p>
+  </div>
+  <div>
+    <p class="eyebrow">In person</p>
+    <h2>Or from the front desk</h2>
+    <p>Prefer a physical card in an envelope? Stop by 751 Dutchess Turnpike or call <a href="tel:{tel}">{phone}</a> and we&rsquo;ll have it ready for pickup.</p>
+  </div>
+</section>
+""",
+ faq=[("Do gift cards expire?","Ask the front desk for current terms — we keep them as generous as New York law allows."),
+      ("Can a gift card be used on packages?","Yes — gift cards apply to any service, package or product we offer."),
+      ("Can I gift a specific service?","Absolutely — tell us the service (a couples massage is the crowd favorite) and we'll load the card to match.")]))
+
+
+# ---------------------------------------------------------------- team
+TEAM_GROUPS = [
+ ("mgmt","Management",[
+   ("Georgia Kyriacou","Founder of Omorfia Day Spa &amp; Lead Stylist","georgia.jpg",
+    "Georgia founded Omorfia to build the salon she always wanted to work in &mdash; and she still spends her days behind the chair as lead stylist, setting the standard for the whole room."),
+   ("Stavros Kyriacou","Owner of Kyriacou Beauty Group","stavros.jpg",
+    "Stavros leads Kyriacou Beauty Group, the family behind Omorfia, OMO Med Spa, and Kyriacou Cosmetics. At Omorfia he minds the guest experience &mdash; the details you feel but never see."),
+ ]),
+ ("sty","Stylists",[
+   ("Lindy Wilkinson","Master Stylist, Colorist &amp; Owner of The Mane Event Salon",None,
+    "A master stylist and colorist who also owns The Mane Event Salon &mdash; the kind of veteran hands guests request by name."),
+   ("Hugo Lutin","Master Stylist &amp; Colorist","hugo.jpg",
+    "Master-level cutting and color &mdash; Hugo is the calm, exacting presence guests trust with their biggest changes."),
+   ("Christie Russell","Senior Stylist &amp; Colorist","christie.jpg",
+    "Christie listens first, then delivers exactly the hair you described &mdash; guests say so by name in our Google reviews."),
+   ("Patsy Estrada","Senior Stylist, Colorist, Lash Tech &amp; Makeup Artist","patsy.jpg",
+    "Stylist, colorist, lash tech and makeup artist &mdash; Patsy is the one to book when the whole look has to come together."),
+   ("Hailey Reed","Senior Stylist &amp; Colorist",None,
+    "Senior stylist and colorist with an eye for wearable, modern color."),
+   ("Katie Obrein","Senior Stylist &amp; Colorist","katie.jpg",
+    "Senior stylist and colorist focused on cuts that grow out as well as they photograph."),
+   ("Erin Ohlandt","Junior Stylist, Colorist &amp; Extension Specialist","erin.jpg",
+    "Stylist, colorist, and our extension specialist &mdash; length and fullness that pass the touch test."),
+   ("Juliana Angeles","Stylist",None,
+    "Stylist with fresh technique and an easy chair-side manner &mdash; ask for Juliana for cuts, color and blowouts."),
+   ("Nevaeh Pittman","Junior Stylist &amp; Nail Tech",None,
+    "Junior stylist and nail tech &mdash; Nevaeh moves between the chair and the nail table, so hair and nails can happen in one visit."),
+ ]),
+ ("mas","Massage Therapists",[
+   ("Debbie Cameron","Master Massage Therapist","debbie.jpg",
+    "Master massage therapist &mdash; guests call her hands &ldquo;truly magical&rdquo; in our Google reviews, and they&rsquo;re not wrong."),
+   ("Nadya Deddrick","Massage Therapist","nadya.jpg",
+    "Massage therapist with a steady, therapeutic touch for tension that&rsquo;s overstayed its welcome."),
+ ]),
+ ("est","Estheticians",[
+   ("Gigi Currie","Master Esthetician &amp; Makeup Artist","gigi.jpg",
+    "Master esthetician and makeup artist &mdash; skin analysis, corrective facials, and camera-ready artistry."),
+ ]),
+ ("nai","Nail Technicians",[
+   ("Sandy Bach","Master Nail Tech &amp; Artist","sandy.jpg",
+    "Master nail tech and artist &mdash; meticulous shaping, long-wear finishes, and detail work worth photographing."),
+ ]),
+]
+
+def team_section():
+    cards=[]; modals=[]
+    idx=0
+    for key,label,members in TEAM_GROUPS:
+        for name,role,img,bio in members:
+            first = name.split()[0]
+            if img:
+                media=f'<img src="/images/team/{img}" alt="{name}" loading="lazy">'
+                mmedia=f'<img src="/images/team/{img}" alt="{name}">'
+            else:
+                media=f'<span class="tp-ph" aria-hidden="true">{name.strip()[0]}</span>'
+                mmedia=f'<span class="tp-ph tm-ph" aria-hidden="true">{name.strip()[0]}</span>'
+            cards.append(
+              f'<div class="tp-card" role="button" tabindex="0" data-open="tm-{idx}" aria-haspopup="dialog">'
+              f'{media}<p class="tm-name">{name}</p><p class="tm-role">{role}</p></div>')
+            modals.append(
+              f'<div class="tmodal" id="tm-{idx}" role="dialog" aria-modal="true" aria-label="{name}" hidden>'
+              f'<div class="tm-back" data-tclose></div>'
+              f'<div class="tm-card"><button class="tm-x" data-tclose aria-label="Close">&times;</button>'
+              f'<div class="tm-media">{mmedia}</div>'
+              f'<div class="tm-info"><p class="eyebrow">{role}</p><h3>{name}</h3>'
+              f'<p class="tm-bio">{bio}</p>'
+              f'<a class="btn btn-primary" href="{{book}}">Book with {first}</a></div>'
+              f'</div></div>')
+            idx+=1
+    js = """<script>
+(function(){
+  if(window.__omModal)return; window.__omModal=1;
+  function open(id){var m=document.getElementById(id);if(!m)return;m.hidden=false;document.documentElement.classList.add('op-lock');}
+  function closeAll(){document.querySelectorAll('.tmodal').forEach(function(m){m.hidden=true;});document.documentElement.classList.remove('op-lock');}
+  document.addEventListener('click',function(e){
+    var c=e.target.closest('[data-open]');
+    if(c){open(c.getAttribute('data-open'));return;}
+    if(e.target.closest('[data-tclose]'))closeAll();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape')closeAll();
+    if(e.key==='Enter'||e.key===' '){
+      var c=document.activeElement;
+      if(c&&c.hasAttribute&&c.hasAttribute('data-open')){e.preventDefault();open(c.getAttribute('data-open'));}
+    }
+  });
+})();
+</script>"""
+    return ('<div class="tgroup tgroup-all">'+"".join(cards)+'</div>'
+            + "".join(modals) + js)
+
+ALL_PERSONS = [(n, r.replace("&amp;","&")) for _,_,ms in TEAM_GROUPS for n,r,_i,_b in ms]
+
+PAGES.append(dict(path="team",nav="Meet the Team",
+ title="Meet the Team | Omorfia Salon & Day Spa, Poughkeepsie NY",
+ desc="Meet the stylists, massage therapists, estheticians and nail technicians behind Omorfia Salon & Day Spa in Poughkeepsie, NY.",
+ persons=ALL_PERSONS,
+ body="""
+<section class="wrap team-intro">
+  <p class="eyebrow">About &middot; Meet the team</p>
+  <h1>The hands behind the calm.</h1>
+</section>
+<section class="wrap team-wrap">
+  """+team_section()+"""
+</section>
+<section class="wrap split">
+  <div>
+    <p class="eyebrow">How we work</p>
+    <h2>Craft, kept sharp</h2>
+    <p>Our team trains continuously &mdash; cutting, color, skin and technique education throughout the year &mdash; because the standard that built this place only holds if it keeps rising.</p>
+  </div>
+  <div>
+    <p class="eyebrow">Join us</p>
+    <h2>Talent, welcome</h2>
+    <p>We&rsquo;re always glad to meet exceptional stylists, therapists and nail artists. Introduce yourself at the front desk, reach out through <a href="https://www.instagram.com/omorfiadayspa/" rel="noopener">Instagram</a>, or email <a href="mailto:Stavros@kyriacoubeauty.com">Stavros@kyriacoubeauty.com</a>.</p>
+  </div>
+</section>
+""",
+ faq=None))
+
+# ---------------------------------------------------------------- reviews
+PAGES.append(dict(path="reviews",nav="Reviews",
+ title="Reviews | Omorfia Salon & Day Spa, Poughkeepsie NY",
+ desc="What guests say about Omorfia Salon & Day Spa in Poughkeepsie, NY — hair, massage, facials, nails and more. Read reviews and leave your own.",
+ body=f"""
+<section class="page-hero">
+  <p class="eyebrow">Reviews</p>
+  <h1>Don&rsquo;t take our word for it.</h1>
+  <p class="lead"><strong>4.9 stars across 147 Google reviews.</strong> The Hudson Valley has been generous to us &mdash; here&rsquo;s a little of what guests say, straight from Google. And if we&rsquo;ve earned it, a review is the single nicest thing you can do for a local business.</p>
+</section>
+<section class="wrap">
+  {review_cards(REVIEWS)}
+  <p class="center" style="margin-top:34px">
+    <a class="btn btn-primary" href="https://search.google.com/local/writereview?placeid=ChIJa3T8WRM_3YkR99abqa-Z1dQ" rel="noopener">Review Us on Google</a>
+    <a class="btn btn-outline" href="https://search.google.com/local/reviews?placeid=ChIJa3T8WRM_3YkR99abqa-Z1dQ" rel="noopener">Read All 147 Reviews</a>
+  </p>
+</section>
+""",
+ faq=None))
+
+# ---------------------------------------------------------------- packages
+PAGES.append(dict(path="packages",nav="Packages",service="Spa Packages",
+ title="Spa Packages in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ desc="Curated spa day packages at Omorfia in Poughkeepsie, NY — bundle massage, facials, hair and nails into one visit and save over à la carte.",
+ body="""
+<section class="page-hero">
+  <p class="eyebrow">Packages &middot; Design your day</p>
+  <h1>One booking. A whole spa day.</h1>
+  <p class="lead">Our packages bundle the services people already stack together &mdash; massage, facial, nails, hair &mdash; into a single appointment at a saving over booking each &agrave; la carte. Arrive once, hand over your afternoon, leave new.</p>
+  <a class="btn btn-primary" href="{book}">Book a Package</a>
+</section>
+<section class="wrap pkg-wrap">
+  <div class="pkg-grid">
+    <div class="pkg">
+      <p class="eyebrow">Classic Spa Day</p>
+      <p class="pkg-price">$370<span>a $440 value &middot; save $70</span></p>
+      <p class="pkg-time">About 4 hours</p>
+      <ul class="pkg-list">
+        <li>60 Minute Massage</li>
+        <li>European Facial</li>
+        <li>Spa Manicure</li>
+        <li>Spa Pedicure</li>
+        <li>Wash &amp; Blowout</li>
+      </ul>
+      <p class="pkg-desc">The complete spa day &mdash; massage, facial, hands, feet, and a blowout to finish. Everything people mean when they say &ldquo;spa day.&rdquo;</p>
+      <a class="btn btn-primary" href="{book}">Book the Classic Spa Day</a>
+    </div>
+    <div class="pkg pkg-featured">
+      <p class="eyebrow">Full Spa Day</p>
+      <p class="pkg-price">$450<span>a $530 value &middot; save $80</span></p>
+      <p class="pkg-time">About 5 hours</p>
+      <ul class="pkg-list">
+        <li>90 Minute Massage</li>
+        <li>European Facial</li>
+        <li>Spa Manicure</li>
+        <li>Spa Pedicure</li>
+        <li>Wash &amp; Blowout</li>
+        <li>Brow Wax</li>
+      </ul>
+      <p class="pkg-desc">The Classic Spa Day with a longer massage and brows done &mdash; the whole day, head to toe, at the biggest saving on a single-guest package.</p>
+      <a class="btn btn-primary" href="{book}">Book the Full Spa Day</a>
+    </div>
+    <div class="pkg">
+      <p class="eyebrow">For Two</p>
+      <p class="pkg-price">$550<span>a $670 value &middot; save $120</span></p>
+      <p class="pkg-time">About 3&frac12; hours, side by side</p>
+      <ul class="pkg-list">
+        <li>Two 60 Minute Massages</li>
+        <li>Two European Facials</li>
+        <li>Two Spa Pedicures</li>
+      </ul>
+      <p class="pkg-desc">Couples, mother and daughter, best friends, the bride and her maid of honor &mdash; the same day, together, at $275 a person.</p>
+      <a class="btn btn-primary" href="{book}">Book For Two</a>
+    </div>
+  </div>
+  <p class="pkg-foot">Every package prices well below its &agrave; la carte total. Swap a service or add on &mdash; the front desk will price it. Gifting a spa day? Packages are the most-loved <a href="/gift-cards/">gift cards</a> we sell.</p>
+</section>
+""",
+ faq=[("How long does a spa package take?","The Classic Spa Day runs about four hours, the Full Spa Day about five, and For Two about three and a half with both of you in treatment at the same time — we'll confirm exact timing when you book."),
+      ("Can I customize a package?","Yes. Tiers are starting points; swap services or add on and the front desk will price it for you."),
+      ("Are packages good gifts?","The best. A packaged spa day is the most-loved gift card we sell — see our gift cards page.")]))
+
+# ---------------------------------------------------------------- memberships
+PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships",
+ title="Spa Memberships in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+ desc="Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract. Members get an unlimited 10% off all other salon and spa services plus special product pricing.",
+ body="""
+<section class="page-hero mem-hero">
+  <p class="eyebrow">Memberships</p>
+  <h1>Omorfia Member Club</h1>
+  <p class="lead mem-statement">Omorfia memberships are month to month &mdash; no startup fee, no cancellation fee, no contract. Members receive an <strong>unlimited 10% off every other salon and spa service</strong>, plus special discounted pricing on products. If you ever want to cancel, call Stavros directly and it&rsquo;s done &mdash; no questions asked. That&rsquo;s the whole agreement.</p>
+  <p class="mem-cta"><a class="btn btn-primary" href="#join" role="button" data-open="join-modal">Become a Member</a></p>
+  <p class="mem-phone">Questions? Call <a href="tel:{tel}">{phone}</a></p>
+  <p class="mem-thanks" id="memThanks" hidden>Thank you &mdash; your request is in. Stavros will be in touch shortly to set up your membership.</p>
+</section>
+<section class="wrap club-wrap">
+  <div class="club-head"><p class="eyebrow">Spa</p><h2>Poughkeepsie Spa Club</h2></div>
+  <div class="club-grid club-grid-5">
+    <div class="club">
+      <p class="eyebrow">Massage Club</p>
+      <p class="club-price">$100<span>/month</span></p>
+      <p class="club-desc">A massage every month at $35 off &mdash; 60 minutes $100, 90 minutes $160, 120 minutes $235. Any style, chosen when you arrive.</p>
+      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="massage60">Join</a>
+    </div>
+    <div class="club">
+      <p class="eyebrow">Facial Club</p>
+      <p class="club-price">$100<span>/month</span></p>
+      <p class="club-desc">A European Facial every month &mdash; $35 off the regular price. Other facials at the member 10% off.</p>
+      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="facial">Join</a>
+    </div>
+    <div class="club">
+      <p class="eyebrow">Mani &amp; Pedi Club</p>
+      <p class="club-price">$25<span>/mo each</span></p>
+      <p class="club-desc">A regular manicure or pedicure every month for $25 &mdash; take both for $50.</p>
+      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="manipedi">Join</a>
+    </div>
+    <div class="club">
+      <p class="eyebrow">Tanning Club</p>
+      <p class="club-price">$20<span>/month upper</span></p>
+      <p class="club-desc">A sunless glow every month &mdash; upper body for $20, or full body for $40. Half the regular price.</p>
+      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="tanupper">Join</a>
+    </div>
+    <div class="club">
+      <p class="eyebrow">Brow Wax Club</p>
+      <p class="club-price">$22<span>/month</span></p>
+      <p class="club-desc">A brow wax every month &mdash; shaped, defined, and never overdue. $8 off the regular price.</p>
+      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="brow">Join</a>
+    </div>
+  </div>
+  <div class="club-head club-head-2"><p class="eyebrow">Salon</p><h2>Poughkeepsie Salon Club</h2></div>
+  <div class="club-grid club-grid-4">
+    <div class="club">
+      <p class="eyebrow">Blowout Club</p>
+      <p class="club-price">$120<span>/month</span></p>
+      <p class="club-desc">Four wash &amp; blowouts every month &mdash; $30 each instead of $60+.</p>
+      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="blowout">Join</a>
+    </div>
+    <div class="club">
+      <p class="eyebrow">Women&rsquo;s Cut Club</p>
+      <p class="club-price">$50<span>/month</span></p>
+      <p class="club-desc">A women&rsquo;s cut every month &mdash; always fresh, never grown out. $20 off the regular price.</p>
+      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="cut">Join</a>
+    </div>
+    <div class="club">
+      <p class="eyebrow">Color Retouch Club</p>
+      <p class="club-price">$90<span>/month</span></p>
+      <p class="club-desc">A root retouch every month &mdash; regrowth handled before anyone notices. $10 off the regular price.</p>
+      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="retouch">Join</a>
+    </div>
+    <div class="club">
+      <p class="eyebrow">Men&rsquo;s Cut Club</p>
+      <p class="club-price">$40<span>/month</span></p>
+      <p class="club-desc">A men&rsquo;s cut every month &mdash; sharp on a schedule. $15 off the regular price.</p>
+      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="menscut">Join</a>
+    </div>
+  </div>
+  <p class="club-foot">Every club includes an unlimited 10% off all other salon &amp; spa services and special member pricing on products. Month to month &mdash; no startup fee, no cancellation fee, no contract. <span class="club-fine">Memberships are applicable with participating service providers only.</span></p>
+</section>
+<div class="tmodal" id="join-modal" role="dialog" aria-modal="true" aria-label="Become a Member" hidden>
+  <div class="tm-back" data-tclose></div>
+  <div class="tm-card tm-solo tm-form">
+    <button class="tm-x" data-tclose aria-label="Close">&times;</button>
+    <div class="tm-info">
+      <p class="eyebrow">Omorfia Member Club</p>
+      <h3>Become a Member</h3>
+      <p class="tm-bio">Tell us who you are and which club you want. We&rsquo;ll reach out to finish setup &mdash; no contract, no startup fee.</p>
+      <form class="join-form" action="https://formsubmit.co/stavros@kyriacoubeauty.com" method="POST">
+        <input type="hidden" name="_subject" value="New Omorfia Member Club signup">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://omorfiapk.com/memberships/?joined=1">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <label>Full name<input type="text" name="Full Name" required autocomplete="name"></label>
+        <label>Phone number<input type="tel" name="Phone" required autocomplete="tel"></label>
+        <label>Email<input type="email" name="Email" required autocomplete="email"></label>
+        <label>Membership type
+          <select name="Membership Type" required>
+            <option value="" disabled selected>Choose a club</option>
+            <optgroup label="Poughkeepsie Spa Club">
+            <option value="Mani &amp; Pedi Club — $25/month each" data-club="manipedi">Mani &amp; Pedi Club &mdash; $25/month each</option>
+            <option value="Facial Club — European Facial, $100/month" data-club="facial">Facial Club &mdash; European Facial, $100/month</option>
+            <option value="Massage Club — 60 Minute, $100/month" data-club="massage60">Massage Club &mdash; 60 Minute, $100/month</option>
+            <option value="Massage Club — 90 Minute, $160/month" data-club="massage90">Massage Club &mdash; 90 Minute, $160/month</option>
+            <option value="Massage Club — 120 Minute, $235/month" data-club="massage120">Massage Club &mdash; 120 Minute, $235/month</option>
+            <option value="Brow Wax Club — $22/month" data-club="brow">Brow Wax Club &mdash; $22/month</option>
+            <option value="Tanning Club — Upper Body, $20/month" data-club="tanupper">Tanning Club &mdash; Upper Body, $20/month</option>
+            <option value="Tanning Club — Full Body, $40/month" data-club="tanfull">Tanning Club &mdash; Full Body, $40/month</option>
+            </optgroup>
+            <optgroup label="Poughkeepsie Salon Club">
+            <option value="Blowout Club — 4 blowouts, $120/month" data-club="blowout">Blowout Club &mdash; 4 blowouts, $120/month</option>
+            <option value="Color Retouch Club — $90/month" data-club="retouch">Color Retouch Club &mdash; $90/month</option>
+            <option value="Women's Cut Club — $50/month" data-club="cut">Women&rsquo;s Cut Club &mdash; $50/month</option>
+            <option value="Men's Cut Club — $40/month" data-club="menscut">Men&rsquo;s Cut Club &mdash; $40/month</option>
+            </optgroup>
+            <option value="Not sure yet — help me choose" data-club="unsure">Not sure yet &mdash; help me choose</option>
+          </select>
+        </label>
+        <button type="submit" class="btn btn-primary">Send My Request</button>
+        <p class="join-note">Month to month. No startup fee, no cancellation fee, no contract. Applicable with participating service providers only.</p>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  if(window.location.search.indexOf('joined=1')>-1){var t=document.getElementById('memThanks');if(t)t.hidden=false;}
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-club]');if(!b||b.tagName==='OPTION')return;
+    var sel=document.querySelector('.join-form select');if(!sel)return;
+    var opt=sel.querySelector('option[data-club="'+b.getAttribute('data-club')+'"]');
+    if(opt){sel.value=opt.value;}
+  });
+})();
+</script>
+"""+MODAL_JS))
+
+# ---------------------------------------------------------------- about
+PAGES.append(dict(path="about",nav="About",
+ title="About Omorfia Salon & Day Spa | Poughkeepsie, NY",
+ desc="Est. 2023 — Omorfia, from the Greek word for beauty, is a locally owned salon and day spa in the former Marlene Weber building in Poughkeepsie, NY, where artistry, wellness and luxury converge.",
+ body="""
+<section class="wrap story">
+  <img class="story-img" src="/images/about-interior.jpg" alt="Inside Omorfia Salon &amp; Day Spa in Poughkeepsie" loading="lazy">
+  <div class="story-copy">
+    <p class="eyebrow">Est. 2023</p>
+    <h1>Where Beauty Meets Relaxation</h1>
+    <p>The name <em>Omorfia</em> comes from the Greek word for beauty &mdash; and it&rsquo;s this timeless pursuit that inspires everything we do. Founded with a vision to create a sanctuary where artistry, wellness, and luxury converge, Omorfia has become a beloved destination for those who seek more than just a service.</p>
+    <p>Our founders envisioned a place where clients could escape the pace of everyday life and step into a world of calm, beauty, and rejuvenation. That vision found its home in the <strong>former Marlene Weber building</strong> on Dutchess Turnpike &mdash; a Poughkeepsie spa landmark for decades, now reimagined under new ownership. Today, it lives on through our dedicated team of artisans who treat every client as a canvas worthy of their finest work.</p>
+    <p>From our carefully curated product lines to our serene interiors, every element of Omorfia is designed to delight the senses and nurture the soul.</p>
+  </div>
+</section>
+<section class="wrap split">
+  <div>
+    <p class="eyebrow">Locally owned</p>
+    <h2>Poughkeepsie, by choice</h2>
+    <p>Omorfia is founder-owned and operated on Dutchess Turnpike &mdash; not a franchise, not a chain. The standards come from ownership walking the floor: hand-picked providers, superior product lines, and a front desk that welcomes you like a guest in our home. <a class="btn-link" href="/team/">Meet the team &rarr;</a></p>
+  </div>
+  <div>
+    <p class="eyebrow">The family</p>
+    <h2>Part of Kyriacou Beauty Group</h2>
+    <p>Omorfia is the flagship day spa of <a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou Beauty Group</a>, a Hudson Valley beauty and wellness family that also includes <a href="https://omomedspa.com" target="_blank" rel="noopener">OMO Med Spa</a> for medical aesthetics and Kyriacou Cosmetics. One standard, three doors.</p>
+  </div>
+</section>
+""",
+ faq=None))
+
+# ---------------------------------------------------------------- contact
+PAGES.append(dict(path="contact",nav="Contact",
+ title="Contact & Directions | Omorfia Salon & Day Spa, Poughkeepsie NY",
+ desc="Visit Omorfia Salon & Day Spa at 751 Dutchess Turnpike, Poughkeepsie, NY 12603. Call (845) 694-4952 or book online. Open daily 9 AM – 8 PM.",
+ body="""
+<section class="page-hero">
+  <p class="eyebrow">Contact &middot; Visit us</p>
+  <h1>Come slow down.</h1>
+  <p class="lead">We&rsquo;re on Dutchess Turnpike (Route 44) in Poughkeepsie, in the <strong>former Marlene Weber building</strong>, sharing a parking lot with <strong>Adams Fairacre Farms</strong> &mdash; look for the <strong>grey and white building</strong>. Minutes from Arlington, Vassar College and the Taconic.</p>
+</section>
+<section class="wrap contact-grid">
+  <div>
+    <p class="eyebrow">Address</p>
+    <h2>751 Dutchess Turnpike<br>Poughkeepsie, NY 12603</h2>
+    <p class="find-us"><strong>Finding us:</strong> pull into the Adams Fairacre Farms lot &mdash; we share it &mdash; and we&rsquo;re the grey and white building, the former Marlene Weber building. Plenty of free parking.</p>
+    <p><a class="btn-link" href="https://search.google.com/local/writereview?placeid=ChIJa3T8WRM_3YkR99abqa-Z1dQ" rel="noopener">Open in Google Maps &rarr;</a></p>
+  </div>
+  <div>
+    <p class="eyebrow">Hours</p>
+    <h2>Mon &ndash; Thu<br>9:00 AM &ndash; 8:00 PM</h2>
+    <h2 style="margin-top:14px">Fri &ndash; Sun<br>9:00 AM &ndash; 10:00 PM</h2>
+    <p class="menu-note" style="margin-top:8px">Seven days a week &mdash; Sundays and evenings included.</p>
+    <p class="menu-note">Holiday hours are posted on our Google listing and Instagram.</p>
+  </div>
+  <div>
+    <p class="eyebrow">Reach us</p>
+    <h2><a href="tel:{tel}">{phone}</a></h2>
+    <p class="contact-email"><a href="mailto:Stavros@kyriacoubeauty.com">Stavros@kyriacoubeauty.com</a></p>
+    <p><a class="btn btn-primary" href="{book}">Book Appointment</a></p>
+  </div>
+</section>
+""",
+ faq=[("Is there parking?","Yes — we share the Adams Fairacre Farms parking lot, so there's plenty of free parking. We're the grey and white building right there in the lot."),
+      ("Do you take walk-ins?","When the book allows, gladly — but booking online or calling ahead is the only way to guarantee a time."),
+      ("What's your cancellation policy?","Life happens — just give us as much notice as you can so we can offer the time to another guest. Full policy details are shared when you book.")]))
+
+# ------------------------------------------------------------------ build
+os.makedirs(OUT,exist_ok=True)
+PH_SLIDES_SCRIPT = """<script>
+(function(){
+  var wrap=document.querySelector('.ph-slides');if(!wrap)return;
+  var imgs=[SLIDELIST];
+  for(var i=imgs.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=imgs[i];imgs[i]=imgs[j];imgs[j]=t;}
+  var a=document.createElement('div'),b=document.createElement('div');
+  a.className='hslide on';b.className='hslide';
+  wrap.appendChild(a);wrap.appendChild(b);
+  a.style.backgroundImage="url('"+imgs[0]+"')";
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var idx=0,front=a,back=b;
+  setInterval(function(){
+    idx=(idx+1)%imgs.length;
+    var im=new Image();
+    im.onload=function(){
+      back.style.backgroundImage="url('"+imgs[idx]+"')";
+      back.classList.add('on');front.classList.remove('on');
+      var t=front;front=back;back=t;
+    };
+    im.src=imgs[idx];
+  },5200);
+})();
+</script>""".replace("SLIDELIST", ",".join('"/images/slides/s%02d.jpg"' % i for i in range(1,21)))
+
+def inject_hero_slides(doc):
+    import re as _re
+    if '<section class="page-hero' not in doc:
+        return doc
+    did = []
+    def _open(m):
+        cls = m.group(1)
+        if "ph-noslides" in cls:
+            return m.group(0)
+        if "has-photo" not in cls:
+            cls += " has-photo ph-plain"
+        did.append(1)
+        return ('<section class="%s"%s>'
+                '<div class="ph-slides" aria-hidden="true"></div>'
+                '<div class="ph-veil" aria-hidden="true"></div>') % (cls, m.group(2))
+    doc = _re.sub(r'<section class="(page-hero[^"]*)"([^>]*)>', _open, doc, count=1)
+    if did:
+        doc = doc.replace("</body>", PH_SLIDES_SCRIPT + "</body>")
+    return doc
+
+def render(p):
+    canon=DOMAIN+"/"+(p["path"]+"/" if p["path"] else "")
+    doc=HEAD.format(title=html.escape(p["title"]),desc=html.escape(p["desc"]),canon=canon,
+                    ogimg=DOMAIN+"/images/slides/s08.jpg",schema=page_schema(p),book=BOOK_URL,tel=PHONE_TEL,phone=PHONE)
+    body=(p["body"].replace("{book}",BOOK_URL).replace("{gift}",GIFT_URL)
+                   .replace("{tel}",PHONE_TEL).replace("{phone}",PHONE))
+    if p.get("faq") and not p.get("faq_done"): body+=faq_html(p["faq"])
+    doc+=body
+    doc+=FOOT.format(book=BOOK_URL,tel=PHONE_TEL,phone=PHONE,street=STREET,
+                     city=CITY,state=STATE,zip=ZIP)
+    d=os.path.join(OUT,p["path"]) if p["path"] else OUT
+    os.makedirs(d,exist_ok=True)
+    open(os.path.join(d,"index.html"),"w").write(inject_hero_slides(doc))
+
+for p in PAGES:
+    if p["path"]=="wedding": p["faq_done"]=False
+    render(p)
+
+urls=[DOMAIN+"/"]+[f'{DOMAIN}/{p["path"]}/' for p in PAGES if p["path"]]
+with open(os.path.join(OUT,"sitemap.xml"),"w") as f:
+    f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
+    for u in urls:
+        pr="1.0" if u.endswith(".com/") else "0.8"
+        f.write(f"  <url><loc>{u}</loc><changefreq>monthly</changefreq><priority>{pr}</priority></url>\n")
+    f.write("</urlset>\n")
+open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\n\nSitemap: {DOMAIN}/sitemap.xml\n")
+json.dump({"cleanUrls":True,"trailingSlash":True},open(os.path.join(OUT,"vercel.json"),"w"),indent=2)
+print("built",len(urls),"pages:",urls)
