@@ -47,20 +47,13 @@
       "Monday",
       "Tuesday",
       "Wednesday",
-      "Thursday"
-     ],
-     "opens": "09:00",
-     "closes": "20:00"
-    },
-    {
-     "@type": "OpeningHoursSpecification",
-     "dayOfWeek": [
+      "Thursday",
       "Friday",
       "Saturday",
       "Sunday"
      ],
      "opens": "09:00",
-     "closes": "22:00"
+     "closes": "20:00"
     }
    ],
    "sameAs": [
@@ -156,7 +149,29 @@
 <main id="main">
 
 <section class="wrap story">
-  <img class="story-img" src="/images/about-interior.jpg" alt="Inside Omorfia Salon &amp; Day Spa in Poughkeepsie" loading="lazy">
+  <div class="story-media story-slides" id="aboutSlides" aria-label="Photos of Omorfia">
+    <img class="story-img" src="/images/about/a01-interior.jpg" alt="Inside Omorfia Salon &amp; Day Spa in Poughkeepsie">
+  </div>
+  <script>
+  (function(){
+    var box=document.getElementById('aboutSlides');if(!box)return;
+    var aimgs=["/images/about/a01-interior.jpg","/images/about/a02-team.jpg","/images/about/a03-exterior.jpg","/images/about/a04-lobby.jpg","/images/about/a05-salon-overview.jpg","/images/about/a06-salon-floor.jpg","/images/about/a07-stavros.jpg","/images/about/a08-georgia.jpg","/images/about/a09-hugo-cut.jpg","/images/about/a10-color-service.jpg","/images/about/a11-shampoo.jpg","/images/about/a12-blowdry.jpg","/images/about/a13-massage-face.jpg","/images/about/a14-product-wall.jpg","/images/about/a15-salon-chairs.jpg","/images/about/a16-team-holiday.jpg","/images/about/a17-team-dinner.jpg","/images/about/a18-salon-dog.jpg"];
+    var a=document.createElement('div'),b=document.createElement('div');
+    a.className='aslide on';b.className='aslide';
+    box.appendChild(a);box.appendChild(b);
+    a.style.backgroundImage="url('"+aimgs[0]+"')";
+    var first=box.querySelector('img');if(first)first.style.visibility='hidden';
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var idx=0,front=a,back=b;
+    setInterval(function(){
+      if(document.hidden)return;
+      idx=(idx+1)%aimgs.length;
+      var im=new Image();
+      im.onload=function(){back.style.backgroundImage="url('"+aimgs[idx]+"')";back.classList.add('on');front.classList.remove('on');var t=front;front=back;back=t;};
+      im.src=aimgs[idx];
+    },4500);
+  })();
+  </script>
   <div class="story-copy">
     <p class="eyebrow">Est. 2023</p>
     <h1>Where Beauty Meets Relaxation</h1>
@@ -196,7 +211,7 @@
     </div>
     <div>
       <p class="foot-h">Hours</p>
-      <p class="foot-hours">Open 7 Days a Week<br>Mon&ndash;Thu 9 AM &ndash; 8 PM<br>Fri&ndash;Sun 9 AM &ndash; 10 PM</p>
+      <p class="foot-hours">Open 7 Days a Week<br>9:00 AM &ndash; 8:00 PM</p>
     </div>
     <div>
       <p class="foot-h">Salon &amp; Spa</p>
