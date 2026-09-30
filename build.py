@@ -38,9 +38,9 @@ def biz_node():
         "address":{"@type":"PostalAddress","streetAddress":STREET,"addressLocality":CITY,
                    "addressRegion":STATE,"postalCode":ZIP,"addressCountry":"US"},
         "areaServed":["Poughkeepsie NY","Dutchess County NY","Hudson Valley NY"],
-        "openingHoursSpecification":[
-            {"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday"],"opens":"09:00","closes":"20:00"},
-            {"@type":"OpeningHoursSpecification","dayOfWeek":["Friday","Saturday","Sunday"],"opens":"09:00","closes":"22:00"}],
+        "openingHoursSpecification":[{"@type":"OpeningHoursSpecification",
+            "dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+            "opens":"09:00","closes":"20:00"}],
         "sameAs":SAMEAS,
         "parentOrganization":{"@type":"Organization","name":"Kyriacou Beauty Group",
                               "url":"https://kyriacoubeauty.com"},
@@ -168,7 +168,7 @@ FOOT = """</main>
     </div>
     <div>
       <p class="foot-h">Hours</p>
-      <p class="foot-hours">Open 7 Days a Week<br>Mon&ndash;Thu 9 AM &ndash; 8 PM<br>Fri&ndash;Sun 9 AM &ndash; 10 PM</p>
+      <p class="foot-hours">Open 7 Days a Week<br>9:00 AM &ndash; 8:00 PM</p>
     </div>
     <div>
       <p class="foot-h">Salon &amp; Spa</p>
@@ -389,11 +389,11 @@ PAGES.append(dict(path="",nav="Home",
     <div class="op-top">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="8" width="18" height="4"/><rect x="5" y="12" width="14" height="9"/><line x1="12" y1="8" x2="12" y2="21"/><path d="M12 8c-2.5 0-4.5-1.2-4.5-2.8C7.5 3.9 8.6 3 9.9 3c1.7 0 2.1 2.4 2.1 5zm0 0c2.5 0 4.5-1.2 4.5-2.8C16.5 3.9 15.4 3 14.1 3 12.4 3 12 5.4 12 8z"/></svg>
       <p class="op-eyebrow">First-Time Guest Offer</p>
-      <p class="op-big">$30 OFF</p>
-      <p class="op-sub">your first service over $100</p>
+      <p class="op-big">$15 OFF</p>
+      <p class="op-sub">your first visit</p>
     </div>
     <div class="op-bottom">
-      <p>Book a first service of $100 or more and mention this offer at checkout &mdash; $30 off, no strings attached.</p>
+      <p>Book your first appointment and mention this offer at checkout &mdash; $15 off, no strings attached.</p>
       <a class="btn btn-primary op-cta" href="{{book}}">Book My First Visit</a>
       <button class="op-no" data-close>No thanks</button>
     </div>
@@ -455,7 +455,7 @@ PAGES.append(dict(path="",nav="Home",
       <a class="pcard" href="/massage/"><span class="pimg" style="background-image:url('/images/home-massage.jpg')"></span><span class="pc-n">Massage</span><span class="pc-d">Swedish, deep tissue &amp; couples</span></a>
       <a class="pcard" href="/facials/"><span class="pimg" style="background-image:url('/images/home-facials.jpg')"></span><span class="pc-n">Facials</span><span class="pc-d">Esthetics, peels &amp; skin care</span></a>
       <a class="pcard" href="/tanning/"><span class="pimg" style="background-image:url('/images/home-tanning.jpg')"></span><span class="pc-n">Tanning</span><span class="pc-d">A natural sunless glow</span></a>
-      <a class="pcard" href="/makeup/"><span class="pimg" style="background-image:url('{IMG["makeup"]}')"></span><span class="pc-n">Makeup</span><span class="pc-d">Events, weddings &amp; lessons</span></a>
+      <a class="pcard" href="/makeup/"><span class="pimg" style="background-image:url('/images/home-makeup.jpg')"></span><span class="pc-n">Makeup</span><span class="pc-d">Events, weddings &amp; lessons</span></a>
     </div>
   </div>
 </section>
@@ -500,7 +500,7 @@ PAGES.append(dict(path="",nav="Home",
 <section class="wrap visit">
   <p class="eyebrow">Visit us</p>
   <h2>751 Dutchess Turnpike, Poughkeepsie</h2>
-  <p class="lead">Open seven days a week &mdash; yes, Sundays too &mdash; until 8 PM weeknights, 10 PM Friday through Sunday &middot; <a href="tel:{{tel}}">{{phone}}</a> &middot; <a class="btn-link" href="/contact/">Directions &amp; contact &rarr;</a></p>
+  <p class="lead">Open seven days a week &mdash; yes, Sundays too &mdash; 9 AM &ndash; 8 PM &middot; <a href="tel:{{tel}}">{{phone}}</a> &middot; <a class="btn-link" href="/contact/">Directions &amp; contact &rarr;</a></p>
 </section>
 """,
  faq=[("Are you open on Sundays?","Yes — Omorfia is open seven days a week, including Sundays and evenings, so a massage, facial or blowout fits around your week instead of the other way around."),
@@ -804,14 +804,14 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
 <section class="page-hero">
   <p class="eyebrow">Specials &middot; New guests</p>
   <h1>First time? We&rsquo;d love to meet you.</h1>
-  <p class="lead">New guests get <strong>$30 off their first service over $100</strong> &mdash; mention it when you book, or ask the front desk. Seasonal specials rotate throughout the year and land on this page and our Instagram first.</p>
+  <p class="lead">New guests get <strong>$15 off their first visit</strong> &mdash; mention it when you book, or ask the front desk. Seasonal specials rotate throughout the year and land on this page and our Instagram first.</p>
   <a class="btn btn-primary" href="{book}">Book Your First Visit</a>
 </section>
 <section class="wrap split">
   <div>
     <p class="eyebrow">Introductory offer</p>
     <h2>Your first visit, welcomed</h2>
-    <p><strong>$30 off any first service of $100 or more.</strong> It&rsquo;s our way of making the first appointment an easy yes. One per guest, on your first visit &mdash; mention it when you book.</p>
+    <p><strong>$15 off your first visit.</strong> It&rsquo;s our way of making the first appointment an easy yes. One per guest, on your first visit &mdash; mention it when you book.</p>
   </div>
   <div>
     <p class="eyebrow">Seasonal</p>
@@ -1195,7 +1195,29 @@ PAGES.append(dict(path="about",nav="About",
  desc="Est. 2023 — Omorfia, from the Greek word for beauty, is a locally owned salon and day spa in the former Marlene Weber building in Poughkeepsie, NY, where artistry, wellness and luxury converge.",
  body="""
 <section class="wrap story">
-  <img class="story-img" src="/images/about-interior.jpg" alt="Inside Omorfia Salon &amp; Day Spa in Poughkeepsie" loading="lazy">
+  <div class="story-media story-slides" id="aboutSlides" aria-label="Photos of Omorfia">
+    <img class="story-img" src="/images/about/a01-interior.jpg" alt="Inside Omorfia Salon &amp; Day Spa in Poughkeepsie">
+  </div>
+  <script>
+  (function(){
+    var box=document.getElementById('aboutSlides');if(!box)return;
+    var aimgs=["/images/about/a01-interior.jpg","/images/about/a02-team.jpg","/images/about/a03-exterior.jpg","/images/about/a04-lobby.jpg","/images/about/a05-salon-overview.jpg","/images/about/a06-salon-floor.jpg","/images/about/a07-stavros.jpg","/images/about/a08-georgia.jpg","/images/about/a09-hugo-cut.jpg","/images/about/a10-color-service.jpg","/images/about/a11-shampoo.jpg","/images/about/a12-blowdry.jpg","/images/about/a13-massage-face.jpg","/images/about/a14-product-wall.jpg","/images/about/a15-salon-chairs.jpg","/images/about/a16-team-holiday.jpg","/images/about/a17-team-dinner.jpg","/images/about/a18-salon-dog.jpg"];
+    var a=document.createElement('div'),b=document.createElement('div');
+    a.className='aslide on';b.className='aslide';
+    box.appendChild(a);box.appendChild(b);
+    a.style.backgroundImage="url('"+aimgs[0]+"')";
+    var first=box.querySelector('img');if(first)first.style.visibility='hidden';
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var idx=0,front=a,back=b;
+    setInterval(function(){
+      if(document.hidden)return;
+      idx=(idx+1)%aimgs.length;
+      var im=new Image();
+      im.onload=function(){back.style.backgroundImage="url('"+aimgs[idx]+"')";back.classList.add('on');front.classList.remove('on');var t=front;front=back;back=t;};
+      im.src=aimgs[idx];
+    },4500);
+  })();
+  </script>
   <div class="story-copy">
     <p class="eyebrow">Est. 2023</p>
     <h1>Where Beauty Meets Relaxation</h1>
@@ -1238,8 +1260,7 @@ PAGES.append(dict(path="contact",nav="Contact",
   </div>
   <div>
     <p class="eyebrow">Hours</p>
-    <h2>Mon &ndash; Thu<br>9:00 AM &ndash; 8:00 PM</h2>
-    <h2 style="margin-top:14px">Fri &ndash; Sun<br>9:00 AM &ndash; 10:00 PM</h2>
+    <h2>Open Daily<br>9:00 AM &ndash; 8:00 PM</h2>
     <p class="menu-note" style="margin-top:8px">Seven days a week &mdash; Sundays and evenings included.</p>
     <p class="menu-note">Holiday hours are posted on our Google listing and Instagram.</p>
   </div>
