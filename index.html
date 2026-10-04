@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Day Spa in Poughkeepsie, NY | Omorfia Salon &amp; Day Spa</title>
 <meta name="description" content="Omorfia is a full-service salon and day spa in Poughkeepsie, NY — hair, nails, massage, facials, tanning, makeup and bridal. Open 7 days a week, including Sundays. Book online or call (845) 694-4952.">
-<link rel="canonical" href="https://omorfiapk.com/">
+<link rel="canonical" href="https://omorfiabeauty.nyc/">
 <meta property="og:title" content="Day Spa in Poughkeepsie, NY | Omorfia Salon &amp; Day Spa">
 <meta property="og:description" content="Omorfia is a full-service salon and day spa in Poughkeepsie, NY — hair, nails, massage, facials, tanning, makeup and bridal. Open 7 days a week, including Sundays. Book online or call (845) 694-4952.">
-<meta property="og:url" content="https://omorfiapk.com/">
+<meta property="og:url" content="https://omorfiabeauty.nyc/">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://omorfiapk.com/images/slides/s08.jpg">
+<meta property="og:image" content="https://omorfiabeauty.nyc/images/slides/s08.jpg">
 <meta property="og:site_name" content="Omorfia Salon &amp; Day Spa">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,10 +22,10 @@
  "@graph": [
   {
    "@type": "DaySpa",
-   "@id": "https://omorfiapk.com/#business",
+   "@id": "https://omorfiabeauty.nyc/#business",
    "name": "Omorfia Salon & Day Spa",
-   "url": "https://omorfiapk.com/",
-   "image": "https://omorfiapk.com/images/slides/s08.jpg",
+   "url": "https://omorfiabeauty.nyc/",
+   "image": "https://omorfiabeauty.nyc/images/slides/s08.jpg",
    "telephone": "+18456944952",
    "address": {
     "@type": "PostalAddress",
@@ -74,7 +74,7 @@
      "@type": "ListItem",
      "position": 1,
      "name": "Home",
-     "item": "https://omorfiapk.com/"
+     "item": "https://omorfiabeauty.nyc/"
     }
    ]
   },
@@ -117,6 +117,16 @@
   }
  ]
 }
+</script>
+<!-- Boulevard Self-Booking overlay -->
+<script>
+(function (a) {
+  var b = { businessId: '549d4738-8602-4141-b4b4-f1b11bb4f2a4' };
+  var c = a.createElement('script'); var d = a.querySelector('script');
+  c.src = 'https://static.joinboulevard.com/injector.min.js'; c.async = true;
+  c.onload = function () { blvd.init(b); window.__blvdReady = true; };
+  d.parentNode.insertBefore(c, d);
+})(document);
 </script>
 </head>
 <body>
@@ -172,11 +182,11 @@
     <a href="/contact/">Location</a>
   </nav>
   <div class="sh-actions">
-    <a class="sh-book" href="tel:+18456944952">Book</a>
+    <a class="sh-book" href="#book">Book</a>
     <a class="sh-gift" href="/gift-cards/">Gift Cards</a>
   </div>
 </header>
-<a class="book-float" href="tel:+18456944952">Book Appointment</a>
+<a class="book-float" href="#book">Book Appointment</a>
 <main id="main">
 
 <section class="hero">
@@ -188,7 +198,7 @@
   <p class="hero-sub">Salon &amp; Day Spa &nbsp;&middot;&nbsp; Poughkeepsie, New York</p>
   <p class="hero-tag">Where Beauty Meets Relaxation</p>
   <p class="hero-open">Open 7 Days a Week &middot; <span class="hero-star">&#9733;</span> 4.9 on Google</p>
-  <div class="primary-row"><a class="btn btn-primary" href="tel:+18456944952">Book Appointment</a></div>
+  <div class="primary-row"><a class="btn btn-primary" href="#book">Book Appointment</a></div>
   <div class="secondary-row">
     <a class="btn-link" href="/packages/">Spa Packages</a><span class="dot">&middot;</span>
     <a class="btn-link" href="#services">Explore Services</a><span class="dot">&middot;</span>
@@ -207,7 +217,7 @@
     </div>
     <div class="op-bottom">
       <p>Book your first appointment and mention this offer at checkout &mdash; $15 off, no strings attached.</p>
-      <a class="btn btn-primary op-cta" href="tel:+18456944952">Book My First Visit</a>
+      <a class="btn btn-primary op-cta" href="#book">Book My First Visit</a>
       <button class="op-no" data-close>No thanks</button>
     </div>
   </div>
@@ -344,7 +354,7 @@
   <h2>Ready when you are.</h2>
   <p class="cta-sub">Book online in under a minute, or call the front desk.</p>
   <div class="cta-actions">
-    <a class="btn btn-primary" href="tel:+18456944952">Book Appointment</a>
+    <a class="btn btn-primary" href="#book">Book Appointment</a>
     <a class="btn btn-ghost" href="tel:+18456944952">(845) 694-4952</a>
   </div>
 </section>
@@ -379,5 +389,27 @@
   </div>
   <p class="foot-legal">&copy; 2026 Omorfia Salon &amp; Day Spa &middot; A Kyriacou Beauty Group company &middot; Poughkeepsie, NY</p>
 </footer>
-</body>
+<script>
+(function(){
+  var LOC='07df9e76-5ce7-4010-92d2-34fbc5ae7929', TEL='tel:+18456944952';
+  function openWidget(opts){
+    if(window.blvd&&blvd.openBookingWidget){
+      var p={locationId:LOC};
+      if(opts&&opts.path){p.path=opts.path;}
+      if(opts&&opts.type){p.visitType=opts.type;}
+      blvd.openBookingWidget({urlParams:p}); return true;
+    }
+    return false;
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href="#book"],a[href="#gift"],[data-blvd-path]');
+    if(!a)return;
+    e.preventDefault();
+    var href=a.getAttribute('href')||'';
+    var opts={path:a.getAttribute('data-blvd-path'),type:a.getAttribute('data-blvd-type')};
+    if(href==='#gift'&&!opts.path){opts={path:'/cart/menu/Gift%20Cards',type:'GIFT_CARD'};}
+    if(!openWidget(opts)){window.location.href=TEL;}
+  });
+})();
+</script></body>
 </html>

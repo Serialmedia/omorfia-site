@@ -3,9 +3,9 @@
 Edit constants, run `python3 build.py`, deploy /site."""
 import json, os, re, html
 
-DOMAIN   = "https://omorfiapk.com"
-BOOK_URL = "tel:+18456944952"      # Boulevard self-booking link
-GIFT_URL = "tel:+18456944952"     # Boulevard gift card link (or leave = BOOK_URL)
+DOMAIN   = "https://omorfiabeauty.nyc"
+BOOK_URL = "#book"      # Boulevard self-booking link
+GIFT_URL = "#gift"     # Boulevard gift card link (or leave = BOOK_URL)
 NAME     = "Omorfia Salon & Day Spa"
 STREET   = "751 Dutchess Turnpike"
 CITY     = "Poughkeepsie"
@@ -86,6 +86,16 @@ HEAD = """<!DOCTYPE html>
 <link rel="stylesheet" href="/styles.css">
 <script type="application/ld+json">
 {schema}
+</script>
+<!-- Boulevard Self-Booking overlay -->
+<script>
+(function (a) {{
+  var b = {{ businessId: '549d4738-8602-4141-b4b4-f1b11bb4f2a4' }};
+  var c = a.createElement('script'); var d = a.querySelector('script');
+  c.src = 'https://static.joinboulevard.com/injector.min.js'; c.async = true;
+  c.onload = function () {{ blvd.init(b); window.__blvdReady = true; }};
+  d.parentNode.insertBefore(c, d);
+}})(document);
 </script>
 </head>
 <body>
@@ -516,8 +526,8 @@ PAGES.append(service_page("hair","Hair","Hair Salon",
  "Cuts that fall into place, color that reads expensive, and stylists who ask questions before they pick up the shears. Full menu and pricing below.",
  [("Cuts & Styling",[
    ("Haircut Consultation","Complimentary","Talk through the change before the shears come out."),
-   ("Women&rsquo;s Cut","$70+","Precision cut for your length and texture, finished with a styled blowout.","$50/month club &mdash; a cut every month"),
-   ("Men&rsquo;s Cut","$55+","Clean, tailored cut &mdash; clippers, shears, or both.","$40/month club &mdash; a cut every month"),
+   ("Women&rsquo;s Cut","$70+","Precision cut for your length and texture, finished with a styled blowout.","$45/month club &mdash; a cut every other month"),
+   ("Men&rsquo;s Cut","$55+","Clean, tailored cut &mdash; clippers, shears, or both.","$30/month club &mdash; a cut every month"),
    ("Kids Cut (12 &amp; Under)","$40+","Gentle, patient cuts for our youngest guests."),
    ("Bang Trim","$30+","A quick tune-up between full cuts."),
    ("Wash &amp; Blow Dry","$60+","Shampoo, condition, and a polished blowout.","$30 per blowout &middot; $120/mo for 4"),
@@ -528,7 +538,7 @@ PAGES.append(service_page("hair","Hair","Hair Salon",
    ("Half Up / Half Down","$70+","Polished event styling with movement left in."),
    ("Updo","$115+","Full formal styling for weddings, proms, and galas.")]),
   ("Color",[
-   ("Color Retouch (Roots)","$100+","Refresh regrowth to match your existing color.","$90/month club &mdash; a root retouch every month"),
+   ("Color Retouch (Roots)","$100+","Refresh regrowth to match your existing color.","$80/month club &mdash; a root retouch every month"),
    ("All Over Color","$130+","Single-process color from roots to ends."),
    ("Semi-Permanent Color","$95+","Gentle shine and tone that fades gracefully."),
    ("Toner / Glaze","$45+","Neutralize brass and add gloss between services."),
@@ -716,8 +726,8 @@ PAGES.append(service_page("tanning","Tanning","Tanning",
  "A glow without the guesswork.",
  "Even, natural-looking color with none of the orange and none of the streaks &mdash; timed to peak exactly on your event day.",
  [("Sunless Glow",[
-   ("Show Stopper Upper Body Glow","$40","Face, arms, and shoulders &mdash; camera-ready.","$20/month club &mdash; an upper body glow every month"),
-   ("Show Stopper Full Body Glow","$80","Head-to-toe color, matched to your skin tone.","$40/month club &mdash; a full body glow every month")])],
+   ("Show Stopper Upper Body Glow","$40","Face, arms, and shoulders &mdash; camera-ready."),
+   ("Show Stopper Full Body Glow","$80","Head-to-toe color, matched to your skin tone.")])],
  [("When should I tan before an event?","One to two days before is the sweet spot — the color settles and any guide bronzer washes away."),
   ("How do I make it last?","Exfoliate before your session, then moisturize daily and keep long hot showers to a minimum."),
   ("Will it look natural?","That's the entire job. We match depth of color to your skin tone so it reads sun, not spray.")],IMG["tanning"]))
@@ -1018,7 +1028,7 @@ PAGES.append(dict(path="packages",nav="Packages",service="Spa Packages",
         <li>Wash &amp; Blowout</li>
       </ul>
       <p class="pkg-desc">The complete spa day &mdash; massage, facial, hands, feet, and a blowout to finish. Everything people mean when they say &ldquo;spa day.&rdquo;</p>
-      <a class="btn btn-primary" href="{book}">Book the Classic Spa Day</a>
+      <a class="btn btn-primary" href="#book" data-blvd-path="/cart/menu/Packages/p_74231a9e-5a21-43b6-af37-7432227b2256" data-blvd-type="PACKAGE">Buy the Classic Spa Day</a>
     </div>
     <div class="pkg pkg-featured">
       <p class="eyebrow">Full Spa Day</p>
@@ -1033,7 +1043,7 @@ PAGES.append(dict(path="packages",nav="Packages",service="Spa Packages",
         <li>Brow Wax</li>
       </ul>
       <p class="pkg-desc">The Classic Spa Day with a longer massage and brows done &mdash; the whole day, head to toe, at the biggest saving on a single-guest package.</p>
-      <a class="btn btn-primary" href="{book}">Book the Full Spa Day</a>
+      <a class="btn btn-primary" href="#book" data-blvd-path="/cart/menu/Packages/p_4fe93157-a423-448f-b6c8-281520f17191" data-blvd-type="PACKAGE">Buy the Full Spa Day</a>
     </div>
     <div class="pkg">
       <p class="eyebrow">For Two</p>
@@ -1045,7 +1055,7 @@ PAGES.append(dict(path="packages",nav="Packages",service="Spa Packages",
         <li>Two Spa Pedicures</li>
       </ul>
       <p class="pkg-desc">Couples, mother and daughter, best friends, the bride and her maid of honor &mdash; the same day, together, at $275 a person.</p>
-      <a class="btn btn-primary" href="{book}">Book For Two</a>
+      <a class="btn btn-primary" href="#book" data-blvd-path="/cart/menu/Packages/p_58a5977c-5af7-444e-aa97-b0af550f93ca" data-blvd-type="PACKAGE">Buy For Two</a>
     </div>
   </div>
   <p class="pkg-foot">Every package prices well below its &agrave; la carte total. Swap a service or add on &mdash; the front desk will price it. Gifting a spa day? Packages are the most-loved <a href="/gift-cards/">gift cards</a> we sell.</p>
@@ -1064,42 +1074,36 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
   <p class="eyebrow">Memberships</p>
   <h1>Omorfia Member Club</h1>
   <p class="lead mem-statement">Omorfia memberships are month to month &mdash; no startup fee, no cancellation fee, no contract. Members receive an <strong>unlimited 10% off every other salon and spa service</strong>, plus special discounted pricing on products. If you ever want to cancel, call Stavros directly and it&rsquo;s done &mdash; no questions asked. That&rsquo;s the whole agreement.</p>
-  <p class="mem-cta"><a class="btn btn-primary" href="#join" role="button" data-open="join-modal">Become a Member</a></p>
-  <p class="mem-phone">Questions? Call <a href="tel:{tel}">{phone}</a></p>
+  <p class="mem-cta"><a class="btn btn-primary" href="#book" data-blvd-path="/cart/menu/Other Memberships" data-blvd-type="MEMBERSHIP">Become a Member</a></p>
+  <p class="mem-phone">Questions? Call <a href="tel:{tel}">{phone}</a> &middot; <a href="#join" role="button" data-open="join-modal">Ask Stavros</a></p>
   <p class="mem-thanks" id="memThanks" hidden>Thank you &mdash; your request is in. Stavros will be in touch shortly to set up your membership.</p>
 </section>
 <section class="wrap club-wrap">
   <div class="club-head"><p class="eyebrow">Spa</p><h2>Poughkeepsie Spa Club</h2></div>
-  <div class="club-grid club-grid-5">
+  <div class="club-grid club-grid-4">
     <div class="club">
       <p class="eyebrow">Massage Club</p>
       <p class="club-price">$100<span>/month</span></p>
       <p class="club-desc">A massage every month at $35 off &mdash; 60 minutes $100, 90 minutes $160, 120 minutes $235. Any style, chosen when you arrive.</p>
-      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="massage60">Join</a>
+      <a class="btn btn-primary club-btn" href="#book" data-blvd-path="/cart/menu/Other Memberships/p_e3c56e3b-ccd2-44dd-86e9-1fda3300ba88" data-blvd-type="MEMBERSHIP" data-club="massage60">Join</a>
     </div>
     <div class="club">
       <p class="eyebrow">Facial Club</p>
       <p class="club-price">$100<span>/month</span></p>
       <p class="club-desc">A European Facial every month &mdash; $35 off the regular price. Other facials at the member 10% off.</p>
-      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="facial">Join</a>
+      <a class="btn btn-primary club-btn" href="#book" data-blvd-path="/cart/menu/Other Memberships/p_c70b58ae-7f91-464c-84c6-93c16ae236f1" data-blvd-type="MEMBERSHIP" data-club="facial">Join</a>
     </div>
     <div class="club">
       <p class="eyebrow">Mani &amp; Pedi Club</p>
       <p class="club-price">$25<span>/mo each</span></p>
       <p class="club-desc">A regular manicure or pedicure every month for $25 &mdash; take both for $50.</p>
-      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="manipedi">Join</a>
-    </div>
-    <div class="club">
-      <p class="eyebrow">Tanning Club</p>
-      <p class="club-price">$20<span>/month upper</span></p>
-      <p class="club-desc">A sunless glow every month &mdash; upper body for $20, or full body for $40. Half the regular price.</p>
-      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="tanupper">Join</a>
+      <a class="btn btn-primary club-btn" href="#book" data-blvd-path="/cart/menu/Other Memberships/p_5e0915c6-11be-43bd-982c-9046f5a50d07" data-blvd-type="MEMBERSHIP" data-club="manipedi">Join</a>
     </div>
     <div class="club">
       <p class="eyebrow">Brow Wax Club</p>
       <p class="club-price">$22<span>/month</span></p>
       <p class="club-desc">A brow wax every month &mdash; shaped, defined, and never overdue. $8 off the regular price.</p>
-      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="brow">Join</a>
+      <a class="btn btn-primary club-btn" href="#book" data-blvd-path="/cart/menu/Other Memberships/p_c9d04097-0ef6-45d1-bff9-a4e16366be4c" data-blvd-type="MEMBERSHIP" data-club="brow">Join</a>
     </div>
   </div>
   <div class="club-head club-head-2"><p class="eyebrow">Salon</p><h2>Poughkeepsie Salon Club</h2></div>
@@ -1108,25 +1112,25 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
       <p class="eyebrow">Blowout Club</p>
       <p class="club-price">$120<span>/month</span></p>
       <p class="club-desc">Four wash &amp; blowouts every month &mdash; $30 each instead of $60+.</p>
-      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="blowout">Join</a>
+      <a class="btn btn-primary club-btn" href="#book" data-blvd-path="/cart/menu/Other Memberships/p_8391bbe4-6747-4b78-b81b-275e768b836d" data-blvd-type="MEMBERSHIP" data-club="blowout">Join</a>
     </div>
     <div class="club">
       <p class="eyebrow">Women&rsquo;s Cut Club</p>
-      <p class="club-price">$50<span>/month</span></p>
-      <p class="club-desc">A women&rsquo;s cut every month &mdash; always fresh, never grown out. $20 off the regular price.</p>
-      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="cut">Join</a>
+      <p class="club-price">$45<span>/month</span></p>
+      <p class="club-desc">A women&rsquo;s cut every other month &mdash; always fresh, never grown out. $25 off the regular price.</p>
+      <a class="btn btn-primary club-btn" href="#book" data-blvd-path="/cart/menu/Other Memberships/p_045847b9-36df-49a4-847e-1738a5674b84" data-blvd-type="MEMBERSHIP" data-club="cut">Join</a>
     </div>
     <div class="club">
       <p class="eyebrow">Color Retouch Club</p>
-      <p class="club-price">$90<span>/month</span></p>
-      <p class="club-desc">A root retouch every month &mdash; regrowth handled before anyone notices. $10 off the regular price.</p>
-      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="retouch">Join</a>
+      <p class="club-price">$80<span>/month</span></p>
+      <p class="club-desc">A root retouch every month &mdash; regrowth handled before anyone notices. $20 off the regular price.</p>
+      <a class="btn btn-primary club-btn" href="#book" data-blvd-path="/cart/menu/Other Memberships/p_284276c7-b64e-4e45-aec7-6bb3911f3831" data-blvd-type="MEMBERSHIP" data-club="retouch">Join</a>
     </div>
     <div class="club">
       <p class="eyebrow">Men&rsquo;s Cut Club</p>
-      <p class="club-price">$40<span>/month</span></p>
-      <p class="club-desc">A men&rsquo;s cut every month &mdash; sharp on a schedule. $15 off the regular price.</p>
-      <a class="btn btn-primary club-btn" href="#join" role="button" data-open="join-modal" data-club="menscut">Join</a>
+      <p class="club-price">$30<span>/month</span></p>
+      <p class="club-desc">A men&rsquo;s cut every month &mdash; sharp on a schedule. $25 off the regular price.</p>
+      <a class="btn btn-primary club-btn" href="#book" data-blvd-path="/cart/menu/Other Memberships/p_dc15dc77-d61e-4bf6-a9d0-91ec2f217b86" data-blvd-type="MEMBERSHIP" data-club="menscut">Join</a>
     </div>
   </div>
   <p class="club-foot">Every club includes an unlimited 10% off all other salon &amp; spa services and special member pricing on products. Month to month &mdash; no startup fee, no cancellation fee, no contract. <span class="club-fine">Memberships are applicable with participating service providers only.</span></p>
@@ -1143,7 +1147,7 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
         <input type="hidden" name="_subject" value="New Omorfia Member Club signup">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_next" value="https://omorfiapk.com/memberships/?joined=1">
+        <input type="hidden" name="_next" value="https://omorfiabeauty.nyc/memberships/?joined=1">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <label>Full name<input type="text" name="Full Name" required autocomplete="name"></label>
         <label>Phone number<input type="tel" name="Phone" required autocomplete="tel"></label>
@@ -1158,14 +1162,12 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
             <option value="Massage Club — 90 Minute, $160/month" data-club="massage90">Massage Club &mdash; 90 Minute, $160/month</option>
             <option value="Massage Club — 120 Minute, $235/month" data-club="massage120">Massage Club &mdash; 120 Minute, $235/month</option>
             <option value="Brow Wax Club — $22/month" data-club="brow">Brow Wax Club &mdash; $22/month</option>
-            <option value="Tanning Club — Upper Body, $20/month" data-club="tanupper">Tanning Club &mdash; Upper Body, $20/month</option>
-            <option value="Tanning Club — Full Body, $40/month" data-club="tanfull">Tanning Club &mdash; Full Body, $40/month</option>
             </optgroup>
             <optgroup label="Poughkeepsie Salon Club">
             <option value="Blowout Club — 4 blowouts, $120/month" data-club="blowout">Blowout Club &mdash; 4 blowouts, $120/month</option>
-            <option value="Color Retouch Club — $90/month" data-club="retouch">Color Retouch Club &mdash; $90/month</option>
-            <option value="Women's Cut Club — $50/month" data-club="cut">Women&rsquo;s Cut Club &mdash; $50/month</option>
-            <option value="Men's Cut Club — $40/month" data-club="menscut">Men&rsquo;s Cut Club &mdash; $40/month</option>
+            <option value="Color Retouch Club — $80/month" data-club="retouch">Color Retouch Club &mdash; $80/month</option>
+            <option value="Women's Cut Club — $45/month" data-club="cut">Women&rsquo;s Cut Club &mdash; $45/month</option>
+            <option value="Men's Cut Club — $30/month" data-club="menscut">Men&rsquo;s Cut Club &mdash; $30/month</option>
             </optgroup>
             <option value="Not sure yet — help me choose" data-club="unsure">Not sure yet &mdash; help me choose</option>
           </select>
@@ -1322,6 +1324,30 @@ def inject_hero_slides(doc):
         doc = doc.replace("</body>", PH_SLIDES_SCRIPT + "</body>")
     return doc
 
+BLVD_JS = """<script>
+(function(){
+  var LOC='07df9e76-5ce7-4010-92d2-34fbc5ae7929', TEL='tel:+18456944952';
+  function openWidget(opts){
+    if(window.blvd&&blvd.openBookingWidget){
+      var p={locationId:LOC};
+      if(opts&&opts.path){p.path=opts.path;}
+      if(opts&&opts.type){p.visitType=opts.type;}
+      blvd.openBookingWidget({urlParams:p}); return true;
+    }
+    return false;
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href="#book"],a[href="#gift"],[data-blvd-path]');
+    if(!a)return;
+    e.preventDefault();
+    var href=a.getAttribute('href')||'';
+    var opts={path:a.getAttribute('data-blvd-path'),type:a.getAttribute('data-blvd-type')};
+    if(href==='#gift'&&!opts.path){opts={path:'/cart/menu/Gift%20Cards',type:'GIFT_CARD'};}
+    if(!openWidget(opts)){window.location.href=TEL;}
+  });
+})();
+</script>"""
+
 def render(p):
     canon=DOMAIN+"/"+(p["path"]+"/" if p["path"] else "")
     doc=HEAD.format(title=html.escape(p["title"]),desc=html.escape(p["desc"]),canon=canon,
@@ -1332,6 +1358,7 @@ def render(p):
     doc+=body
     doc+=FOOT.format(book=BOOK_URL,tel=PHONE_TEL,phone=PHONE,street=STREET,
                      city=CITY,state=STATE,zip=ZIP)
+    doc=doc.replace("</body>", BLVD_JS+"</body>")
     d=os.path.join(OUT,p["path"]) if p["path"] else OUT
     os.makedirs(d,exist_ok=True)
     open(os.path.join(d,"index.html"),"w").write(inject_hero_slides(doc))
