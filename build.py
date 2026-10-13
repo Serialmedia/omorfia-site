@@ -279,7 +279,7 @@ FOOT = """</main>
       <p><a href="/packages/">Packages</a> &middot; <a href="/memberships/">Memberships</a><br>
       <a href="/specials/">Specials</a> &middot; <a href="/gift-cards/">Gift Cards</a><br>
       <a href="/team/">Team</a> &middot; <a href="/reviews/">Reviews</a> &middot; <a href="/contact/">Contact</a><br>
-      <a href="/hudson-valley/">Areas We Serve</a></p>
+      <a href="/menu/">Services &amp; Prices</a> &middot; <a href="/hudson-valley/">Areas We Serve</a></p>
     </div>
     <div>
       <p class="foot-h">Popular</p>
@@ -1792,6 +1792,35 @@ PAGES.append(dict(path="hudson-valley",nav="Areas We Serve",
       ("Do you serve clients outside Poughkeepsie?","Most of our guests drive in from across Dutchess and Ulster counties — Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Hopewell Junction, Rhinebeck, Beacon, New Paltz and Highland among them."),
       ("Do you offer on-location bridal services?","Ask during your bridal consultation — depending on the date, venue and party size we'll recommend in-salon or discuss on-location options."),
       ("Are you open weekends?","Seven days a week, 9 AM to 8 PM, including Sundays.")]))
+
+
+# ---------------------------------------------------------------- full menu / price list
+_SVC_ORDER = ["hair","nails","massage","facials","lashes-brows","tanning","makeup"]
+_svc_pages = [next(p for p in PAGES if p["path"]==s) for s in _SVC_ORDER]
+_jump = " &middot; ".join(f'<a href="#{p["path"]}">{p["nav"]}</a>' for p in _svc_pages) + ' &middot; <a href="/wedding/">Wedding &amp; Bridal</a> &middot; <a href="/packages/">Packages</a> &middot; <a href="/memberships/">Memberships</a>'
+_menu_sections = "".join(
+  f'<section class="wrap menu-wrap menu-all" id="{p["path"]}"><p class="eyebrow">{p["nav"]}</p><h2>{p["service"]}</h2>'
+  f'{menu_html(p["groups"], "menu-"+p["path"])}'
+  f'<p class="menu-note"><a class="btn-link" href="/{p["path"]}/">More about {p["nav"].lower()} &rarr;</a></p></section>'
+  for p in _svc_pages)
+PAGES.append(dict(path="menu",nav="Services & Prices",
+ title="Salon & Spa Services & Prices | Omorfia Salon & Day Spa, Poughkeepsie NY",
+ desc="Full service menu and prices for Omorfia Salon & Day Spa in Poughkeepsie, NY — hair, nails, massage, facials, waxing, lashes, brows, spray tanning and makeup. Member pricing shown. Open 7 days.",
+ kw="Salon &amp; Spa Services &amp; Prices in Poughkeepsie, NY",
+ body="""
+<section class="page-hero">
+  <p class="eyebrow">The full menu</p>
+  <h1>Every service. Every price.</h1>
+  <p class="lead">The complete Omorfia menu in one place &mdash; hair, nails, massage, facials and waxing, lashes and brows, spray tanning and makeup. Prices are starting points; your provider confirms an exact quote before beginning. Members save on their club service and get 10% off everything else.</p>
+  <p class="related-links">"""+_jump+"""</p>
+  <a class="btn btn-primary" href="{book}">Book Appointment</a>
+</section>
+"""+_menu_sections+"""
+""",
+ faq=[("Why do some prices say 'starting at'?","Length, density, color history and service time change how much product and time a service takes. You'll have an exact quote before the service begins."),
+      ("Do members get a discount?","Yes — each club includes its monthly service at member pricing, plus an unlimited 10% off all other salon and spa services and special product pricing. Month to month, no contract."),
+      ("Can I book several services in one visit?","Yes — that's the point of a day spa. Stack hair, nails, massage and a facial into one appointment, or choose a spa package and save over à la carte."),
+      ("Do you take walk-ins?","When the book allows, gladly — booking online or calling (845) 694-4952 is the only way to guarantee a time.")]))
 
 # ------------------------------------------------------------------ build
 os.makedirs(OUT,exist_ok=True)
