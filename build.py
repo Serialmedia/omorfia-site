@@ -37,16 +37,17 @@ OG_IMG = {"":"/images/slides/s08.jpg","hair":"/images/home-hair.jpg","nails":"/i
 
 U = "https://images.unsplash.com/"
 Q = "?q=80&w=1600&auto=format&fit=crop"
+# Hero fallbacks are local (the slideshow layers over them); no third-party hotlinks.
 IMG = {
- "hero":    U+"photo-1544161515-4ab6ce6db874"+Q,
- "hair":    U+"photo-1560066984-138dadb4c035"+Q,
- "nails":   U+"photo-1604654894610-df63bc536371"+Q,
- "massage": U+"photo-1600334129128-685c5582fd35"+Q,
- "facials": U+"photo-1570172619644-dfd03ed5d881"+Q,
- "tanning": U+"photo-1517841905240-472988babdf9"+Q,
- "makeup":  U+"photo-1487412947147-5cebf100ffc2"+Q,
- "wedding": U+"photo-1519741497674-611481863552"+Q,
- "feature": U+"photo-1540555700478-4be289fbecef"+Q,
+ "hero":    "/images/slides/s08.jpg",
+ "hair":    "/images/home-hair.jpg",
+ "nails":   "/images/home-nails.jpg",
+ "massage": "/images/home-massage.jpg",
+ "facials": "/images/home-facials.jpg",
+ "tanning": "/images/home-tanning.jpg",
+ "makeup":  "/images/home-makeup.jpg",
+ "wedding": "/images/slides/s08.jpg",
+ "feature": "/images/slides/s08.jpg",
 }
 
 # ------------------------------------------------------------------ schema
@@ -115,8 +116,11 @@ def page_schema(p):
         "about":{"@id":DOMAIN+"/#business"},"inLanguage":"en-US",
         "primaryImageOfPage":DOMAIN+OG_IMG.get(p["path"],OG_IMG[""])}]
     crumbs=[{"@type":"ListItem","position":1,"name":"Home","item":DOMAIN+"/"}]
+    if p.get("parent"):
+        pp = next(x for x in PAGES if x["path"]==p["parent"])
+        crumbs.append({"@type":"ListItem","position":2,"name":pp["nav"],"item":f'{DOMAIN}/{pp["path"]}/'})
     if p["path"]:
-        crumbs.append({"@type":"ListItem","position":2,"name":p["nav"],
+        crumbs.append({"@type":"ListItem","position":len(crumbs)+1,"name":p["nav"],
                        "item":f'{DOMAIN}/{p["path"]}/'})
     g.append({"@type":"BreadcrumbList","itemListElement":crumbs})
     if p.get("service"):
@@ -274,7 +278,15 @@ FOOT = """</main>
       <p class="foot-h">Explore</p>
       <p><a href="/packages/">Packages</a> &middot; <a href="/memberships/">Memberships</a><br>
       <a href="/specials/">Specials</a> &middot; <a href="/gift-cards/">Gift Cards</a><br>
-      <a href="/team/">Team</a> &middot; <a href="/reviews/">Reviews</a> &middot; <a href="/contact/">Contact</a></p>
+      <a href="/team/">Team</a> &middot; <a href="/reviews/">Reviews</a> &middot; <a href="/contact/">Contact</a><br>
+      <a href="/hudson-valley/">Areas We Serve</a></p>
+    </div>
+    <div>
+      <p class="foot-h">Popular</p>
+      <p><a href="/japanese-head-spa/">Japanese Head Spa</a> &middot; <a href="/couples-massage/">Couples Massage</a><br>
+      <a href="/deep-tissue-massage/">Deep Tissue</a> &middot; <a href="/prenatal-massage/">Prenatal Massage</a><br>
+      <a href="/balayage/">Balayage</a> &middot; <a href="/hair-extensions/">Extensions</a> &middot; <a href="/keratin-treatment/">Keratin</a><br>
+      <a href="/microblading/">Microblading</a> &middot; <a href="/brazilian-wax/">Waxing</a> &middot; <a href="/prom-hair-and-makeup/">Prom</a></p>
     </div>
     <div>
       <p class="foot-h">Family</p>
@@ -381,6 +393,21 @@ def service_video(slug, nav):
 </section>"""
     return ""
 
+RELATED = {
+ "hair":    [("/balayage/","Balayage"),("/hair-extensions/","Hair Extensions"),("/keratin-treatment/","Keratin Smoothing"),("/japanese-head-spa/","Japanese Head Spa"),("/prom-hair-and-makeup/","Prom Hair &amp; Makeup"),("/wedding/","Bridal Hair")],
+ "massage": [("/couples-massage/","Couples Massage"),("/deep-tissue-massage/","Deep Tissue Massage"),("/prenatal-massage/","Prenatal Massage"),("/packages/","Spa Packages"),("/memberships/","Massage Club")],
+ "facials": [("/brazilian-wax/","Brazilian &amp; Body Waxing"),("/japanese-head-spa/","Japanese Head Spa Facial"),("/packages/","Spa Packages"),("/memberships/","Facial Club")],
+ "nails":   [("/packages/","Spa Packages"),("/memberships/","Mani &amp; Pedi Club"),("/prom-hair-and-makeup/","Prom Nails")],
+ "lashes-brows": [("/microblading/","Microblading"),("/makeup/","Makeup"),("/wedding/","Bridal Lashes")],
+ "makeup":  [("/prom-hair-and-makeup/","Prom Hair &amp; Makeup"),("/wedding/","Wedding &amp; Bridal"),("/lashes-brows/","Lash Extensions")],
+ "tanning": [("/prom-hair-and-makeup/","Prom Glow"),("/wedding/","Bridal"),("/packages/","Spa Packages")],
+}
+def related_html(slug):
+    links = RELATED.get(slug)
+    if not links: return ""
+    items = " &middot; ".join(f'<a href="{u}">{t}</a>' for u,t in links)
+    return f'<section class="wrap related"><p class="eyebrow">Explore</p><h2>You might also be looking for</h2><p class="related-links">{items}</p></section>'
+
 def service_page(slug,nav,service,title,desc,h1,intro,groups,faq,img,note=None,kw=None):
     kw = kw or f"{service} in Poughkeepsie, NY"
     body=f"""
@@ -400,8 +427,37 @@ def service_page(slug,nav,service,title,desc,h1,intro,groups,faq,img,note=None,k
   <p class="menu-note">Prices are starting points and may vary with length, density, and service time &mdash; your provider confirms an exact quote before beginning. Book online or call <a href="tel:{PHONE_TEL}">{PHONE}</a>.</p>
 </section>
 {faq_html(faq)}
+{related_html(slug)}
 """
     return dict(path=slug,nav=nav,service=service,title=title,desc=desc,body=body,faq=faq,faq_done=True,groups=groups)
+
+
+def topic_page(slug,nav,service,parent,title,desc,kw,tagline,intro,sections,groups,faq,img,related,cta=None):
+    """Long-tail landing page: hero + editorial sections + pricing (menu rows) + FAQ + related links."""
+    prose = "".join(f'<h3>{h}</h3>' + "".join(f'<p>{para}</p>' for para in ps) for h,ps in sections)
+    rel = " &middot; ".join(f'<a href="{u}">{t}</a>' for u,t in related)
+    body=f"""
+<section class="page-hero has-photo" style="background-image:url('{img}')">
+  <div class="ph-inner">
+    <h1 class="eyebrow">{kw}</h1>
+    <p class="ph-title">{tagline}</p>
+    <p class="lead">{intro}</p>
+    <a class="btn btn-primary" href="{{book}}">{cta or ("Book " + nav)}</a>
+  </div>
+</section>
+<section class="wrap prose-wrap">
+  <div class="prose">{prose}</div>
+</section>
+<section class="wrap menu-wrap">
+  <p class="eyebrow">Pricing</p>
+  <h2>{nav} pricing</h2>
+  {menu_html(groups, slug)}
+  <p class="menu-note">Prices are starting points and may vary with length, density, and service time &mdash; your provider confirms an exact quote before beginning. Book online or call <a href="tel:{PHONE_TEL}">{PHONE}</a>.</p>
+</section>
+{faq_html(faq)}
+<section class="wrap related"><p class="eyebrow">Explore</p><h2>You might also be looking for</h2><p class="related-links">{rel}</p></section>
+"""
+    return dict(path=slug,nav=nav,service=service,parent=parent,title=title,desc=desc,body=body,faq=faq,faq_done=True,groups=groups)
 
 REVIEWS = [
  ("This was my first visit to Omorfia for a massage, and I couldn&rsquo;t have asked for a better experience. Debbie was absolutely amazing from start to finish. Her hands are truly magical &mdash; every touch was both deeply therapeutic and incredibly relaxing.","Massage &middot; Google review"),
@@ -1390,6 +1446,353 @@ PAGES.append(dict(path="contact",nav="Contact",
       ("What's your cancellation policy?","Life happens — just give us as much notice as you can so we can offer the time to another guest. Full policy details are shared when you book."),
       ("Which areas do you serve?","Guests come from across the Hudson Valley — Poughkeepsie, Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Hopewell Junction, Rhinebeck, Beacon, New Paltz and Highland — most within a 20-minute drive on Route 44, Route 9 or the Taconic.")]))
 
+
+# ---------------------------------------------------------------- long-tail pages
+# Each targets one high-intent search competitors don't have a page for. Copy stays inside
+# what the menu actually offers; prices are the live menu rows.
+S = "/images/slides/s%02d.jpg"
+
+PAGES.append(topic_page("japanese-head-spa","Japanese Head Spa","Japanese Head Spa","hair",
+ "Japanese Head Spa in Poughkeepsie, NY | Hudson Valley | Omorfia",
+ "Japanese head spa treatments in Poughkeepsie, NY — 60-minute scalp rituals from $75 at Omorfia Salon & Day Spa. Cleanse, scalp massage, conditioning and an optional facial. Book online, open 7 days.",
+ "Japanese Head Spa in Poughkeepsie, NY &mdash; Hudson Valley",
+ "The scalp ritual everyone is talking about.",
+ "A Japanese head spa is a meditative, hour-long treatment for the scalp &mdash; deep cleanse, long massage, conditioning &mdash; that leaves hair lighter, shinier and your whole nervous system quieter. Omorfia offers it in Poughkeepsie, seven days a week.",
+ [("What a Japanese head spa actually is",[
+   "Think of it as a facial for your scalp. The ritual starts with a scalp analysis and a deep cleanse that lifts product, oil and mineral buildup from the follicles. Then comes the part guests come back for: an extended scalp, neck and shoulder massage, performed slowly with warm water and conditioning treatments working into the hair. It ends with a finish and blowout so you leave presentable, not dripping.",
+   "Scalp care is the foundation of healthy hair. A clean, stimulated scalp grows stronger hair, holds color better and simply feels different &mdash; most guests describe the hour as the most relaxed they have been in months."]),
+  ("Three ways to book it at Omorfia",[
+   "The <strong>Japanese Head Spa Conditioning Treatment (60 minutes, $150)</strong> is the full ritual: cleanse, massage and a conditioning treatment chosen for your hair. The <strong>Head Spa Facial Treatment (60 minutes, $150)</strong> pairs the scalp ritual with facial care, so face and scalp are treated in the same calm hour. Short on time? The <strong>Express Japanese Head Spa ($75)</strong> condenses the signature steps into a shorter visit.",
+   "Any of the three can be added to a cut, color or blowout in the same appointment &mdash; book the head spa first and your stylist takes it from there."]),
+  ("Why Omorfia for a head spa in the Hudson Valley",[
+   "Head spas are still rare outside New York City. Omorfia brings the treatment to Dutchess County inside a full salon and day spa, so the scalp ritual can roll straight into color, a blowout, a massage or a facial under one roof. We are on Dutchess Turnpike in Poughkeepsie with free parking, open seven days including Sundays."])],
+ [("Head Spa",[
+   ("Japanese Head Spa Conditioning Treatment (60 Min)","$150+","A meditative scalp ritual &mdash; cleanse, massage, and condition."),
+   ("Japanese Head Spa Facial Treatment (60 Min)","$150+","The head spa ritual, paired with facial care."),
+   ("Express Japanese Head Spa","$75+","The signature ritual, condensed.")])],
+ [("How long does a Japanese head spa take?","The full conditioning or facial treatment runs about 60 minutes; the express version is shorter. Add time if you're pairing it with a cut, color or blowout."),
+  ("Who is a head spa for?","Anyone — it's especially loved by guests with dry or itchy scalps, product buildup, oily roots, color-treated hair, or simply a stressful week. It is gentle enough to repeat monthly."),
+  ("Will my hair be wet when I leave?","No — every head spa finishes with a blow dry, so you leave styled."),
+  ("Can I combine it with color?","Yes. A head spa before color gives a clean canvas; many guests book head spa + blowout or head spa + color in one visit."),
+  ("Is a head spa the same as a scalp treatment?","A scalp treatment ($35) is a quick exfoliating add-on to another service. The Japanese head spa is a full, dedicated ritual with an extended massage — a different experience entirely.")],
+ S%9, [("/hair/","Hair Salon Menu"),("/facials/","Facials"),("/massage/","Massage"),("/packages/","Spa Packages")], cta="Book a Head Spa"))
+
+PAGES.append(topic_page("couples-massage","Couples Massage","Couples Massage","massage",
+ "Couples Massage in Poughkeepsie, NY | Side-by-Side Spa Day | Omorfia",
+ "Couples massage in Poughkeepsie, NY — two therapists, side by side, 60, 90 or 120 minutes from $135 each. Or book the For Two spa package with massages, facials and pedicures. Open 7 days.",
+ "Couples Massage in Poughkeepsie, NY",
+ "Side by side. Phones off.",
+ "Two therapists, two tables, the same quiet room &mdash; a couples massage at Omorfia is the simplest way to spend an hour together that neither of you has to plan. Book 60, 90 or 120 minutes and choose Swedish, deep tissue or hot stone when you arrive.",
+ [("How a couples massage works here",[
+   "Book two massages for the same start time and tell the front desk it's a couples booking &mdash; we pair you with two therapists and set you up side by side. Each of you chooses your own style and pressure once you're on the table, so one of you can go deep tissue while the other melts into Swedish. You pay for time, not type: the same price for any style.",
+   "Hot stones, amethyst crystals, Reiki or aromatherapy can be added to either table. Arrive a few minutes early, hydrate, and leave the rest to us."]),
+  ("Make it a whole afternoon",[
+   "The <strong>For Two spa package ($550, a $670 value)</strong> is our most-booked couples experience: two 60-minute massages, two European facials and two spa pedicures, about three and a half hours together for $275 a person. It's the anniversary, birthday, mother-and-daughter or best-friend plan that requires zero decisions.",
+   "Couples massage is also our most-gifted service &mdash; a <a href=\"/gift-cards/\">gift card</a> loaded for two massages or the For Two package arrives by email in a minute."]),
+  ("Poughkeepsie's day spa for two",[
+   "We're on Dutchess Turnpike with free parking, minutes from Arlington, Vassar and the Taconic, and open seven days a week including Sundays and evenings &mdash; so a couples massage fits a weekend, a date night or a day off without rearranging anything."])],
+ [("Massage &middot; Per person, choose your style when you arrive",[
+   ("60 Minute Massage","$135","The classic hour &mdash; any style, chosen when you arrive.","$100"),
+   ("90 Minute Massage","$195","Full body plus real time on problem areas.","$160"),
+   ("120 Minute Massage","$270","Two unhurried hours, head to toe.","$235")]),
+  ("For Two Package",[
+   ("For Two &mdash; Two Massages, Two Facials, Two Pedicures","$550","About 3&frac12; hours side by side &mdash; a $670 value.")]),
+  ("Enhancements",[
+   ("Hot Stones","$30","Add heated stones to either massage."),
+   ("Aromatherapy","$10","Essential oils chosen for your session.")])],
+ [("Do we have to pick the same massage?","No — each of you chooses your own style and pressure with your therapist. Same price for Swedish, deep tissue or hot stone."),
+  ("How do I book a couples massage?","Book two massages for the same time online, or call (845) 694-4952 and say it's for a couple — we'll pair the therapists and the room."),
+  ("Can we do more than a massage?","Yes — the For Two package adds facials and pedicures, or the front desk can build a custom day for two."),
+  ("Is a couples massage a good gift?","It's our most-gifted service. Gift cards work for any amount, a specific service or the For Two package."),
+  ("Are you open on Sundays?","Yes — seven days a week, 9 AM to 8 PM.")],
+ S%13, [("/massage/","Massage Menu"),("/packages/","For Two Package"),("/gift-cards/","Gift Cards"),("/deep-tissue-massage/","Deep Tissue")], cta="Book for Two"))
+
+PAGES.append(topic_page("deep-tissue-massage","Deep Tissue Massage","Deep Tissue Massage","massage",
+ "Deep Tissue Massage in Poughkeepsie, NY | Omorfia Day Spa",
+ "Deep tissue massage in Poughkeepsie, NY from licensed therapists — 60, 90 or 120 minutes from $135, hot stone add-on, open 7 days including Sundays. Same price as Swedish. Book online at Omorfia.",
+ "Deep Tissue Massage in Poughkeepsie, NY",
+ "For the knots that have overstayed their welcome.",
+ "Slow, focused pressure into the muscle layers that a lighter massage never reaches &mdash; for desk shoulders, runner's calves, lifting backs and the tension that follows you home. Licensed therapists, quiet rooms, and the same price as any other style.",
+ [("What deep tissue is (and isn't)",[
+   "Deep tissue massage works the deeper layers of muscle and connective tissue with slower strokes and sustained pressure. It's the right call for chronic tightness, postural strain and recovery from training. It isn't meant to hurt: a good deep tissue session sits at the edge of discomfort, never past it, and your therapist adjusts pressure the moment you ask.",
+   "At Omorfia you book the time, not the type. Start deep, finish Swedish, or focus the whole session on one stubborn area &mdash; it's decided with your therapist on the table, and the price doesn't change."]),
+  ("Which length to book",[
+   "<strong>60 minutes</strong> covers full-body maintenance with real work on one or two problem areas. <strong>90 minutes</strong> is the sweet spot for deep tissue &mdash; enough time to warm the tissue properly before going deep, without shortchanging the rest of you. <strong>120 minutes</strong> is the full reset for anyone carrying a season's worth of tension.",
+   "Add <strong>hot stones ($30)</strong> to loosen muscle before deeper work, or <strong>Reiki ($30)</strong> if you want the nervous system settled along with the muscle."]),
+  ("Make it monthly",[
+   "The <a href=\"/memberships/\">Massage Club</a> brings a monthly massage to $100 for 60 minutes, $160 for 90 and $235 for 120 &mdash; month to month, no contract, no startup fee, plus 10% off everything else in the salon and spa."])],
+ [("Massage &middot; Choose your style when you arrive",[
+   ("60 Minute Massage","$135","Deep tissue, Swedish, hot stone or a blend.","$100"),
+   ("90 Minute Massage","$195","Real time on problem areas without rushing the rest.","$160"),
+   ("120 Minute Massage","$270","The full reset.","$235")]),
+  ("Enhancements",[
+   ("Hot Stones","$30","Heat to loosen muscle before deeper work."),
+   ("Reiki Energy Work","$30","Add energy balancing to your massage."),
+   ("Aromatherapy","$10","Essential oils chosen for your session.")])],
+ [("Does deep tissue massage hurt?","It shouldn't. Expect firm, focused pressure and some intensity on tight spots, but tell your therapist if anything crosses from 'good pain' to pain — pressure is adjusted instantly."),
+  ("Is deep tissue more expensive than Swedish?","No. At Omorfia you pay for the length of the session, not the style."),
+  ("How often should I get deep tissue?","For chronic tension, every two to four weeks works well; many guests use the Massage Club to keep it monthly."),
+  ("Will I be sore afterward?","Some mild soreness for a day is normal after deep work. Hydrate, move gently, and it passes."),
+  ("Can I get one on a Sunday evening?","Yes — we're open seven days, 9 AM to 8 PM.")],
+ S%14, [("/massage/","Massage Menu"),("/couples-massage/","Couples Massage"),("/prenatal-massage/","Prenatal Massage"),("/memberships/","Massage Club")]))
+
+PAGES.append(topic_page("prenatal-massage","Prenatal Massage","Prenatal Massage","massage",
+ "Prenatal Massage in Poughkeepsie, NY | Pregnancy Massage | Omorfia",
+ "Prenatal massage in Poughkeepsie, NY — $140 pregnancy massage with supported side-lying positioning from licensed therapists at Omorfia Day Spa. Open 7 days, free parking, book online.",
+ "Prenatal Massage in Poughkeepsie, NY",
+ "Comfort for the body doing the most work.",
+ "A pregnancy massage designed around you: supported side-lying positioning, pressure chosen for the trimester, and a therapist who knows where the aches live &mdash; low back, hips, feet and the shoulders carrying everything else.",
+ [("What to expect from a prenatal massage",[
+   "Prenatal massage uses the techniques of a classic relaxation massage adapted for pregnancy. You're positioned on your side with pillows and bolsters for full support, and the work focuses on the areas that take the strain: the lower back and hips, the legs and feet, the neck and shoulders. Pressure stays gentle to moderate, and the deep abdominal work and certain pressure points used in other massages are avoided.",
+   "Most guests book from the second trimester onward. If you have a high-risk pregnancy or any medical concerns, check with your provider first &mdash; and tell your therapist how you're feeling on the day."]),
+  ("Why guests choose Omorfia",[
+   "Quiet treatment rooms, licensed therapists, and a 60-minute <strong>Pre-Natal Massage ($140)</strong> that's never rushed. We're open seven days, including Sundays and evenings, with free parking right at the door on Dutchess Turnpike &mdash; small things that matter a lot in the third trimester.",
+   "Pair it with a <a href=\"/nails/\">spa pedicure</a> in the same visit, or let someone gift it: prenatal massage is one of the kindest <a href=\"/gift-cards/\">gift cards</a> on our books."])],
+ [("Prenatal",[
+   ("Pre-Natal Massage","$140","Safe, supported comfort for moms-to-be."),
+   ("Aromatherapy","$10","Gentle essential oils, chosen with you.")])],
+ [("When in pregnancy can I get a massage?","Most guests book from the second trimester on. If you're in the first trimester or have a high-risk pregnancy, check with your provider before booking."),
+  ("How am I positioned?","On your side, fully supported with pillows and bolsters — never face-down."),
+  ("Is the pressure lighter?","Pressure is gentle to moderate and adjusted to how you feel on the day. Tell your therapist anything — that's the whole point."),
+  ("Can I book one as a gift?","Yes — gift cards can be loaded for a prenatal massage specifically."),
+  ("Do you have parking?","Yes, free parking in our lot at 751 Dutchess Turnpike.")],
+ S%15, [("/massage/","Massage Menu"),("/nails/","Spa Pedicure"),("/gift-cards/","Gift Cards"),("/facials/","Facials")]))
+
+PAGES.append(topic_page("balayage","Balayage","Balayage","hair",
+ "Balayage in Poughkeepsie, NY | Hand-Painted Highlights | Omorfia Salon",
+ "Balayage in Poughkeepsie, NY — hand-painted, lived-in color from $200 partial / $320 full, baby lights, face framing and glosses at Omorfia Salon & Day Spa. Free balayage consultation. Open 7 days.",
+ "Balayage in Poughkeepsie, NY",
+ "Color that looks like you were born lucky.",
+ "Hand-painted, sun-kissed dimension that grows out softly for months &mdash; no harsh lines, no six-week root panic. Partial, full, baby lights and face framing, with a complimentary consultation to map placement and tone before anyone picks up a brush.",
+ [("Balayage vs. highlights: which do you want?",[
+   "<strong>Balayage</strong> is hand-painted onto the surface of the hair, concentrating lightness toward the ends with a soft, diffused root &mdash; the lived-in look that grows out gracefully. <strong>Foil highlights</strong> lift from closer to the root in uniform sections for brighter, more consistent lightness. <strong>Baby lights</strong> are ultra-fine foils for a natural, sun-kissed finish. Many of our best results blend them: foils for brightness, balayage for softness.",
+   "Not sure? The <strong>balayage consultation is complimentary</strong>. Bring photos; your colorist maps placement, tone and realistic timing for your starting color."]),
+  ("What a balayage appointment includes",[
+   "Partial balayage ($200+) paints the top layers and face frame for dimension where it shows. Full balayage ($320+) is hand-painted throughout for the complete lived-in look. Both finish with a <strong>toner or glaze</strong> to land the exact tone &mdash; beige, honey, ash, copper &mdash; and a styled blowout.",
+   "Color-treated hair deserves care: add an <strong>Olaplex bond treatment ($50)</strong> or a conditioning mask during your service, and book a toner or glaze ($45) between full appointments to keep brass away and shine high."]),
+  ("Colorists who ask first",[
+   "Our senior and master colorists work in a salon where color is a conversation, not a menu number. Tell us the goal, the maintenance you'll actually do, and what you loved and hated last time &mdash; then we'll build the plan. Open seven days in Poughkeepsie, with free parking."])],
+ [("Balayage",[
+   ("Balayage Consultation","Complimentary","Map placement and tone before your appointment."),
+   ("Partial Balayage","$200+","Hand-painted dimension through the top layers."),
+   ("Full Balayage","$320+","Full hand-painted, lived-in color."),
+   ("Face Framing Highlight","$80+","Brightness right where it catches the light."),
+   ("Baby Lights","$200+","Ultra-fine foils for a sun-kissed, natural finish.")]),
+  ("Finish &amp; Care",[
+   ("Toner / Glaze","$45+","Neutralize brass and add gloss between services."),
+   ("Root Smudge","$35+","Soften the line between roots and color."),
+   ("Olaplex Hair Treatment","$50+","Bond-rebuilding repair for color-treated hair.")])],
+ [("How long does balayage take?","Plan on two to four hours depending on length, density and how much lift you need; your colorist confirms timing at the consultation."),
+  ("How often do I need to come back?","That's the beauty of it — most guests refresh every three to five months, with a toner or glaze in between to keep the tone fresh."),
+  ("Can balayage work on dark hair?","Yes. Dark hair may take more than one session to reach very light tones safely; your colorist will be honest about what's achievable in one visit."),
+  ("Why are prices 'starting at'?","Length, density and your starting color change the product and time involved. You'll have an exact quote before the service begins."),
+  ("Is the consultation really free?","Yes — balayage, vivid, keratin and extension consultations are all complimentary.")],
+ S%10, [("/hair/","Full Hair Menu"),("/hair-extensions/","Hair Extensions"),("/keratin-treatment/","Keratin Smoothing"),("/memberships/","Color Retouch Club")]))
+
+PAGES.append(topic_page("hair-extensions","Hair Extensions","Hair Extensions","hair",
+ "Hair Extensions in Poughkeepsie, NY | K-Tip, I-Tip, Tape-In & Weft | Omorfia",
+ "Hair extensions in Poughkeepsie, NY — K-tip, I-tip, tape-in and hand-tied weft extensions from $125 with a free consultation and an in-house extension specialist at Omorfia Salon & Day Spa.",
+ "Hair Extensions in Poughkeepsie, NY",
+ "Length and fullness that pass the touch test.",
+ "K-tip, I-tip, tape-in and weft extensions, matched to your color and installed by an extension specialist &mdash; so they move, part and feel like your own hair. The consultation is complimentary.",
+ [("Four methods, one honest consultation",[
+   "<strong>K-Tip ($175+)</strong>: keratin-bonded strands for the most seamless, long-wearing result. <strong>I-Tip ($150+)</strong>: bead-set strands with no heat and no glue &mdash; gentle on fine hair. <strong>Tape-In ($125+)</strong>: fast, flat, comfortable panels, ideal for a first set. <strong>Weft ($300+)</strong>: a full sewn-in row for maximum fullness in one install.",
+   "Which one is right depends on your hair's density, your lifestyle and how much maintenance you'll actually do. That's what the <strong>complimentary extension consultation</strong> is for: we match the method, length and color before you commit to anything."]),
+  ("Living with extensions",[
+   "Extensions need their own care &mdash; a dedicated brush, sleeping in a loose braid, and professional removal when the time comes. We offer an <strong>extension blowdry ($70+)</strong> styled around your set and <strong>safe extension removal ($100+)</strong> that protects your natural hair. Move-ups and maintenance are scheduled with your specialist at install."]),
+  ("Extensions for the big day",[
+   "Bridal updos, prom styles and event hair all photograph better with a little extra length and density. Book extensions a few weeks before a <a href=\"/wedding/\">wedding</a> or <a href=\"/prom-hair-and-makeup/\">prom</a> so they settle in before the trial."])],
+ [("Extensions",[
+   ("Extension Consultation","Complimentary","Match method, length, and color to your goals."),
+   ("K-Tip Extensions","$175+","Keratin-bonded strands for seamless length."),
+   ("I-Tip Extensions","$150+","Bead-set strands &mdash; no heat, no glue."),
+   ("Tape-In Extensions","$125+","Fast, flat, comfortable panels of length."),
+   ("Weft Extensions","$300+","A full sewn-in row for maximum fullness."),
+   ("Extension Blowdry","$70+","A blowout styled around your extensions."),
+   ("Extension Removal","$100+","Safe removal that protects your natural hair.")])],
+ [("Which extension method is best?","It depends on your hair's density and your routine — tape-ins for speed and comfort, K-tips for the most seamless wear, I-tips for no heat or glue, wefts for maximum fullness. The free consultation settles it."),
+  ("How long do extensions last?","Tape-ins and wefts are typically moved up every six to eight weeks; strand methods wear longer between maintenance. Your specialist sets the schedule at install."),
+  ("Do prices include the hair?","Prices are starting points for installation; hair cost depends on length, color and the amount needed, and is quoted at your consultation."),
+  ("Can extensions damage my hair?","Not when installed, maintained and removed professionally. Skipping maintenance or pulling them out at home is where damage happens — which is why removal is a service."),
+  ("Do you color-match?","Yes — matching to your color (or to a planned balayage) is part of the consultation.")],
+ S%11, [("/hair/","Full Hair Menu"),("/balayage/","Balayage"),("/wedding/","Bridal Hair"),("/prom-hair-and-makeup/","Prom Hair")]))
+
+PAGES.append(topic_page("keratin-treatment","Keratin Smoothing","Keratin Treatment","hair",
+ "Keratin Treatment in Poughkeepsie, NY | Smoothing & Frizz Control | Omorfia",
+ "Keratin smoothing treatments in Poughkeepsie, NY — 30-day keratin from $150, 4-month keratin relaxing from $350, Magic Sleek and B Blowout at Omorfia Salon & Day Spa. Free keratin consultation.",
+ "Keratin Treatment in Poughkeepsie, NY",
+ "Frizz, handled for a season.",
+ "Keratin smoothing treatments that cut blow-dry time in half and keep humidity from having an opinion about your hair &mdash; from a 30-day reset to a four-month relaxing treatment. The consultation is complimentary.",
+ [("Choosing your smoothing treatment",[
+   "<strong>Keratin Smoothing Treatment, 30-day ($150+)</strong>: a frizz-taming reset that lasts about a month &mdash; perfect before a trip, a wedding or summer. <strong>Keratin Relaxing Treatment, 4-month ($350+)</strong>: deep smoothing that holds for a season and makes daily styling almost unnecessary. <strong>Magic Sleek ($300+)</strong>: a salon-grade straightening system for lasting sleekness. <strong>B Blowout ($250+)</strong>: a professional smoothing blowout for long-wear frizz control with more movement left in.",
+   "A keratin treatment smooths the cuticle and seals in a protein layer; it doesn't bleach or permanently change your curl pattern, and results soften gradually rather than growing out with a line. The <strong>keratin consultation is complimentary</strong> and the right place to talk through texture, color history and the finish you want."]),
+  ("Before and after",[
+   "Arrive with clean, product-free hair if you can. Afterward, use sulfate-free shampoo and skip tight ponytails for the first days as your stylist advises &mdash; small habits that stretch the result. Color can usually be scheduled around a keratin treatment; ask at the consultation and we'll sequence the two."]),
+  ("Hudson Valley humidity, solved",[
+   "Our stylists do smoothing treatments year-round in Poughkeepsie, from June humidity to winter static. Open seven days, free parking, and a full salon menu if you want a cut or gloss in the same visit."])],
+ [("Texture &amp; Smoothing",[
+   ("Keratin Consultation","Complimentary","Find the right smoothing treatment for your hair."),
+   ("Keratin Smoothing Treatment (30-Day)","$150+","A frizz-taming reset that lasts about a month."),
+   ("Keratin Relaxing Treatment (4-Month)","$350+","Deep smoothing that holds for a season."),
+   ("Magic Sleek Treatment","$300+","Salon-grade straightening system for lasting sleekness."),
+   ("B Blowout","$250+","Professional smoothing blowout for long-wear frizz control.")]),
+  ("Care",[
+   ("Amika Anti-Frizz Treatment","$20+","A quick humidity shield for smoother wear."),
+   ("Kerasilk Recovery Mask","$50+","Luxury smoothing mask for stressed strands.")])],
+ [("How long does a keratin treatment last?","The 30-day treatment lasts about a month; the relaxing treatment holds around four months. Results fade gradually, not with a regrowth line."),
+  ("Will it make my hair straight?","It smooths and reduces frizz and volume; how straight depends on the treatment you choose and your texture. Magic Sleek is the most straightening option."),
+  ("Can I color my hair and get keratin?","Usually yes — your stylist will sequence them at the consultation."),
+  ("How long is the appointment?","Plan two to three hours depending on length and density."),
+  ("Is the consultation free?","Yes — keratin consultations are complimentary.")],
+ S%12, [("/hair/","Full Hair Menu"),("/balayage/","Balayage"),("/japanese-head-spa/","Japanese Head Spa"),("/memberships/","Blowout Club")]))
+
+PAGES.append(topic_page("microblading","Microblading","Microblading","lashes-brows",
+ "Microblading in Poughkeepsie, NY | Brow Tattoo & Fills | Omorfia",
+ "Microblading in Poughkeepsie, NY — hair-stroke brow tattooing $450 with fills at $250, plus brow lamination, tint and wax at Omorfia Salon & Day Spa. Open 7 days, book online.",
+ "Microblading in Poughkeepsie, NY",
+ "Brows you wake up with.",
+ "Hair-stroke microblading that fills, shapes and defines brows naturally &mdash; and stays put for a year or more. For a softer commitment, brow lamination, tint and shaping are on the same menu.",
+ [("What microblading is",[
+   "Microblading is a semi-permanent brow technique: a hand tool deposits pigment in fine, hair-like strokes along the brow to recreate the look of natural hair. It's the answer for sparse, over-plucked or uneven brows, and for anyone tired of drawing them on every morning. Results typically last twelve to eighteen months, with a fill recommended to keep the strokes crisp.",
+   "Your appointment starts with mapping: shape, arch and pigment are agreed on paper and on your face before any work begins. Expect the color to look darker for the first week and soften as it heals."]),
+  ("Microblading, lamination or tint?",[
+   "<strong>Microblading ($450)</strong> adds hair strokes where you don't have hair. <strong>Brow lamination &amp; tint ($100)</strong> brushes your existing brows up and sets them in place for weeks &mdash; fuller, fluffier, no needles. <strong>Brow tint ($25)</strong> and a <strong>brow wax ($30)</strong> are the quick refresh. Not sure which? Book a brow wax and ask; our brow specialists will tell you honestly."]),
+  ("Brows at a full day spa",[
+   "Pair brows with a <a href=\"/lashes-brows/\">lash lift</a>, a <a href=\"/facials/\">facial</a> or a blowout in the same visit. Open seven days in Poughkeepsie with free parking."])],
+ [("Brows",[
+   ("Microblading","$450","Hair-stroke brow tattooing for natural fullness."),
+   ("Microblade Fill","$250","Refresh strokes and color on existing work."),
+   ("Brow Lamination &amp; Tint","$100","Brushed-up, set-in-place brows with tint."),
+   ("Brow Tint","$25","Richer, fuller-looking brows in minutes."),
+   ("Brow Wax","$30","Shape and define the arch.","$22/month club &mdash; a brow wax every month")])],
+ [("How long does microblading last?","Twelve to eighteen months for most guests, with a fill ($250) recommended to keep the strokes crisp."),
+  ("Does microblading hurt?","Most guests describe it as scratching or mild pressure; a topical numbing is applied before the work."),
+  ("What's the healing like?","Brows look darker and bolder for about a week, then soften to the final shade over a few weeks. Keep them dry and skip makeup on the area as instructed."),
+  ("Who shouldn't get microblading?","Pregnant or nursing guests and anyone with certain skin or medical conditions should wait; tell us your history when you book."),
+  ("Is a touch-up included?","Fills are booked as a separate service ($250) when the strokes begin to soften.")],
+ S%16, [("/lashes-brows/","Lashes &amp; Brows Menu"),("/facials/","Facials &amp; Waxing"),("/makeup/","Makeup"),("/memberships/","Brow Wax Club")]))
+
+PAGES.append(topic_page("brazilian-wax","Waxing","Waxing","facials",
+ "Brazilian Wax & Body Waxing in Poughkeepsie, NY | Omorfia Day Spa",
+ "Brazilian wax $80, bikini $50, legs, arms, back, chest and face waxing in Poughkeepsie, NY — licensed estheticians, private rooms, open 7 days at Omorfia Salon & Day Spa.",
+ "Brazilian Wax &amp; Body Waxing in Poughkeepsie, NY",
+ "Smooth, quick, no drama.",
+ "Brazilian, bikini, legs, arms, back, chest and face &mdash; waxing by licensed estheticians in private treatment rooms, with results that outlast shaving by weeks. Full price list below.",
+ [("Waxing done properly",[
+   "Every wax at Omorfia happens in a private room with a licensed esthetician, fresh supplies for each guest and a pace that doesn't feel rushed. A <strong>Brazilian ($80)</strong> removes everything or nearly everything &mdash; your call. A <strong>French bikini ($70)</strong> goes higher and deeper than the classic <strong>bikini ($50)</strong>. Legs, arms, underarms, back and chest round out the body menu; brow, lip, chin and full-face waxing handle the rest.",
+   "Hair should be about a quarter inch long for the wax to grip. Exfoliate the day before, skip lotions and oils the day of, and tell your esthetician if you use retinoids or have had recent sun."]),
+  ("How often, and how to keep it smooth",[
+   "Most guests return every four to six weeks; hair grows back finer and sparser over time. The <a href=\"/memberships/\">Brow Wax Club ($22/month)</a> keeps brows on schedule, and 10% member pricing applies to every other wax.",
+   "Waxing before a <a href=\"/wedding/\">wedding</a>, <a href=\"/tanning/\">spray tan</a> or vacation? Book the wax a day or two ahead so the skin settles."])],
+ [("Body Waxing",[
+   ("Brazilian Wax","$80","Everything, or nearly everything &mdash; your call."),
+   ("French Bikini Wax","$70","Higher and deeper than the classic bikini."),
+   ("Bikini Wax","$50","Clean lines along the bikini edge."),
+   ("Full Leg Wax","$84","Hip to ankle, completely smooth."),
+   ("Half Leg Wax","$58","Knee down &mdash; the sandal essential."),
+   ("Underarm Wax","$37","Smooth results that outlast shaving."),
+   ("Full Arm Wax","$58","Shoulder to wrist."),
+   ("Half Arm Wax","$47","Elbow down, silky smooth."),
+   ("Back Wax","$74","Full back, shoulder to waist."),
+   ("Chest Wax","$74","Full chest, done properly.")]),
+  ("Face Waxing",[
+   ("Brow Wax","$30","Shape and define the arch.","$22/month club &mdash; a brow wax every month"),
+   ("Lip Wax","$21","Quick, clean upper-lip removal."),
+   ("Neck Wax","$23","Clean up the neckline."),
+   ("Full Face Wax","$60","Brow, lip, chin, and cheeks in one visit.")])],
+ [("How long should hair be for waxing?","About a quarter inch — roughly two to three weeks of growth after shaving."),
+  ("Does a Brazilian wax hurt?","The first one is the most sensitive; it gets easier each visit as hair grows back finer. Our estheticians work quickly and talk you through it."),
+  ("How long do results last?","Three to six weeks for most guests, depending on your hair growth."),
+  ("Can I wax before a spray tan?","Yes — wax a day or two before your tan so the skin settles first."),
+  ("Do you wax men?","Yes — back, chest, brows and more are on the menu for everyone.")],
+ S%17, [("/facials/","Facials &amp; Waxing Menu"),("/tanning/","Spray Tanning"),("/memberships/","Brow Wax Club"),("/packages/","Spa Packages")], cta="Book a Wax"))
+
+PAGES.append(topic_page("prom-hair-and-makeup","Prom Hair &amp; Makeup","Prom Hair and Makeup","makeup",
+ "Prom Hair & Makeup in Poughkeepsie, NY | Updos, Lashes, Nails & Spray Tan | Omorfia",
+ "Prom hair and makeup in Poughkeepsie, NY — updos from $115, half-up styles $70, full makeup $100, lashes, nails and a spray tan under one roof at Omorfia Salon & Day Spa. Book early for prom weekends.",
+ "Prom Hair &amp; Makeup in Poughkeepsie, NY",
+ "The night deserves the full treatment.",
+ "Updos, waves, half-up styles, camera-ready makeup, lashes, nails and a sunless glow &mdash; prom gets the bridal treatment at Omorfia, with the whole friend group styled on one timeline under one roof.",
+ [("Prom, the way we do it",[
+   "Book hair and makeup back to back and your look is finished in a single sitting: a <strong>full updo ($115+)</strong> or <strong>half-up style ($70+)</strong>, <strong>hot-tool curls or waves ($30+)</strong>, then <strong>full-face makeup ($100)</strong> with <strong>strip lashes ($15)</strong> or <strong>clusters ($40)</strong> for drama that lasts past the last song. A <strong>bang trim</strong> or <strong>toner</strong> the week before keeps everything crisp.",
+   "Bring photos of the dress and the look you love. Our stylists and makeup artists work with your hair type and your face, not a one-size template."]),
+  ("Nails, glow and the group",[
+   "<strong>Gel manicures ($45)</strong> and pedicures survive the night. A <strong>Show Stopper spray tan ($40 upper body / $80 full)</strong> booked one to two days before reads sun-kissed in photos. And because Omorfia is a full salon and day spa, your friends can all book the same afternoon and get ready together.",
+   "Prom weekends in Dutchess County fill fast &mdash; book as soon as you have the date, and ask about group timelines for parties of four or more."]),
+  ("Parents: we see you too",[
+   "A blowout, a <a href=\"/facials/\">facial</a> or a <a href=\"/massage/\">massage</a> while the getting-ready happens is a very reasonable use of the afternoon."])],
+ [("Prom Hair",[
+   ("Updo","$115+","Full formal styling for weddings, proms, and galas."),
+   ("Half Up / Half Down","$70+","Polished event styling with movement left in."),
+   ("Hot Tool Finish","$30+","Curls or waves set with a hot tool."),
+   ("Wash &amp; Blow Dry","$60+","Shampoo, condition, and a polished blowout."),
+   ("Braiding","$60+","From one statement braid to a fully braided style.")]),
+  ("Prom Makeup &amp; Lashes",[
+   ("Traditional Application","$100","Full-face artistry for events and nights out."),
+   ("Strip Lashes","$15","Applied with any makeup service."),
+   ("Lash Clusters","$40","Buildable clusters for tailored drama.")]),
+  ("Nails &amp; Glow",[
+   ("Gel Manicure","$45","Chip-resistant color cured to a two-week shine."),
+   ("Show Stopper Full Body Glow","$80","Head-to-toe sunless color, matched to your skin tone."),
+   ("Show Stopper Upper Body Glow","$40","Face, arms, and shoulders &mdash; camera-ready.")])],
+ [("How far ahead should I book for prom?","As soon as you have the date — prom Saturdays in April, May and June book out weeks ahead."),
+  ("Can my friends and I get ready together?","Yes. Tell us the group size when you book and we'll schedule hair, makeup and nails on one timeline."),
+  ("Should I wash my hair before an updo?","Day-old, product-free hair usually holds an updo best; your stylist will tell you what works for your hair when you book."),
+  ("Do you do a trial for prom?","Trials are available for hair or makeup if you want to lock the look — ask when booking."),
+  ("When should I get my spray tan?","One to two days before, after any waxing, so the color settles.")],
+ S%18, [("/makeup/","Makeup Menu"),("/hair/","Hair Menu"),("/tanning/","Spray Tan"),("/nails/","Nails")], cta="Book Prom"))
+
+# ---------------------------------------------------------------- areas we serve
+AREAS = [
+ ("Hyde Park","about 10 minutes north on Route 9","Hyde Park guests come down Route 9 for Sunday massages and color — we're the closest full day spa south of the Vanderbilt and FDR sites."),
+ ("Wappingers Falls","about 15 minutes south via Route 9 or the Taconic","Wappingers and Hopewell guests tend to book the long version: a 90-minute massage, a facial, nails — a package makes the drive worth it."),
+ ("LaGrange","about 10 minutes east on Route 44 / Route 55","LaGrangeville and Freedom Plains are straight down Dutchess Turnpike — the easiest drive on this list."),
+ ("Pleasant Valley","about 10 minutes east on Route 44","Route 44 brings Pleasant Valley and Salt Point right to our lot — the Adams Fairacre Farms lot, to be exact."),
+ ("Fishkill","about 20 minutes south on Route 9","Fishkill and Beacon guests book us for the things a chain doesn't do: Japanese head spa, balayage, bridal parties, full spa days."),
+ ("Hopewell Junction","about 20 minutes via the Taconic","Taconic to Route 55 to Route 44 — twenty minutes, free parking, and a seven-day schedule that fits around commuting."),
+ ("Rhinebeck","about 25 minutes north on Route 9","Rhinebeck and Red Hook guests come for salon-and-spa days without resort pricing, and for Sunday appointments."),
+ ("Beacon","about 25 minutes south","A spa day in Poughkeepsie pairs well with a Beacon weekend — book the For Two package and make an afternoon of it."),
+ ("New Paltz","about 20 minutes across the Mid-Hudson Bridge","New Paltz, Highland and Gardiner guests cross the bridge for hair color, lashes and massage — and for a parking lot."),
+ ("Highland","about 15 minutes across the bridge","Highland and Marlboro are a bridge away: over the Mid-Hudson, up Route 44, and you're here."),
+]
+_area_sections = "".join(
+  f'<div class="area"><h3>{t}</h3><p class="area-dist">{d}</p><p>{b}</p></div>' for t,d,b in AREAS)
+PAGES.append(dict(path="hudson-valley",nav="Areas We Serve",
+ title="Salon & Day Spa Serving the Hudson Valley | Hyde Park, Wappingers, LaGrange & More | Omorfia",
+ desc="Omorfia Salon & Day Spa in Poughkeepsie serves the whole Hudson Valley — Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Hopewell Junction, Rhinebeck, Beacon, New Paltz and Highland. Directions, drive times and what to book.",
+ kw="Salon &amp; Day Spa Serving the Hudson Valley",
+ body="""
+<section class="page-hero">
+  <p class="eyebrow">Areas we serve</p>
+  <h1>One address. The whole valley.</h1>
+  <p class="lead">Omorfia sits on Dutchess Turnpike (Route 44) in Poughkeepsie &mdash; the former Marlene Weber Day Spa building, sharing the Adams Fairacre Farms lot &mdash; within a twenty-five-minute drive of most of Dutchess and eastern Ulster County. Here&rsquo;s how guests from each town find us, and what they tend to book.</p>
+  <a class="btn btn-primary" href="{book}">Book Appointment</a>
+</section>
+<section class="wrap">
+  <p class="eyebrow">By town</p>
+  <h2>Drive times &amp; directions</h2>
+  <div class="area-grid">"""+_area_sections+"""</div>
+  <p class="menu-note">Drive times are typical off-peak estimates. Free parking in our lot at 751 Dutchess Turnpike, Poughkeepsie, NY 12603 &mdash; <a href=\"""" + MAPS_URL + """\" rel="noopener">open in Google Maps</a>.</p>
+</section>
+<section class="wrap split">
+  <div>
+    <p class="eyebrow">Why the drive is worth it</p>
+    <h2>Everything under one roof</h2>
+    <p>Hair, nails, massage, facials, waxing, lashes, spray tanning, makeup and bridal &mdash; stacked into one appointment if you like. Open seven days a week, 9 AM to 8 PM, Sundays included. <a class="btn-link" href="/packages/">See spa packages &rarr;</a></p>
+  </div>
+  <div>
+    <p class="eyebrow">Worth knowing</p>
+    <h2>Memberships travel well</h2>
+    <p>Monthly massage, facial, nail and salon clubs with no contract &mdash; and 10% off everything else &mdash; make a standing drive to Poughkeepsie an easy habit. <a class="btn-link" href="/memberships/">See memberships &rarr;</a></p>
+  </div>
+</section>
+""",
+ faq=[("Where exactly is Omorfia?","751 Dutchess Turnpike (Route 44), Poughkeepsie, NY 12603 — the grey and white former Marlene Weber building sharing the Adams Fairacre Farms parking lot, minutes from Arlington and Vassar College."),
+      ("Is there parking?","Yes — free parking in the lot, no garage, no meters."),
+      ("Do you serve clients outside Poughkeepsie?","Most of our guests drive in from across Dutchess and Ulster counties — Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Hopewell Junction, Rhinebeck, Beacon, New Paltz and Highland among them."),
+      ("Do you offer on-location bridal services?","Ask during your bridal consultation — depending on the date, venue and party size we'll recommend in-salon or discuss on-location options."),
+      ("Are you open weekends?","Seven days a week, 9 AM to 8 PM, including Sundays.")]))
+
 # ------------------------------------------------------------------ build
 os.makedirs(OUT,exist_ok=True)
 PH_SLIDES_SCRIPT = """<script>
@@ -1495,5 +1898,11 @@ with open(os.path.join(OUT,"sitemap.xml"),"w") as f:
         f.write(f"  <url><loc>{u}</loc><lastmod>{TODAY}</lastmod><changefreq>monthly</changefreq><priority>{pr}</priority></url>\n")
     f.write("</urlset>\n")
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\n\nSitemap: {DOMAIN}/sitemap.xml\n")
-json.dump({"cleanUrls":True,"trailingSlash":True},open(os.path.join(OUT,"vercel.json"),"w"),indent=2)
+json.dump({"cleanUrls":True,"trailingSlash":True,
+  "redirects":[
+    {"source":"/review","destination":f"https://search.google.com/local/writereview?placeid={PLACE_ID}","permanent":False},
+    {"source":"/reviews/google","destination":f"https://search.google.com/local/reviews?placeid={PLACE_ID}","permanent":False},
+    {"source":"/build.py","destination":"/","permanent":True},
+    {"source":"/README.md","destination":"/","permanent":True}]},
+  open(os.path.join(OUT,"vercel.json"),"w"),indent=2)
 print("built",len(urls),"pages:",urls)

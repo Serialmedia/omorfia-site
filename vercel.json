@@ -1,4 +1,26 @@
 {
   "cleanUrls": true,
-  "trailingSlash": true
+  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/review",
+      "destination": "https://search.google.com/local/writereview?placeid=ChIJa3T8WRM_3YkR99abqa-Z1dQ",
+      "permanent": false
+    },
+    {
+      "source": "/reviews/google",
+      "destination": "https://search.google.com/local/reviews?placeid=ChIJa3T8WRM_3YkR99abqa-Z1dQ",
+      "permanent": false
+    },
+    {
+      "source": "/build.py",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/README.md",
+      "destination": "/",
+      "permanent": true
+    }
+  ]
 }
