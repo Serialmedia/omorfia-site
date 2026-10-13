@@ -38,17 +38,8 @@ OG_IMG = {"":"/images/slides/s08.jpg","hair":"/images/home-hair.jpg","nails":"/i
 U = "https://images.unsplash.com/"
 Q = "?q=80&w=1600&auto=format&fit=crop"
 # Hero fallbacks are local (the slideshow layers over them); no third-party hotlinks.
-IMG = {
- "hero":    "/images/slides/s08.jpg",
- "hair":    "/images/home-hair.jpg",
- "nails":   "/images/home-nails.jpg",
- "massage": "/images/home-massage.jpg",
- "facials": "/images/home-facials.jpg",
- "tanning": "/images/home-tanning.jpg",
- "makeup":  "/images/home-makeup.jpg",
- "wedding": "/images/slides/s08.jpg",
- "feature": "/images/slides/s08.jpg",
-}
+# All heroes fall back to the preloaded first slide so no page pays for a second hero image.
+IMG = {k:"/images/slides/s08.jpg" for k in ("hero","hair","nails","massage","facials","tanning","makeup","wedding","feature")}
 
 # ------------------------------------------------------------------ schema
 def biz_node():
@@ -170,7 +161,10 @@ HEAD = """<!DOCTYPE html>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="/images/slides/s08.webp" fetchpriority="high">
+<link rel="preconnect" href="https://static.joinboulevard.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="/styles.css">
 <script type="application/ld+json">
 {schema}
@@ -197,8 +191,14 @@ HEAD = """<!DOCTYPE html>
       <a href="/hair/">Salon <svg class="chev" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
       <div class="dd-menu">
         <a href="/hair/">Hair</a>
+        <a href="/balayage/">Balayage</a>
+        <a href="/hair-extensions/">Hair Extensions</a>
+        <a href="/keratin-treatment/">Keratin Smoothing</a>
+        <a href="/japanese-head-spa/">Japanese Head Spa</a>
         <a href="/lashes-brows/">Lashes &amp; Brows</a>
+        <a href="/microblading/">Microblading</a>
         <a href="/makeup/">Makeup</a>
+        <a href="/prom-hair-and-makeup/">Prom</a>
         <a href="/wedding/">Wedding &amp; Bridal</a>
       </div>
     </div>
@@ -206,7 +206,11 @@ HEAD = """<!DOCTYPE html>
       <a href="/massage/">Spa <svg class="chev" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
       <div class="dd-menu">
         <a href="/massage/">Massage</a>
+        <a href="/couples-massage/">Couples Massage</a>
+        <a href="/deep-tissue-massage/">Deep Tissue</a>
+        <a href="/prenatal-massage/">Prenatal Massage</a>
         <a href="/facials/">Facials &amp; Esthetics</a>
+        <a href="/brazilian-wax/">Waxing</a>
         <a href="/nails/">Nails</a>
         <a href="/tanning/">Tanning</a>
         <a href="https://omomedspa.com" target="_blank" rel="noopener">Med Spa</a>
@@ -215,8 +219,11 @@ HEAD = """<!DOCTYPE html>
     <div class="dd">
       <a href="/packages/">Packages <svg class="chev" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
       <div class="dd-menu">
-        <a href="/memberships/">Memberships</a>
         <a href="/packages/">Packages</a>
+        <a href="/memberships/">Memberships</a>
+        <a href="/menu/">Services &amp; Prices</a>
+        <a href="/gift-cards/">Gift Cards</a>
+        <a href="/specials/">New Guest Offer</a>
       </div>
     </div>
     <div class="dd">
@@ -225,7 +232,8 @@ HEAD = """<!DOCTYPE html>
         <a href="/about/">Our Story</a>
         <a href="/team/">Meet the Team</a>
         <a href="/reviews/">Reviews</a>
-        <a href="/specials/">Specials &amp; Offers</a>
+        <a href="/hudson-valley/">Areas We Serve</a>
+        <a href="/contact/">Contact &amp; Hours</a>
       </div>
     </div>
     <div class="dd">
@@ -566,7 +574,9 @@ PAGES.append(dict(path="",nav="Home",
 <script>
 (function(){{
   var imgs=["/images/slides/s01.jpg","/images/slides/s02.jpg","/images/slides/s03.jpg","/images/slides/s04.jpg","/images/slides/s05.jpg","/images/slides/s06.jpg","/images/slides/s07.jpg","/images/slides/s08.jpg","/images/slides/s09.jpg","/images/slides/s10.jpg","/images/slides/s11.jpg","/images/slides/s12.jpg","/images/slides/s13.jpg","/images/slides/s14.jpg","/images/slides/s15.jpg","/images/slides/s16.jpg","/images/slides/s17.jpg","/images/slides/s18.jpg","/images/slides/s19.jpg","/images/slides/s20.jpg"];
+  imgs.splice(imgs.indexOf("/images/slides/s08.jpg"),1);
   for(var i=imgs.length-1;i>0;i--){{var j=Math.floor(Math.random()*(i+1));var t=imgs[i];imgs[i]=imgs[j];imgs[j]=t;}}
+  imgs.unshift("/images/slides/s08.jpg");
   var wrap=document.getElementById('heroSlides');if(!wrap)return;
   var a=document.createElement('div'),b=document.createElement('div');
   a.className='hslide on';b.className='hslide';
@@ -1828,7 +1838,9 @@ PH_SLIDES_SCRIPT = """<script>
 (function(){
   var wrap=document.querySelector('.ph-slides');if(!wrap)return;
   var imgs=[SLIDELIST];
+  imgs.splice(imgs.indexOf("/images/slides/s08.webp"),1);
   for(var i=imgs.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=imgs[i];imgs[i]=imgs[j];imgs[j]=t;}
+  imgs.unshift("/images/slides/s08.webp");
   var a=document.createElement('div'),b=document.createElement('div');
   a.className='hslide on';b.className='hslide';
   wrap.appendChild(a);wrap.appendChild(b);
@@ -1846,7 +1858,7 @@ PH_SLIDES_SCRIPT = """<script>
     im.src=imgs[idx];
   },5200);
 })();
-</script>""".replace("SLIDELIST", ",".join('"/images/slides/s%02d.jpg"' % i for i in range(1,21)))
+</script>""".replace("SLIDELIST", ",".join('"/images/slides/s%02d.webp"' % i for i in range(1,21)))
 
 def inject_hero_slides(doc):
     import re as _re
@@ -1906,6 +1918,7 @@ def render(p):
                     lat=GEO[0],lng=GEO[1])
     body=(kw_h1(p["body"], p.get("kw")).replace("{book}",BOOK_URL).replace("{gift}",GIFT_URL)
                    .replace("{tel}",PHONE_TEL).replace("{phone}",PHONE))
+    body=re.sub(r'(/images/[^"\')\s]+)\.jpg', r'\1.webp', body)   # browsers get WebP; meta/schema keep JPG
     if p.get("faq") and not p.get("faq_done"): body+=faq_html(p["faq"])
     doc+=body
     doc+=FOOT.format(book=BOOK_URL,tel=PHONE_TEL,phone=PHONE,street=STREET,
