@@ -5,13 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spa Memberships in Poughkeepsie, NY | Omorfia Salon &amp; Day Spa</title>
 <meta name="description" content="Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract. Members get an unlimited 10% off all other salon and spa services plus special product pricing.">
-<link rel="canonical" href="https://omorfiabeauty.nyc/memberships/">
+<link rel="canonical" href="https://www.omorfiabeauty.nyc/memberships/">
 <meta property="og:title" content="Spa Memberships in Poughkeepsie, NY | Omorfia Salon &amp; Day Spa">
 <meta property="og:description" content="Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract. Members get an unlimited 10% off all other salon and spa services plus special product pricing.">
-<meta property="og:url" content="https://omorfiabeauty.nyc/memberships/">
+<meta property="og:url" content="https://www.omorfiabeauty.nyc/memberships/">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://omorfiabeauty.nyc/images/slides/s08.jpg">
+<meta property="og:image" content="https://www.omorfiabeauty.nyc/images/slides/s08.jpg">
+<meta property="og:image:alt" content="Omorfia Salon &amp; Day Spa, Poughkeepsie NY">
 <meta property="og:site_name" content="Omorfia Salon &amp; Day Spa">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Spa Memberships in Poughkeepsie, NY | Omorfia Salon &amp; Day Spa">
+<meta name="twitter:description" content="Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract. Members get an unlimited 10% off all other salon and spa services plus special product pricing.">
+<meta name="twitter:image" content="https://www.omorfiabeauty.nyc/images/slides/s08.jpg">
+<meta name="geo.region" content="US-NY">
+<meta name="geo.placename" content="Poughkeepsie">
+<meta name="geo.position" content="41.7005477;-73.8771062">
+<meta name="ICBM" content="41.7005477, -73.8771062">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -21,12 +34,25 @@
  "@context": "https://schema.org",
  "@graph": [
   {
-   "@type": "DaySpa",
-   "@id": "https://omorfiabeauty.nyc/#business",
+   "@type": [
+    "DaySpa",
+    "HairSalon",
+    "NailSalon",
+    "BeautySalon"
+   ],
+   "@id": "https://www.omorfiabeauty.nyc/#business",
    "name": "Omorfia Salon & Day Spa",
-   "url": "https://omorfiabeauty.nyc/",
-   "image": "https://omorfiabeauty.nyc/images/slides/s08.jpg",
+   "alternateName": "Omorfia Salon & Spa",
+   "url": "https://www.omorfiabeauty.nyc/",
+   "logo": "https://www.omorfiabeauty.nyc/favicon.svg",
+   "image": [
+    "https://www.omorfiabeauty.nyc/images/slides/s08.jpg",
+    "https://www.omorfiabeauty.nyc/images/about/a03-exterior.jpg",
+    "https://www.omorfiabeauty.nyc/images/about/a01-interior.jpg"
+   ],
    "telephone": "+18456944952",
+   "email": "Stavros@kyriacoubeauty.com",
+   "priceRange": "$20 - $450",
    "address": {
     "@type": "PostalAddress",
     "streetAddress": "751 Dutchess Turnpike",
@@ -35,10 +61,65 @@
     "postalCode": "12603",
     "addressCountry": "US"
    },
+   "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 41.7005477,
+    "longitude": -73.8771062
+   },
+   "hasMap": "https://www.google.com/maps/place/?q=place_id:ChIJa3T8WRM_3YkR99abqa-Z1dQ",
    "areaServed": [
-    "Poughkeepsie NY",
-    "Dutchess County NY",
-    "Hudson Valley NY"
+    {
+     "@type": "City",
+     "name": "Poughkeepsie, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Hyde Park, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Wappingers Falls, NY"
+    },
+    {
+     "@type": "City",
+     "name": "LaGrange, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Pleasant Valley, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Fishkill, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Hopewell Junction, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Rhinebeck, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Beacon, NY"
+    },
+    {
+     "@type": "City",
+     "name": "New Paltz, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Highland, NY"
+    },
+    {
+     "@type": "AdministrativeArea",
+     "name": "Dutchess County, NY"
+    },
+    {
+     "@type": "Place",
+     "name": "Hudson Valley, NY"
+    }
    ],
    "openingHoursSpecification": [
     {
@@ -56,16 +137,60 @@
      "closes": "20:00"
     }
    ],
+   "foundingDate": "2023",
+   "currenciesAccepted": "USD",
+   "paymentAccepted": "Cash, Credit Card, Gift Card",
    "sameAs": [
     "https://www.instagram.com/omorfiadayspa/",
-    "https://www.yelp.com/biz/omorfia-salon-and-spa-poughkeepsie"
+    "https://www.yelp.com/biz/omorfia-salon-and-spa-poughkeepsie",
+    "https://www.google.com/maps/place/?q=place_id:ChIJa3T8WRM_3YkR99abqa-Z1dQ"
    ],
    "parentOrganization": {
     "@type": "Organization",
     "name": "Kyriacou Beauty Group",
     "url": "https://kyriacoubeauty.com"
    },
-   "slogan": "Where Beauty Meets Relaxation"
+   "slogan": "Where Beauty Meets Relaxation",
+   "knowsAbout": [
+    "Hair salon",
+    "Hair color",
+    "Balayage",
+    "Hair extensions",
+    "Massage therapy",
+    "Facials",
+    "Waxing",
+    "Manicures and pedicures",
+    "Lash extensions",
+    "Spray tanning",
+    "Bridal hair and makeup",
+    "Spa packages",
+    "Spa memberships"
+   ]
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://www.omorfiabeauty.nyc/#website",
+   "url": "https://www.omorfiabeauty.nyc/",
+   "name": "Omorfia Salon & Day Spa",
+   "publisher": {
+    "@id": "https://www.omorfiabeauty.nyc/#business"
+   },
+   "inLanguage": "en-US"
+  },
+  {
+   "@type": "WebPage",
+   "@id": "https://www.omorfiabeauty.nyc/memberships/#webpage",
+   "url": "https://www.omorfiabeauty.nyc/memberships/",
+   "name": "Spa Memberships in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+   "description": "Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract. Members get an unlimited 10% off all other salon and spa services plus special product pricing.",
+   "isPartOf": {
+    "@id": "https://www.omorfiabeauty.nyc/#website"
+   },
+   "about": {
+    "@id": "https://www.omorfiabeauty.nyc/#business"
+   },
+   "inLanguage": "en-US",
+   "primaryImageOfPage": "https://www.omorfiabeauty.nyc/images/slides/s08.jpg"
   },
   {
    "@type": "BreadcrumbList",
@@ -74,24 +199,108 @@
      "@type": "ListItem",
      "position": 1,
      "name": "Home",
-     "item": "https://omorfiabeauty.nyc/"
+     "item": "https://www.omorfiabeauty.nyc/"
     },
     {
      "@type": "ListItem",
      "position": 2,
      "name": "Memberships",
-     "item": "https://omorfiabeauty.nyc/memberships/"
+     "item": "https://www.omorfiabeauty.nyc/memberships/"
     }
    ]
   },
   {
    "@type": "Service",
+   "@id": "https://www.omorfiabeauty.nyc/memberships/#service",
    "name": "Spa Memberships",
    "serviceType": "Spa Memberships",
-   "areaServed": "Poughkeepsie NY",
+   "url": "https://www.omorfiabeauty.nyc/memberships/",
+   "areaServed": [
+    {
+     "@type": "City",
+     "name": "Poughkeepsie, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Hyde Park, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Wappingers Falls, NY"
+    },
+    {
+     "@type": "City",
+     "name": "LaGrange, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Pleasant Valley, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Fishkill, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Hopewell Junction, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Rhinebeck, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Beacon, NY"
+    },
+    {
+     "@type": "City",
+     "name": "New Paltz, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Highland, NY"
+    }
+   ],
    "provider": {
-    "@id": "https://omorfiabeauty.nyc/#business"
+    "@id": "https://www.omorfiabeauty.nyc/#business"
    }
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "Is there a contract or startup fee?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do I cancel?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Call Stavros directly at (845) 694-4952 and it's done \u2014 no questions asked."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What else do members get?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Beyond the monthly service, every club includes an unlimited 10% off all other salon and spa services and special member pricing on products."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does the membership work with every provider?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Memberships are applicable with participating service providers \u2014 ask the front desk when you book."
+     }
+    }
+   ]
   }
  ]
 }
@@ -168,8 +377,8 @@
 <main id="main">
 
 <section class="page-hero mem-hero has-photo ph-plain"><div class="ph-slides" aria-hidden="true"></div><div class="ph-veil" aria-hidden="true"></div>
-  <p class="eyebrow">Memberships</p>
-  <h1>Omorfia Member Club</h1>
+  <h1 class="eyebrow">Spa &amp; Salon Memberships in Poughkeepsie, NY</h1>
+  <p class="ph-title">Omorfia Member Club</p>
   <p class="lead mem-statement">Omorfia memberships are month to month &mdash; no startup fee, no cancellation fee, no contract. Members receive an <strong>unlimited 10% off every other salon and spa service</strong>, plus special discounted pricing on products. If you ever want to cancel, call Stavros directly and it&rsquo;s done &mdash; no questions asked. That&rsquo;s the whole agreement.</p>
   <p class="mem-cta"><a class="btn btn-primary" href="#book" data-blvd-path="/cart/menu/Other Memberships" data-blvd-type="MEMBERSHIP">Become a Member</a></p>
   <p class="mem-phone">Questions? Call <a href="tel:+18456944952">(845) 694-4952</a> &middot; <a href="#join" role="button" data-open="join-modal">Ask Stavros</a></p>
@@ -244,7 +453,7 @@
         <input type="hidden" name="_subject" value="New Omorfia Member Club signup">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_next" value="https://omorfiabeauty.nyc/memberships/?joined=1">
+        <input type="hidden" name="_next" value="https://www.omorfiabeauty.nyc/memberships/?joined=1">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <label>Full name<input type="text" name="Full Name" required autocomplete="name"></label>
         <label>Phone number<input type="tel" name="Phone" required autocomplete="tel"></label>
@@ -305,7 +514,10 @@
     }
   });
 })();
-</script></main>
+</script><section class="wrap faq"><p class="eyebrow">Questions</p><h2>Good to know</h2><details><summary>Is there a contract or startup fee?</summary><p>No. Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract.</p></details>
+<details><summary>How do I cancel?</summary><p>Call Stavros directly at (845) 694-4952 and it&amp;rsquo;s done &amp;mdash; no questions asked.</p></details>
+<details><summary>What else do members get?</summary><p>Beyond the monthly service, every club includes an unlimited 10% off all other salon and spa services and special member pricing on products.</p></details>
+<details><summary>Does the membership work with every provider?</summary><p>Memberships are applicable with participating service providers &amp;mdash; ask the front desk when you book.</p></details></section></main>
 <section class="cta-band">
   <p class="cta-greek" aria-hidden="true">&omicron;&mu;&omicron;&rho;&phi;&iota;&#940;</p>
   <h2>Ready when you are.</h2>

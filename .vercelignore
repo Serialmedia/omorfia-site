@@ -1,0 +1,5 @@
+# Source and docs are not part of the deployed site
+build.py
+README.md
+site/
+.vercelignore

@@ -3,19 +3,37 @@
 Edit constants, run `python3 build.py`, deploy /site."""
 import json, os, re, html
 
-DOMAIN   = "https://omorfiabeauty.nyc"
+DOMAIN   = "https://www.omorfiabeauty.nyc"   # must match the host Vercel serves (apex 30x -> www)
 BOOK_URL = "#book"      # Boulevard self-booking link
 GIFT_URL = "#gift"     # Boulevard gift card link (or leave = BOOK_URL)
 NAME     = "Omorfia Salon & Day Spa"
+ALT_NAME = "Omorfia Salon & Spa"              # name as it appears on the Google Business Profile
 STREET   = "751 Dutchess Turnpike"
 CITY     = "Poughkeepsie"
 STATE    = "NY"
 ZIP      = "12603"
 PHONE    = "(845) 694-4952"
 PHONE_TEL= "+18456944952"
+EMAIL    = "Stavros@kyriacoubeauty.com"
+GEO      = (41.7005477, -73.8771062)
+PLACE_ID = "ChIJa3T8WRM_3YkR99abqa-Z1dQ"
+MAPS_URL = f"https://www.google.com/maps/place/?q=place_id:{PLACE_ID}"
+FOUNDED  = "2023"
+PRICE_RANGE = "$20 - $450"
 SAMEAS   = ["https://www.instagram.com/omorfiadayspa/",
-            "https://www.yelp.com/biz/omorfia-salon-and-spa-poughkeepsie"]
+            "https://www.yelp.com/biz/omorfia-salon-and-spa-poughkeepsie",
+            MAPS_URL]
+# Nearby towns we draw guests from — used for areaServed schema and the "serving" line.
+NEARBY   = ["Poughkeepsie","Hyde Park","Wappingers Falls","LaGrange","Pleasant Valley",
+            "Fishkill","Hopewell Junction","Rhinebeck","Beacon","New Paltz","Highland"]
 OUT = os.path.join(os.path.dirname(__file__), "site")
+TODAY = __import__("datetime").date.today().isoformat()
+
+# Per-page social image (falls back to the s08 slide).
+OG_IMG = {"":"/images/slides/s08.jpg","hair":"/images/home-hair.jpg","nails":"/images/home-nails.jpg",
+          "massage":"/images/home-massage.jpg","facials":"/images/home-facials.jpg",
+          "tanning":"/images/home-tanning.jpg","makeup":"/images/home-makeup.jpg",
+          "team":"/images/team/group.jpg","about":"/images/about/a01-interior.jpg"}
 
 U = "https://images.unsplash.com/"
 Q = "?q=80&w=1600&auto=format&fit=crop"
@@ -33,33 +51,86 @@ IMG = {
 
 # ------------------------------------------------------------------ schema
 def biz_node():
-    return {"@type":"DaySpa","@id":DOMAIN+"/#business","name":NAME,"url":DOMAIN+"/",
-        "image":DOMAIN+"/images/slides/s08.jpg","telephone":PHONE_TEL,
+    return {"@type":["DaySpa","HairSalon","NailSalon","BeautySalon"],
+        "@id":DOMAIN+"/#business","name":NAME,"alternateName":ALT_NAME,"url":DOMAIN+"/",
+        "logo":DOMAIN+"/favicon.svg",
+        "image":[DOMAIN+"/images/slides/s08.jpg",DOMAIN+"/images/about/a03-exterior.jpg",
+                 DOMAIN+"/images/about/a01-interior.jpg"],
+        "telephone":PHONE_TEL,"email":EMAIL,"priceRange":PRICE_RANGE,
         "address":{"@type":"PostalAddress","streetAddress":STREET,"addressLocality":CITY,
                    "addressRegion":STATE,"postalCode":ZIP,"addressCountry":"US"},
-        "areaServed":["Poughkeepsie NY","Dutchess County NY","Hudson Valley NY"],
+        "geo":{"@type":"GeoCoordinates","latitude":GEO[0],"longitude":GEO[1]},
+        "hasMap":MAPS_URL,
+        "areaServed":[{"@type":"City","name":f"{t}, NY"} for t in NEARBY]
+                     +[{"@type":"AdministrativeArea","name":"Dutchess County, NY"},
+                       {"@type":"Place","name":"Hudson Valley, NY"}],
         "openingHoursSpecification":[{"@type":"OpeningHoursSpecification",
             "dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
             "opens":"09:00","closes":"20:00"}],
+        "foundingDate":FOUNDED,
+        "currenciesAccepted":"USD","paymentAccepted":"Cash, Credit Card, Gift Card",
         "sameAs":SAMEAS,
         "parentOrganization":{"@type":"Organization","name":"Kyriacou Beauty Group",
                               "url":"https://kyriacoubeauty.com"},
-        "slogan":"Where Beauty Meets Relaxation"}
+        "slogan":"Where Beauty Meets Relaxation",
+        "knowsAbout":["Hair salon","Hair color","Balayage","Hair extensions","Massage therapy",
+                      "Facials","Waxing","Manicures and pedicures","Lash extensions",
+                      "Spray tanning","Bridal hair and makeup","Spa packages","Spa memberships"]}
+
+
+def _price_offer(name, price):
+    """Turn a menu price string into a schema.org Offer, or None if it is not a price."""
+    t = html.unescape(price).replace(",", "").strip()
+    m = re.match(r"^\$(\d+(?:\.\d+)?)(\+?)$", t)
+    if m:
+        amt = float(m.group(1)); amt = int(amt) if amt.is_integer() else amt
+        if m.group(2):   # "$70+" = starting price
+            return {"@type":"Offer","itemOffered":{"@type":"Service","name":name},
+                    "priceSpecification":{"@type":"PriceSpecification","minPrice":amt,"priceCurrency":"USD"},
+                    "availability":"https://schema.org/InStock"}
+        return {"@type":"Offer","itemOffered":{"@type":"Service","name":name},
+                "price":amt,"priceCurrency":"USD","availability":"https://schema.org/InStock"}
+    if t.lower() == "complimentary":
+        return {"@type":"Offer","itemOffered":{"@type":"Service","name":name},
+                "price":0,"priceCurrency":"USD"}
+    return None
+
+
+def offer_catalog(groups, service):
+    cats=[]
+    for title,rows in groups:
+        items=[o for o in (_price_offer(html.unescape(r[0]), r[1]) for r in rows) if o]
+        if items:
+            cats.append({"@type":"OfferCatalog","name":html.unescape(title),"itemListElement":items})
+    return {"@type":"OfferCatalog","name":f"{service} menu","itemListElement":cats} if cats else None
+
 
 def page_schema(p):
-    g=[biz_node()]
+    url = DOMAIN+"/"+(p["path"]+"/" if p["path"] else "")
+    g=[biz_node(),
+       {"@type":"WebSite","@id":DOMAIN+"/#website","url":DOMAIN+"/","name":NAME,
+        "publisher":{"@id":DOMAIN+"/#business"},"inLanguage":"en-US"},
+       {"@type":"WebPage","@id":url+"#webpage","url":url,"name":p["title"],
+        "description":p["desc"],"isPartOf":{"@id":DOMAIN+"/#website"},
+        "about":{"@id":DOMAIN+"/#business"},"inLanguage":"en-US",
+        "primaryImageOfPage":DOMAIN+OG_IMG.get(p["path"],OG_IMG[""])}]
     crumbs=[{"@type":"ListItem","position":1,"name":"Home","item":DOMAIN+"/"}]
     if p["path"]:
         crumbs.append({"@type":"ListItem","position":2,"name":p["nav"],
                        "item":f'{DOMAIN}/{p["path"]}/'})
     g.append({"@type":"BreadcrumbList","itemListElement":crumbs})
     if p.get("service"):
-        g.append({"@type":"Service","name":p["service"],"serviceType":p["service"],
-                  "areaServed":"Poughkeepsie NY","provider":{"@id":DOMAIN+"/#business"}})
+        svc={"@type":"Service","@id":url+"#service","name":p["service"],"serviceType":p["service"],
+             "url":url,"areaServed":[{"@type":"City","name":f"{t}, NY"} for t in NEARBY],
+             "provider":{"@id":DOMAIN+"/#business"}}
+        cat = offer_catalog(p["groups"], p["service"]) if p.get("groups") else None
+        if cat: svc["hasOfferCatalog"]=cat
+        g.append(svc)
     if p.get("persons"):
-        for nm,rl in p["persons"]:
-            g.append({"@type":"Person","name":nm,"jobTitle":rl,
-                      "worksFor":{"@id":DOMAIN+"/#business"}})
+        for nm,rl,img in p["persons"]:
+            node={"@type":"Person","name":nm,"jobTitle":rl,"worksFor":{"@id":DOMAIN+"/#business"}}
+            if img: node["image"]=DOMAIN+"/images/team/"+img
+            g.append(node)
     if p.get("faq"):
         g.append({"@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,
             "acceptedAnswer":{"@type":"Answer","text":a}} for q,a in p["faq"]]})
@@ -79,7 +150,20 @@ HEAD = """<!DOCTYPE html>
 <meta property="og:url" content="{canon}">
 <meta property="og:type" content="website">
 <meta property="og:image" content="{ogimg}">
+<meta property="og:image:alt" content="Omorfia Salon &amp; Day Spa, Poughkeepsie NY">
 <meta property="og:site_name" content="Omorfia Salon &amp; Day Spa">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="{ogimg}">
+<meta name="geo.region" content="US-NY">
+<meta name="geo.placename" content="Poughkeepsie">
+<meta name="geo.position" content="{lat};{lng}">
+<meta name="ICBM" content="{lat}, {lng}">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -297,12 +381,13 @@ def service_video(slug, nav):
 </section>"""
     return ""
 
-def service_page(slug,nav,service,title,desc,h1,intro,groups,faq,img,note=None):
+def service_page(slug,nav,service,title,desc,h1,intro,groups,faq,img,note=None,kw=None):
+    kw = kw or f"{service} in Poughkeepsie, NY"
     body=f"""
 <section class="page-hero has-photo" style="background-image:url('{img}')">
   <div class="ph-inner">
-    <p class="eyebrow">{nav} &middot; Poughkeepsie, NY</p>
-    <h1>{h1}</h1>
+    <h1 class="eyebrow">{kw}</h1>
+    <p class="ph-title">{h1}</p>
     <p class="lead">{intro}</p>
     <a class="btn btn-primary" href="{{book}}">Book {nav}</a>
   </div>
@@ -316,7 +401,7 @@ def service_page(slug,nav,service,title,desc,h1,intro,groups,faq,img,note=None):
 </section>
 {faq_html(faq)}
 """
-    return dict(path=slug,nav=nav,service=service,title=title,desc=desc,body=body,faq=faq,faq_done=True)
+    return dict(path=slug,nav=nav,service=service,title=title,desc=desc,body=body,faq=faq,faq_done=True,groups=groups)
 
 REVIEWS = [
  ("This was my first visit to Omorfia for a massage, and I couldn&rsquo;t have asked for a better experience. Debbie was absolutely amazing from start to finish. Her hands are truly magical &mdash; every touch was both deeply therapeutic and incredibly relaxing.","Massage &middot; Google review"),
@@ -380,9 +465,9 @@ PAGES.append(dict(path="",nav="Home",
   <div class="hero-slides-layer" id="heroSlides" aria-hidden="true"></div>
   <div class="hero-veil" aria-hidden="true"></div>
   <p class="hero-def"><em>omorfi&aacute;</em> &mdash; Greek, &ldquo;beauty&rdquo;</p>
-  <h1 class="hero-brand">OMORFIA</h1>
+  <p class="hero-brand">OMORFIA</p>
   <div class="rule" aria-hidden="true"></div>
-  <p class="hero-sub">Salon &amp; Day Spa &nbsp;&middot;&nbsp; Poughkeepsie, New York</p>
+  <h1 class="hero-sub">Salon &amp; Day Spa &nbsp;&middot;&nbsp; Poughkeepsie, New York</h1>
   <p class="hero-tag">Where Beauty Meets Relaxation</p>
   <p class="hero-open">Open 7 Days a Week &middot; <span class="hero-star">&#9733;</span> 4.9 on Google</p>
   <div class="primary-row"><a class="btn btn-primary" href="{{book}}">Book Appointment</a></div>
@@ -460,12 +545,12 @@ PAGES.append(dict(path="",nav="Home",
     <p class="eyebrow">Salon &amp; Spa</p>
     <h2>Everything under one appointment</h2>
     <div class="pgrid">
-      <a class="pcard" href="/hair/"><span class="pimg" style="background-image:url('/images/home-hair.jpg')"></span><span class="pc-n">Hair</span><span class="pc-d">Cuts, color, balayage &amp; blowouts</span></a>
-      <a class="pcard" href="/nails/"><span class="pimg" style="background-image:url('/images/home-nails.jpg')"></span><span class="pc-n">Nails</span><span class="pc-d">Manicures, pedicures &amp; gel</span></a>
-      <a class="pcard" href="/massage/"><span class="pimg" style="background-image:url('/images/home-massage.jpg')"></span><span class="pc-n">Massage</span><span class="pc-d">Swedish, deep tissue &amp; couples</span></a>
-      <a class="pcard" href="/facials/"><span class="pimg" style="background-image:url('/images/home-facials.jpg')"></span><span class="pc-n">Facials</span><span class="pc-d">Esthetics, peels &amp; skin care</span></a>
-      <a class="pcard" href="/tanning/"><span class="pimg" style="background-image:url('/images/home-tanning.jpg')"></span><span class="pc-n">Tanning</span><span class="pc-d">A natural sunless glow</span></a>
-      <a class="pcard" href="/makeup/"><span class="pimg" style="background-image:url('/images/home-makeup.jpg')"></span><span class="pc-n">Makeup</span><span class="pc-d">Events, weddings &amp; lessons</span></a>
+      <a class="pcard" href="/hair/"><img class="pimg" src="/images/home-hair.jpg" alt="Hair salon in Poughkeepsie &mdash; cuts, color and balayage at Omorfia" loading="lazy" width="1200" height="900"><span class="pc-n">Hair</span><span class="pc-d">Cuts, color, balayage &amp; blowouts</span></a>
+      <a class="pcard" href="/nails/"><img class="pimg" src="/images/home-nails.jpg" alt="Nail salon in Poughkeepsie &mdash; manicures, pedicures and gel at Omorfia" loading="lazy" width="1200" height="900"><span class="pc-n">Nails</span><span class="pc-d">Manicures, pedicures &amp; gel</span></a>
+      <a class="pcard" href="/massage/"><img class="pimg" src="/images/home-massage.jpg" alt="Massage room at Omorfia Day Spa in Poughkeepsie" loading="lazy" width="1200" height="900"><span class="pc-n">Massage</span><span class="pc-d">Swedish, deep tissue &amp; couples</span></a>
+      <a class="pcard" href="/facials/"><img class="pimg" src="/images/home-facials.jpg" alt="Facial treatment at Omorfia Day Spa in Poughkeepsie" loading="lazy" width="1200" height="900"><span class="pc-n">Facials</span><span class="pc-d">Esthetics, peels &amp; skin care</span></a>
+      <a class="pcard" href="/tanning/"><img class="pimg" src="/images/home-tanning.jpg" alt="Spray tanning at Omorfia in Poughkeepsie" loading="lazy" width="1200" height="900"><span class="pc-n">Tanning</span><span class="pc-d">A natural sunless glow</span></a>
+      <a class="pcard" href="/makeup/"><img class="pimg" src="/images/home-makeup.jpg" alt="Makeup artistry at Omorfia Salon in Poughkeepsie" loading="lazy" width="1200" height="900"><span class="pc-n">Makeup</span><span class="pc-d">Events, weddings &amp; lessons</span></a>
     </div>
   </div>
 </section>
@@ -511,12 +596,15 @@ PAGES.append(dict(path="",nav="Home",
   <p class="eyebrow">Visit us</p>
   <h2>751 Dutchess Turnpike, Poughkeepsie</h2>
   <p class="lead">Open seven days a week &mdash; yes, Sundays too &mdash; 9 AM &ndash; 8 PM &middot; <a href="tel:{{tel}}">{{phone}}</a> &middot; <a class="btn-link" href="/contact/">Directions &amp; contact &rarr;</a></p>
+  <p class="serving">Serving Poughkeepsie and the Hudson Valley &mdash; Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Hopewell Junction, Rhinebeck, Beacon, New Paltz and Highland.</p>
 </section>
 """,
  faq=[("Are you open on Sundays?","Yes — Omorfia is open seven days a week, including Sundays and evenings, so a massage, facial or blowout fits around your week instead of the other way around."),
       ("Where is Omorfia Salon & Day Spa located?","We're at 751 Dutchess Turnpike (Route 44), Poughkeepsie, NY 12603 — the former Marlene Weber building, the grey and white building sharing a parking lot with Adams Fairacre Farms, minutes from Arlington and Vassar College."),
       ("Do I need an appointment?","Booking online is the best way to guarantee your time and provider, but call the front desk at (845) 694-4952 and we'll fit you in whenever we can."),
-      ("Can I book multiple services in one visit?","Yes — that's the point of a day spa. Stack hair, nails, massage and a facial into one appointment, or let us design the day for you with a package.")]))
+      ("Can I book multiple services in one visit?","Yes — that's the point of a day spa. Stack hair, nails, massage and a facial into one appointment, or let us design the day for you with a package."),
+      ("Is Omorfia the former Marlene Weber Day Spa?","Yes — Omorfia opened in 2023 in the former Marlene Weber Day Spa building at 751 Dutchess Turnpike, under new, local ownership. Same landmark location, a new team and a full salon and spa menu."),
+      ("Do you offer couples massage?","Yes — book two massages for the same time and you'll be side by side, or choose the For Two spa package, which pairs massages, facials and pedicures for two guests.")]))
 
 # ---------------------------------------------------------------- services
 PAGES.append(service_page("hair","Hair","Hair Salon",
@@ -592,7 +680,8 @@ PAGES.append(service_page("hair","Hair","Hair Salon",
    ("Express Japanese Head Spa","$75+","The signature ritual, condensed.")])],
  [("How do I choose a stylist?","Tell us what you're looking for when you book — the front desk matches new guests with the stylist whose strengths fit the service."),
   ("Why are some prices 'starting points'?","Length, density and color history change how much product and time a service takes; your stylist confirms the exact quote before starting."),
-  ("Do you do consultations?","Yes — haircut, balayage, vivid, keratin and extension consultations are all complimentary.")],IMG["hair"]))
+  ("Do you do consultations?","Yes — haircut, balayage, vivid, keratin and extension consultations are all complimentary.")],IMG["hair"],
+ kw="Hair Salon in Poughkeepsie, NY &mdash; Cuts, Color, Balayage &amp; Extensions"))
 
 PAGES.append(service_page("nails","Nails","Nail Salon",
  "Nail Salon in Poughkeepsie, NY | Omorfia Salon & Day Spa",
@@ -625,7 +714,8 @@ PAGES.append(service_page("nails","Nails","Nail Salon",
    ("Gel French Add-On","$10","A crisp French finish in long-wear gel.")])],
  [("How do you sanitize tools?","Implements are sterilized between every guest and single-use items are exactly that — single use."),
   ("How long does gel last?","Two to three weeks for most guests, depending on your nails and how you use your hands."),
-  ("Can I pair nails with another service?","Absolutely — nails and a massage or facial is the most common pairing on our books.")],IMG["nails"]))
+  ("Can I pair nails with another service?","Absolutely — nails and a massage or facial is the most common pairing on our books.")],IMG["nails"],
+ kw="Nail Salon in Poughkeepsie, NY &mdash; Manicures, Pedicures, Gel &amp; Dip"))
 
 PAGES.append(service_page("massage","Massage","Massage Therapy",
  "Massage in Poughkeepsie, NY | Omorfia Salon & Day Spa",
@@ -648,7 +738,9 @@ PAGES.append(service_page("massage","Massage","Massage Therapy",
   ("Do I need to choose Swedish or deep tissue when I book?","No — you book the time, not the type. Choose Swedish, deep tissue, hot stone or a blend with your therapist when you arrive, and change your mind on the table if you like. Same price for any style."),
   ("Which length should I book?","60 minutes handles full-body maintenance; 90 gives real focus time on problem areas; 120 is the full reset. Whatever you pick, the style is chosen when you're here."),
   ("Can I get a massage on a Sunday?","Yes — we're open seven days a week, Sundays included, and Sunday massages are a guest favorite. Book online to lock in your time."),
-  ("Do you offer gift cards?","Yes — massage is our most-gifted service. Grab one on our gift cards page or at the front desk.")],IMG["massage"]))
+  ("Do you offer gift cards?","Yes — massage is our most-gifted service. Grab one on our gift cards page or at the front desk."),
+  ("Do you offer couples massage?","Yes — book two massages for the same time and you'll be treated side by side. For the full afternoon together, the For Two spa package adds facials and pedicures for both of you.")],IMG["massage"],
+ kw="Massage in Poughkeepsie, NY &mdash; Swedish, Deep Tissue, Hot Stone &amp; Prenatal"))
 
 PAGES.append(service_page("facials","Facials","Facials & Esthetics",
  "Facials & Waxing in Poughkeepsie, NY | Omorfia Salon & Day Spa",
@@ -692,7 +784,8 @@ PAGES.append(service_page("facials","Facials","Facials & Esthetics",
  [("How often should I get a facial?","Every four to six weeks matches your skin's natural cycle; your esthetician will recommend a cadence for your goals."),
   ("Will my skin be red afterward?","A signature facial leaves most guests glowing, not red. Stronger treatments can bring brief redness — we'll tell you exactly what to expect before we start."),
   ("What about medical aesthetics?","For injectables and medical-grade treatments, our sister practice OMO Med Spa has you covered — ask the front desk.")],IMG["facials"],
- note="We are a proud Rep&ecirc;chage&reg; spa partner using their professional skincare products and treatments for these services. The trademarks used in this menu and all rights thereto belong exclusively to Sarkli-Rep&ecirc;chage, Ltd. All rights reserved."))
+ note="We are a proud Rep&ecirc;chage&reg; spa partner using their professional skincare products and treatments for these services. The trademarks used in this menu and all rights thereto belong exclusively to Sarkli-Rep&ecirc;chage, Ltd. All rights reserved.",
+ kw="Facials &amp; Waxing in Poughkeepsie, NY"))
 
 PAGES.append(service_page("lashes-brows","Lashes & Brows","Lash Extensions and Brows",
  "Lash Extensions & Brows in Poughkeepsie, NY | Omorfia Salon & Day Spa",
@@ -718,7 +811,8 @@ PAGES.append(service_page("lashes-brows","Lashes & Brows","Lash Extensions and B
    ("Microblade Fill","$250","Refresh strokes and color on existing work.")])],
  [("How often do lash extensions need fills?","Every two to three weeks keeps a set full — that's why fills are priced at both marks."),
   ("Classic or hybrid?","Classic is one extension per natural lash for an everyday look; hybrid mixes in volume fans for noticeably fuller, still-natural lashes."),
-  ("How long does microblading last?","Twelve to eighteen months for most guests, with a fill recommended to keep the strokes crisp.")],IMG["makeup"]))
+  ("How long does microblading last?","Twelve to eighteen months for most guests, with a fill recommended to keep the strokes crisp.")],IMG["makeup"],
+ kw="Lash Extensions, Lash Lifts &amp; Brows in Poughkeepsie, NY"))
 
 PAGES.append(service_page("tanning","Tanning","Tanning",
  "Spray Tanning in Poughkeepsie, NY | Omorfia Salon & Day Spa",
@@ -730,7 +824,8 @@ PAGES.append(service_page("tanning","Tanning","Tanning",
    ("Show Stopper Full Body Glow","$80","Head-to-toe color, matched to your skin tone.")])],
  [("When should I tan before an event?","One to two days before is the sweet spot — the color settles and any guide bronzer washes away."),
   ("How do I make it last?","Exfoliate before your session, then moisturize daily and keep long hot showers to a minimum."),
-  ("Will it look natural?","That's the entire job. We match depth of color to your skin tone so it reads sun, not spray.")],IMG["tanning"]))
+  ("Will it look natural?","That's the entire job. We match depth of color to your skin tone so it reads sun, not spray.")],IMG["tanning"],
+ kw="Spray Tanning in Poughkeepsie, NY"))
 
 PAGES.append(service_page("makeup","Makeup","Makeup Artistry",
  "Makeup Artist in Poughkeepsie, NY | Omorfia Salon & Day Spa",
@@ -746,17 +841,18 @@ PAGES.append(service_page("makeup","Makeup","Makeup Artistry",
    ("Full Bridal Menu","See Wedding &amp; Bridal","Hair, makeup, and the whole party &mdash; on one timeline.")])],
  [("Should I book a trial?","For weddings, always. It locks the look, the timing and the products before the day itself."),
   ("Do you work with lashes?","Yes — strip lashes and clusters for events, and full lash extensions through our esthetics studio."),
-  ("Can my whole party get ready here?","Yes — hair, makeup and nails for the full party is exactly what a day spa is for. See Wedding & Bridal.")],IMG["makeup"]))
+  ("Can my whole party get ready here?","Yes — hair, makeup and nails for the full party is exactly what a day spa is for. See Wedding & Bridal.")],IMG["makeup"],
+ kw="Makeup Artist in Poughkeepsie, NY"))
 
 # ---------------------------------------------------------------- wedding
 PAGES.append(dict(path="wedding",nav="Wedding & Bridal",service="Bridal Hair and Makeup",
- title="Bridal Hair & Makeup in Poughkeepsie, NY | Omorfia Salon & Day Spa",
- desc="Wedding hair, bridal makeup, nails and party services in Poughkeepsie, NY. Trials, timelines and full bridal-party mornings at Omorfia Salon & Day Spa.",
+ title="Bridal Hair & Makeup in Poughkeepsie, NY | Hudson Valley Weddings | Omorfia",
+ desc="Wedding hair, bridal makeup, nails and bridal-party services in Poughkeepsie, NY. Trials, timelines and full bridal-party mornings for Hudson Valley weddings at Omorfia Salon & Day Spa.",
  body=f"""
 <section class="page-hero has-photo" style="background-image:url('{IMG["wedding"]}')">
   <div class="ph-inner">
-    <p class="eyebrow">Wedding &amp; Bridal &middot; Hudson Valley</p>
-    <h1>The morning your day begins.</h1>
+    <h1 class="eyebrow">Bridal Hair &amp; Makeup in the Hudson Valley</h1>
+    <p class="ph-title">The morning your day begins.</p>
     <p class="lead">Hair, makeup and nails for brides and bridal parties &mdash; run on a real timeline, by a team that does this every weekend. One roof, zero chaos, champagne optional.</p>
     <a class="btn btn-primary" href="{{book}}">Start Your Bridal Booking</a>
   </div>
@@ -830,6 +926,7 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
   </div>
 </section>
 """,
+ kw="New Guest Offer &amp; Specials &mdash; Poughkeepsie Salon &amp; Day Spa",
  faq=[("Who counts as a new guest?","Anyone visiting Omorfia for the first time — welcome!"),
       ("Can I combine specials?","One offer per visit; the front desk will always apply whichever saves you the most."),
       ("How do I hear about specials first?","Follow us on Instagram — seasonal offers post there the day they launch.")]))
@@ -858,6 +955,7 @@ PAGES.append(dict(path="gift-cards",nav="Gift Cards",service="Gift Cards",
   </div>
 </section>
 """,
+ kw="Spa Gift Cards in Poughkeepsie, NY",
  faq=[("Do gift cards expire?","Ask the front desk for current terms — we keep them as generous as New York law allows."),
       ("Can a gift card be used on packages?","Yes — gift cards apply to any service, package or product we offer."),
       ("Can I gift a specific service?","Absolutely — tell us the service (a couples massage is the crowd favorite) and we'll load the card to match.")]))
@@ -954,7 +1052,7 @@ def team_section():
     return ('<div class="tgroup tgroup-all">'+"".join(cards)+'</div>'
             + "".join(modals) + js)
 
-ALL_PERSONS = [(n, r.replace("&amp;","&")) for _,_,ms in TEAM_GROUPS for n,r,_i,_b in ms]
+ALL_PERSONS = [(n, r.replace("&amp;","&"), _i) for _,_,ms in TEAM_GROUPS for n,r,_i,_b in ms]
 
 PAGES.append(dict(path="team",nav="Meet the Team",
  title="Meet the Team | Omorfia Salon & Day Spa, Poughkeepsie NY",
@@ -962,8 +1060,8 @@ PAGES.append(dict(path="team",nav="Meet the Team",
  persons=ALL_PERSONS,
  body="""
 <section class="wrap team-intro">
-  <p class="eyebrow">About &middot; Meet the team</p>
-  <h1>The hands behind the calm.</h1>
+  <h1 class="eyebrow">Meet the Omorfia Team &middot; Stylists, Therapists &amp; Estheticians in Poughkeepsie</h1>
+  <p class="ph-title">The hands behind the calm.</p>
 </section>
 <section class="wrap team-wrap">
   """+team_section()+"""
@@ -984,20 +1082,20 @@ PAGES.append(dict(path="team",nav="Meet the Team",
  faq=None))
 
 # ---------------------------------------------------------------- reviews
-PAGES.append(dict(path="reviews",nav="Reviews",
+PAGES.append(dict(path="reviews",nav="Reviews",kw="Omorfia Reviews &mdash; Poughkeepsie Salon &amp; Day Spa",
  title="Reviews | Omorfia Salon & Day Spa, Poughkeepsie NY",
  desc="What guests say about Omorfia Salon & Day Spa in Poughkeepsie, NY — hair, massage, facials, nails and more. Read reviews and leave your own.",
  body=f"""
 <section class="page-hero">
   <p class="eyebrow">Reviews</p>
   <h1>Don&rsquo;t take our word for it.</h1>
-  <p class="lead"><strong>4.9 stars across 147 Google reviews.</strong> The Hudson Valley has been generous to us &mdash; here&rsquo;s a little of what guests say, straight from Google. And if we&rsquo;ve earned it, a review is the single nicest thing you can do for a local business.</p>
+  <p class="lead"><strong>4.9 stars across 150+ Google reviews.</strong> The Hudson Valley has been generous to us &mdash; here&rsquo;s a little of what guests say, straight from Google. And if we&rsquo;ve earned it, a review is the single nicest thing you can do for a local business.</p>
 </section>
 <section class="wrap">
   {review_cards(REVIEWS)}
   <p class="center" style="margin-top:34px">
     <a class="btn btn-primary" href="https://search.google.com/local/writereview?placeid=ChIJa3T8WRM_3YkR99abqa-Z1dQ" rel="noopener">Review Us on Google</a>
-    <a class="btn btn-outline" href="https://search.google.com/local/reviews?placeid=ChIJa3T8WRM_3YkR99abqa-Z1dQ" rel="noopener">Read All 147 Reviews</a>
+    <a class="btn btn-outline" href="https://search.google.com/local/reviews?placeid=ChIJa3T8WRM_3YkR99abqa-Z1dQ" rel="noopener">Read All Reviews on Google</a>
   </p>
 </section>
 """,
@@ -1061,12 +1159,18 @@ PAGES.append(dict(path="packages",nav="Packages",service="Spa Packages",
   <p class="pkg-foot">Every package prices well below its &agrave; la carte total. Swap a service or add on &mdash; the front desk will price it. Gifting a spa day? Packages are the most-loved <a href="/gift-cards/">gift cards</a> we sell.</p>
 </section>
 """,
+ kw="Spa Day Packages in Poughkeepsie, NY",
  faq=[("How long does a spa package take?","The Classic Spa Day runs about four hours, the Full Spa Day about five, and For Two about three and a half with both of you in treatment at the same time — we'll confirm exact timing when you book."),
       ("Can I customize a package?","Yes. Tiers are starting points; swap services or add on and the front desk will price it for you."),
       ("Are packages good gifts?","The best. A packaged spa day is the most-loved gift card we sell — see our gift cards page.")]))
 
 # ---------------------------------------------------------------- memberships
 PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships",
+ kw="Spa &amp; Salon Memberships in Poughkeepsie, NY",
+ faq=[("Is there a contract or startup fee?","No. Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract."),
+      ("How do I cancel?","Call Stavros directly at (845) 694-4952 and it's done — no questions asked."),
+      ("What else do members get?","Beyond the monthly service, every club includes an unlimited 10% off all other salon and spa services and special member pricing on products."),
+      ("Does the membership work with every provider?","Memberships are applicable with participating service providers — ask the front desk when you book.")],
  title="Spa Memberships in Poughkeepsie, NY | Omorfia Salon & Day Spa",
  desc="Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract. Members get an unlimited 10% off all other salon and spa services plus special product pricing.",
  body="""
@@ -1147,7 +1251,7 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
         <input type="hidden" name="_subject" value="New Omorfia Member Club signup">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_next" value="https://omorfiabeauty.nyc/memberships/?joined=1">
+        <input type="hidden" name="_next" value="{next_url}">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <label>Full name<input type="text" name="Full Name" required autocomplete="name"></label>
         <label>Phone number<input type="tel" name="Phone" required autocomplete="tel"></label>
@@ -1189,7 +1293,10 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
   });
 })();
 </script>
-"""+MODAL_JS))
+""".replace("{next_url}",DOMAIN+"/memberships/?joined=1")+MODAL_JS+faq_html([("Is there a contract or startup fee?","No. Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract."),
+      ("How do I cancel?","Call Stavros directly at (845) 694-4952 and it&rsquo;s done &mdash; no questions asked."),
+      ("What else do members get?","Beyond the monthly service, every club includes an unlimited 10% off all other salon and spa services and special member pricing on products."),
+      ("Does the membership work with every provider?","Memberships are applicable with participating service providers &mdash; ask the front desk when you book.")]),faq_done=True))
 
 # ---------------------------------------------------------------- about
 PAGES.append(dict(path="about",nav="About",
@@ -1221,10 +1328,10 @@ PAGES.append(dict(path="about",nav="About",
   })();
   </script>
   <div class="story-copy">
-    <p class="eyebrow">Est. 2023</p>
-    <h1>Where Beauty Meets Relaxation</h1>
+    <h1 class="eyebrow">About Omorfia &middot; Poughkeepsie&rsquo;s Salon &amp; Day Spa &middot; Est. 2023</h1>
+    <p class="ph-title">Where Beauty Meets Relaxation</p>
     <p>The name <em>Omorfia</em> comes from the Greek word for beauty &mdash; and it&rsquo;s this timeless pursuit that inspires everything we do. Founded with a vision to create a sanctuary where artistry, wellness, and luxury converge, Omorfia has become a beloved destination for those who seek more than just a service.</p>
-    <p>Our founders envisioned a place where clients could escape the pace of everyday life and step into a world of calm, beauty, and rejuvenation. That vision found its home in the <strong>former Marlene Weber building</strong> on Dutchess Turnpike &mdash; a Poughkeepsie spa landmark for decades, now reimagined under new ownership. Today, it lives on through our dedicated team of artisans who treat every client as a canvas worthy of their finest work.</p>
+    <p>Our founders envisioned a place where clients could escape the pace of everyday life and step into a world of calm, beauty, and rejuvenation. That vision found its home in the <strong>former Marlene Weber Day Spa building</strong> on Dutchess Turnpike &mdash; a Poughkeepsie spa landmark for decades, now reimagined under new, local ownership. If you knew Marlene Weber, you know the address; Omorfia is what it has become. Today, it lives on through our dedicated team of artisans who treat every client as a canvas worthy of their finest work.</p>
     <p>From our carefully curated product lines to our serene interiors, every element of Omorfia is designed to delight the senses and nurture the soul.</p>
   </div>
 </section>
@@ -1241,7 +1348,10 @@ PAGES.append(dict(path="about",nav="About",
   </div>
 </section>
 """,
- faq=None))
+ faq=[("What does Omorfia mean?","Omorfia (ομορφιά) is the Greek word for beauty — the name reflects the family's Greek roots and the standard the salon is built around."),
+      ("Is Omorfia the old Marlene Weber Day Spa?","Omorfia occupies the former Marlene Weber Day Spa building at 751 Dutchess Turnpike in Poughkeepsie. Marlene Weber closed; Omorfia opened in 2023 under new, local ownership with its own team and a full salon and spa menu."),
+      ("Who owns Omorfia?","Omorfia is founder-owned by the Kyriacou family and is the flagship day spa of Kyriacou Beauty Group, which also operates OMO Med Spa and Kyriacou Cosmetics."),
+      ("Is Omorfia a chain?","No — it's a single, locally owned salon and day spa in Poughkeepsie, NY.")]))
 
 # ---------------------------------------------------------------- contact
 PAGES.append(dict(path="contact",nav="Contact",
@@ -1249,8 +1359,8 @@ PAGES.append(dict(path="contact",nav="Contact",
  desc="Visit Omorfia Salon & Day Spa at 751 Dutchess Turnpike, Poughkeepsie, NY 12603. Call (845) 694-4952 or book online. Open daily 9 AM – 8 PM.",
  body="""
 <section class="page-hero">
-  <p class="eyebrow">Contact &middot; Visit us</p>
-  <h1>Come slow down.</h1>
+  <h1 class="eyebrow">Visit Omorfia &middot; 751 Dutchess Turnpike, Poughkeepsie, NY</h1>
+  <p class="ph-title">Come slow down.</p>
   <p class="lead">We&rsquo;re on Dutchess Turnpike (Route 44) in Poughkeepsie, in the <strong>former Marlene Weber building</strong>, sharing a parking lot with <strong>Adams Fairacre Farms</strong> &mdash; look for the <strong>grey and white building</strong>. Minutes from Arlington, Vassar College and the Taconic.</p>
 </section>
 <section class="wrap contact-grid">
@@ -1258,7 +1368,8 @@ PAGES.append(dict(path="contact",nav="Contact",
     <p class="eyebrow">Address</p>
     <h2>751 Dutchess Turnpike<br>Poughkeepsie, NY 12603</h2>
     <p class="find-us"><strong>Finding us:</strong> pull into the Adams Fairacre Farms lot &mdash; we share it &mdash; and we&rsquo;re the grey and white building, the former Marlene Weber building. Plenty of free parking.</p>
-    <p><a class="btn-link" href="https://search.google.com/local/writereview?placeid=ChIJa3T8WRM_3YkR99abqa-Z1dQ" rel="noopener">Open in Google Maps &rarr;</a></p>
+    <p><a class="btn-link" href="{maps}" rel="noopener">Open in Google Maps &rarr;</a></p>
+    <p class="serving">Serving Poughkeepsie and the Hudson Valley &mdash; Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Hopewell Junction, Rhinebeck, Beacon, New Paltz and Highland.</p>
   </div>
   <div>
     <p class="eyebrow">Hours</p>
@@ -1273,10 +1384,11 @@ PAGES.append(dict(path="contact",nav="Contact",
     <p><a class="btn btn-primary" href="{book}">Book Appointment</a></p>
   </div>
 </section>
-""",
+""".replace("{maps}",MAPS_URL),
  faq=[("Is there parking?","Yes — we share the Adams Fairacre Farms parking lot, so there's plenty of free parking. We're the grey and white building right there in the lot."),
       ("Do you take walk-ins?","When the book allows, gladly — but booking online or calling ahead is the only way to guarantee a time."),
-      ("What's your cancellation policy?","Life happens — just give us as much notice as you can so we can offer the time to another guest. Full policy details are shared when you book.")]))
+      ("What's your cancellation policy?","Life happens — just give us as much notice as you can so we can offer the time to another guest. Full policy details are shared when you book."),
+      ("Which areas do you serve?","Guests come from across the Hudson Valley — Poughkeepsie, Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Hopewell Junction, Rhinebeck, Beacon, New Paltz and Highland — most within a 20-minute drive on Route 44, Route 9 or the Taconic.")]))
 
 # ------------------------------------------------------------------ build
 os.makedirs(OUT,exist_ok=True)
@@ -1348,11 +1460,19 @@ BLVD_JS = """<script>
 })();
 </script>"""
 
+def kw_h1(body, kw):
+    """Make the keyword line the <h1> (styled as the eyebrow) and demote the tagline to .ph-title."""
+    if not kw: return body
+    m = re.search(r'<p class="eyebrow">(.*?)</p>(\s*)<h1>(.*?)</h1>', body, re.S)
+    if not m: return body
+    return body[:m.start()] + f'<h1 class="eyebrow">{kw}</h1>{m.group(2)}<p class="ph-title">{m.group(3)}</p>' + body[m.end():]
+
 def render(p):
     canon=DOMAIN+"/"+(p["path"]+"/" if p["path"] else "")
     doc=HEAD.format(title=html.escape(p["title"]),desc=html.escape(p["desc"]),canon=canon,
-                    ogimg=DOMAIN+"/images/slides/s08.jpg",schema=page_schema(p),book=BOOK_URL,tel=PHONE_TEL,phone=PHONE)
-    body=(p["body"].replace("{book}",BOOK_URL).replace("{gift}",GIFT_URL)
+                    ogimg=DOMAIN+OG_IMG.get(p["path"],OG_IMG[""]),schema=page_schema(p),book=BOOK_URL,tel=PHONE_TEL,phone=PHONE,
+                    lat=GEO[0],lng=GEO[1])
+    body=(kw_h1(p["body"], p.get("kw")).replace("{book}",BOOK_URL).replace("{gift}",GIFT_URL)
                    .replace("{tel}",PHONE_TEL).replace("{phone}",PHONE))
     if p.get("faq") and not p.get("faq_done"): body+=faq_html(p["faq"])
     doc+=body
@@ -1371,8 +1491,8 @@ urls=[DOMAIN+"/"]+[f'{DOMAIN}/{p["path"]}/' for p in PAGES if p["path"]]
 with open(os.path.join(OUT,"sitemap.xml"),"w") as f:
     f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
     for u in urls:
-        pr="1.0" if u.endswith(".com/") else "0.8"
-        f.write(f"  <url><loc>{u}</loc><changefreq>monthly</changefreq><priority>{pr}</priority></url>\n")
+        pr="1.0" if u==DOMAIN+"/" else "0.8"
+        f.write(f"  <url><loc>{u}</loc><lastmod>{TODAY}</lastmod><changefreq>monthly</changefreq><priority>{pr}</priority></url>\n")
     f.write("</urlset>\n")
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\n\nSitemap: {DOMAIN}/sitemap.xml\n")
 json.dump({"cleanUrls":True,"trailingSlash":True},open(os.path.join(OUT,"vercel.json"),"w"),indent=2)

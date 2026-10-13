@@ -50,7 +50,7 @@ a{color:inherit}
 .hero-brand{font-family:var(--disp);font-weight:500;font-size:clamp(60px,12vw,138px);
   letter-spacing:.16em;text-indent:.16em;line-height:1}
 .rule{width:74px;height:1px;background:rgba(255,255,255,.5);margin:28px 0}
-.hero-sub{font-size:clamp(13px,1.5vw,16px);letter-spacing:var(--track);text-transform:uppercase;color:rgba(255,255,255,.85)}
+.hero-sub{font-weight:300;font-size:clamp(13px,1.5vw,16px);letter-spacing:var(--track);text-transform:uppercase;color:rgba(255,255,255,.85)}
 .hero-tag{font-family:var(--disp);font-style:italic;font-size:clamp(18px,2.2vw,24px);
   color:rgba(255,255,255,.65);margin-top:14px}
 .primary-row{margin-top:44px}
@@ -61,7 +61,9 @@ a{color:inherit}
 
 /* ---------- inner page hero ---------- */
 .page-hero{padding:110px clamp(20px,6vw,72px) 70px;max-width:980px;margin:0 auto;text-align:center}
-.page-hero h1{font-family:var(--disp);font-weight:500;font-size:clamp(38px,6vw,68px);line-height:1.08;margin:18px 0 22px}
+.page-hero h1:not(.eyebrow),.page-hero .ph-title{font-family:var(--disp);font-weight:500;font-size:clamp(38px,6vw,68px);line-height:1.08;margin:18px 0 22px}
+h1.eyebrow{font-weight:300;font-size:12px;font-family:var(--body)}
+.serving{font-size:14px;color:var(--mist);max-width:46em;margin:18px auto 0;line-height:1.6}
 .page-hero .btn{margin-top:30px}
 
 /* ---------- shared ---------- */
@@ -190,7 +192,7 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 .photo-grid-sec{border-top:1px solid var(--hair)}
 .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:40px;text-align:left}
 .pcard{text-decoration:none;display:block}
-.pimg{display:block;aspect-ratio:4/3;background-size:cover;background-position:center;
+.pimg{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background-size:cover;background-position:center;
   background-color:#e8e7e2;filter:grayscale(1);transition:filter .45s ease}
 .pcard:hover .pimg,.pcard:focus-visible .pimg{filter:grayscale(0)}
 .pc-n{display:block;font-family:var(--disp);font-weight:500;font-size:26px;margin-top:14px}
@@ -374,7 +376,7 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 .story{display:grid;grid-template-columns:0.9fr 1.1fr;gap:clamp(34px,5vw,72px);
   align-items:center;max-width:1120px}
 .story-img{width:100%;border-radius:12px;display:block}
-.story-copy h1{font-family:var(--disp);font-weight:500;font-size:clamp(34px,4.4vw,52px);
+.story-copy .ph-title{font-family:var(--disp);font-weight:500;font-size:clamp(34px,4.4vw,52px);
   line-height:1.12;margin:10px 0 22px}
 .story-copy p+p{margin-top:16px}
 .story-copy p{color:rgba(11,11,11,.78)}
@@ -499,7 +501,7 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 /* converted plain heroes keep their spacing over the slideshow */
 .page-hero.ph-plain{padding:120px clamp(20px,6vw,72px) 80px}
 .page-hero.ph-plain>*:not(.ph-slides):not(.ph-veil){max-width:900px;margin-left:auto;margin-right:auto}
-.page-hero.ph-plain h1{margin-top:18px;margin-bottom:22px}
+.page-hero.ph-plain h1:not(.eyebrow),.page-hero.ph-plain .ph-title{margin-top:18px;margin-bottom:22px}
 .page-hero.has-photo .lead{color:rgba(255,255,255,.88)}
 .page-hero.has-photo .btn-link{color:#fff}
 
@@ -642,7 +644,7 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 .story-media{display:flex;flex-direction:column;gap:14px}
 .story-media .story-img{width:100%;height:auto;display:block;border-radius:12px}
 .team-intro{padding-top:70px;padding-bottom:10px}
-.team-intro h1{margin-top:10px}
+.team-intro .ph-title{margin-top:10px;font-family:var(--disp);font-weight:500;font-size:clamp(34px,4.4vw,52px);line-height:1.12}
 
 .team-band{max-width:1120px;padding-top:0;padding-bottom:70px}
 .team-band img{width:100%;height:auto;display:block;border-radius:12px}

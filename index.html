@@ -5,13 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Day Spa in Poughkeepsie, NY | Omorfia Salon &amp; Day Spa</title>
 <meta name="description" content="Omorfia is a full-service salon and day spa in Poughkeepsie, NY — hair, nails, massage, facials, tanning, makeup and bridal. Open 7 days a week, including Sundays. Book online or call (845) 694-4952.">
-<link rel="canonical" href="https://omorfiabeauty.nyc/">
+<link rel="canonical" href="https://www.omorfiabeauty.nyc/">
 <meta property="og:title" content="Day Spa in Poughkeepsie, NY | Omorfia Salon &amp; Day Spa">
 <meta property="og:description" content="Omorfia is a full-service salon and day spa in Poughkeepsie, NY — hair, nails, massage, facials, tanning, makeup and bridal. Open 7 days a week, including Sundays. Book online or call (845) 694-4952.">
-<meta property="og:url" content="https://omorfiabeauty.nyc/">
+<meta property="og:url" content="https://www.omorfiabeauty.nyc/">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://omorfiabeauty.nyc/images/slides/s08.jpg">
+<meta property="og:image" content="https://www.omorfiabeauty.nyc/images/slides/s08.jpg">
+<meta property="og:image:alt" content="Omorfia Salon &amp; Day Spa, Poughkeepsie NY">
 <meta property="og:site_name" content="Omorfia Salon &amp; Day Spa">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Day Spa in Poughkeepsie, NY | Omorfia Salon &amp; Day Spa">
+<meta name="twitter:description" content="Omorfia is a full-service salon and day spa in Poughkeepsie, NY — hair, nails, massage, facials, tanning, makeup and bridal. Open 7 days a week, including Sundays. Book online or call (845) 694-4952.">
+<meta name="twitter:image" content="https://www.omorfiabeauty.nyc/images/slides/s08.jpg">
+<meta name="geo.region" content="US-NY">
+<meta name="geo.placename" content="Poughkeepsie">
+<meta name="geo.position" content="41.7005477;-73.8771062">
+<meta name="ICBM" content="41.7005477, -73.8771062">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -21,12 +34,25 @@
  "@context": "https://schema.org",
  "@graph": [
   {
-   "@type": "DaySpa",
-   "@id": "https://omorfiabeauty.nyc/#business",
+   "@type": [
+    "DaySpa",
+    "HairSalon",
+    "NailSalon",
+    "BeautySalon"
+   ],
+   "@id": "https://www.omorfiabeauty.nyc/#business",
    "name": "Omorfia Salon & Day Spa",
-   "url": "https://omorfiabeauty.nyc/",
-   "image": "https://omorfiabeauty.nyc/images/slides/s08.jpg",
+   "alternateName": "Omorfia Salon & Spa",
+   "url": "https://www.omorfiabeauty.nyc/",
+   "logo": "https://www.omorfiabeauty.nyc/favicon.svg",
+   "image": [
+    "https://www.omorfiabeauty.nyc/images/slides/s08.jpg",
+    "https://www.omorfiabeauty.nyc/images/about/a03-exterior.jpg",
+    "https://www.omorfiabeauty.nyc/images/about/a01-interior.jpg"
+   ],
    "telephone": "+18456944952",
+   "email": "Stavros@kyriacoubeauty.com",
+   "priceRange": "$20 - $450",
    "address": {
     "@type": "PostalAddress",
     "streetAddress": "751 Dutchess Turnpike",
@@ -35,10 +61,65 @@
     "postalCode": "12603",
     "addressCountry": "US"
    },
+   "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 41.7005477,
+    "longitude": -73.8771062
+   },
+   "hasMap": "https://www.google.com/maps/place/?q=place_id:ChIJa3T8WRM_3YkR99abqa-Z1dQ",
    "areaServed": [
-    "Poughkeepsie NY",
-    "Dutchess County NY",
-    "Hudson Valley NY"
+    {
+     "@type": "City",
+     "name": "Poughkeepsie, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Hyde Park, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Wappingers Falls, NY"
+    },
+    {
+     "@type": "City",
+     "name": "LaGrange, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Pleasant Valley, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Fishkill, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Hopewell Junction, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Rhinebeck, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Beacon, NY"
+    },
+    {
+     "@type": "City",
+     "name": "New Paltz, NY"
+    },
+    {
+     "@type": "City",
+     "name": "Highland, NY"
+    },
+    {
+     "@type": "AdministrativeArea",
+     "name": "Dutchess County, NY"
+    },
+    {
+     "@type": "Place",
+     "name": "Hudson Valley, NY"
+    }
    ],
    "openingHoursSpecification": [
     {
@@ -56,16 +137,60 @@
      "closes": "20:00"
     }
    ],
+   "foundingDate": "2023",
+   "currenciesAccepted": "USD",
+   "paymentAccepted": "Cash, Credit Card, Gift Card",
    "sameAs": [
     "https://www.instagram.com/omorfiadayspa/",
-    "https://www.yelp.com/biz/omorfia-salon-and-spa-poughkeepsie"
+    "https://www.yelp.com/biz/omorfia-salon-and-spa-poughkeepsie",
+    "https://www.google.com/maps/place/?q=place_id:ChIJa3T8WRM_3YkR99abqa-Z1dQ"
    ],
    "parentOrganization": {
     "@type": "Organization",
     "name": "Kyriacou Beauty Group",
     "url": "https://kyriacoubeauty.com"
    },
-   "slogan": "Where Beauty Meets Relaxation"
+   "slogan": "Where Beauty Meets Relaxation",
+   "knowsAbout": [
+    "Hair salon",
+    "Hair color",
+    "Balayage",
+    "Hair extensions",
+    "Massage therapy",
+    "Facials",
+    "Waxing",
+    "Manicures and pedicures",
+    "Lash extensions",
+    "Spray tanning",
+    "Bridal hair and makeup",
+    "Spa packages",
+    "Spa memberships"
+   ]
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://www.omorfiabeauty.nyc/#website",
+   "url": "https://www.omorfiabeauty.nyc/",
+   "name": "Omorfia Salon & Day Spa",
+   "publisher": {
+    "@id": "https://www.omorfiabeauty.nyc/#business"
+   },
+   "inLanguage": "en-US"
+  },
+  {
+   "@type": "WebPage",
+   "@id": "https://www.omorfiabeauty.nyc/#webpage",
+   "url": "https://www.omorfiabeauty.nyc/",
+   "name": "Day Spa in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+   "description": "Omorfia is a full-service salon and day spa in Poughkeepsie, NY \u2014 hair, nails, massage, facials, tanning, makeup and bridal. Open 7 days a week, including Sundays. Book online or call (845) 694-4952.",
+   "isPartOf": {
+    "@id": "https://www.omorfiabeauty.nyc/#website"
+   },
+   "about": {
+    "@id": "https://www.omorfiabeauty.nyc/#business"
+   },
+   "inLanguage": "en-US",
+   "primaryImageOfPage": "https://www.omorfiabeauty.nyc/images/slides/s08.jpg"
   },
   {
    "@type": "BreadcrumbList",
@@ -74,7 +199,7 @@
      "@type": "ListItem",
      "position": 1,
      "name": "Home",
-     "item": "https://omorfiabeauty.nyc/"
+     "item": "https://www.omorfiabeauty.nyc/"
     }
    ]
   },
@@ -111,6 +236,22 @@
      "acceptedAnswer": {
       "@type": "Answer",
       "text": "Yes \u2014 that's the point of a day spa. Stack hair, nails, massage and a facial into one appointment, or let us design the day for you with a package."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is Omorfia the former Marlene Weber Day Spa?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes \u2014 Omorfia opened in 2023 in the former Marlene Weber Day Spa building at 751 Dutchess Turnpike, under new, local ownership. Same landmark location, a new team and a full salon and spa menu."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Do you offer couples massage?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes \u2014 book two massages for the same time and you'll be side by side, or choose the For Two spa package, which pairs massages, facials and pedicures for two guests."
      }
     }
    ]
@@ -193,9 +334,9 @@
   <div class="hero-slides-layer" id="heroSlides" aria-hidden="true"></div>
   <div class="hero-veil" aria-hidden="true"></div>
   <p class="hero-def"><em>omorfi&aacute;</em> &mdash; Greek, &ldquo;beauty&rdquo;</p>
-  <h1 class="hero-brand">OMORFIA</h1>
+  <p class="hero-brand">OMORFIA</p>
   <div class="rule" aria-hidden="true"></div>
-  <p class="hero-sub">Salon &amp; Day Spa &nbsp;&middot;&nbsp; Poughkeepsie, New York</p>
+  <h1 class="hero-sub">Salon &amp; Day Spa &nbsp;&middot;&nbsp; Poughkeepsie, New York</h1>
   <p class="hero-tag">Where Beauty Meets Relaxation</p>
   <p class="hero-open">Open 7 Days a Week &middot; <span class="hero-star">&#9733;</span> 4.9 on Google</p>
   <div class="primary-row"><a class="btn btn-primary" href="#book">Book Appointment</a></div>
@@ -273,12 +414,12 @@
     <p class="eyebrow">Salon &amp; Spa</p>
     <h2>Everything under one appointment</h2>
     <div class="pgrid">
-      <a class="pcard" href="/hair/"><span class="pimg" style="background-image:url('/images/home-hair.jpg')"></span><span class="pc-n">Hair</span><span class="pc-d">Cuts, color, balayage &amp; blowouts</span></a>
-      <a class="pcard" href="/nails/"><span class="pimg" style="background-image:url('/images/home-nails.jpg')"></span><span class="pc-n">Nails</span><span class="pc-d">Manicures, pedicures &amp; gel</span></a>
-      <a class="pcard" href="/massage/"><span class="pimg" style="background-image:url('/images/home-massage.jpg')"></span><span class="pc-n">Massage</span><span class="pc-d">Swedish, deep tissue &amp; couples</span></a>
-      <a class="pcard" href="/facials/"><span class="pimg" style="background-image:url('/images/home-facials.jpg')"></span><span class="pc-n">Facials</span><span class="pc-d">Esthetics, peels &amp; skin care</span></a>
-      <a class="pcard" href="/tanning/"><span class="pimg" style="background-image:url('/images/home-tanning.jpg')"></span><span class="pc-n">Tanning</span><span class="pc-d">A natural sunless glow</span></a>
-      <a class="pcard" href="/makeup/"><span class="pimg" style="background-image:url('/images/home-makeup.jpg')"></span><span class="pc-n">Makeup</span><span class="pc-d">Events, weddings &amp; lessons</span></a>
+      <a class="pcard" href="/hair/"><img class="pimg" src="/images/home-hair.jpg" alt="Hair salon in Poughkeepsie &mdash; cuts, color and balayage at Omorfia" loading="lazy" width="1200" height="900"><span class="pc-n">Hair</span><span class="pc-d">Cuts, color, balayage &amp; blowouts</span></a>
+      <a class="pcard" href="/nails/"><img class="pimg" src="/images/home-nails.jpg" alt="Nail salon in Poughkeepsie &mdash; manicures, pedicures and gel at Omorfia" loading="lazy" width="1200" height="900"><span class="pc-n">Nails</span><span class="pc-d">Manicures, pedicures &amp; gel</span></a>
+      <a class="pcard" href="/massage/"><img class="pimg" src="/images/home-massage.jpg" alt="Massage room at Omorfia Day Spa in Poughkeepsie" loading="lazy" width="1200" height="900"><span class="pc-n">Massage</span><span class="pc-d">Swedish, deep tissue &amp; couples</span></a>
+      <a class="pcard" href="/facials/"><img class="pimg" src="/images/home-facials.jpg" alt="Facial treatment at Omorfia Day Spa in Poughkeepsie" loading="lazy" width="1200" height="900"><span class="pc-n">Facials</span><span class="pc-d">Esthetics, peels &amp; skin care</span></a>
+      <a class="pcard" href="/tanning/"><img class="pimg" src="/images/home-tanning.jpg" alt="Spray tanning at Omorfia in Poughkeepsie" loading="lazy" width="1200" height="900"><span class="pc-n">Tanning</span><span class="pc-d">A natural sunless glow</span></a>
+      <a class="pcard" href="/makeup/"><img class="pimg" src="/images/home-makeup.jpg" alt="Makeup artistry at Omorfia Salon in Poughkeepsie" loading="lazy" width="1200" height="900"><span class="pc-n">Makeup</span><span class="pc-d">Events, weddings &amp; lessons</span></a>
     </div>
   </div>
 </section>
@@ -344,11 +485,14 @@
   <p class="eyebrow">Visit us</p>
   <h2>751 Dutchess Turnpike, Poughkeepsie</h2>
   <p class="lead">Open seven days a week &mdash; yes, Sundays too &mdash; 9 AM &ndash; 8 PM &middot; <a href="tel:+18456944952">(845) 694-4952</a> &middot; <a class="btn-link" href="/contact/">Directions &amp; contact &rarr;</a></p>
+  <p class="serving">Serving Poughkeepsie and the Hudson Valley &mdash; Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Hopewell Junction, Rhinebeck, Beacon, New Paltz and Highland.</p>
 </section>
 <section class="wrap faq"><p class="eyebrow">Questions</p><h2>Good to know</h2><details><summary>Are you open on Sundays?</summary><p>Yes — Omorfia is open seven days a week, including Sundays and evenings, so a massage, facial or blowout fits around your week instead of the other way around.</p></details>
 <details><summary>Where is Omorfia Salon &amp; Day Spa located?</summary><p>We&#x27;re at 751 Dutchess Turnpike (Route 44), Poughkeepsie, NY 12603 — the former Marlene Weber building, the grey and white building sharing a parking lot with Adams Fairacre Farms, minutes from Arlington and Vassar College.</p></details>
 <details><summary>Do I need an appointment?</summary><p>Booking online is the best way to guarantee your time and provider, but call the front desk at (845) 694-4952 and we&#x27;ll fit you in whenever we can.</p></details>
-<details><summary>Can I book multiple services in one visit?</summary><p>Yes — that&#x27;s the point of a day spa. Stack hair, nails, massage and a facial into one appointment, or let us design the day for you with a package.</p></details></section></main>
+<details><summary>Can I book multiple services in one visit?</summary><p>Yes — that&#x27;s the point of a day spa. Stack hair, nails, massage and a facial into one appointment, or let us design the day for you with a package.</p></details>
+<details><summary>Is Omorfia the former Marlene Weber Day Spa?</summary><p>Yes — Omorfia opened in 2023 in the former Marlene Weber Day Spa building at 751 Dutchess Turnpike, under new, local ownership. Same landmark location, a new team and a full salon and spa menu.</p></details>
+<details><summary>Do you offer couples massage?</summary><p>Yes — book two massages for the same time and you&#x27;ll be side by side, or choose the For Two spa package, which pairs massages, facials and pedicures for two guests.</p></details></section></main>
 <section class="cta-band">
   <p class="cta-greek" aria-hidden="true">&omicron;&mu;&omicron;&rho;&phi;&iota;&#940;</p>
   <h2>Ready when you are.</h2>

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://omorfiabeauty.nyc/sitemap.xml
+Sitemap: https://www.omorfiabeauty.nyc/sitemap.xml
