@@ -18,7 +18,7 @@ EMAIL    = "Stavros@kyriacoubeauty.com"
 GEO      = (41.7005477, -73.8771062)
 PLACE_ID = "ChIJa3T8WRM_3YkR99abqa-Z1dQ"
 MAPS_URL = f"https://www.google.com/maps/place/?q=place_id:{PLACE_ID}"
-FOUNDED  = "2023"
+FOUNDED  = "2024-07"
 PRICE_RANGE = "$20 - $450"
 SAMEAS   = ["https://www.instagram.com/omorfiadayspa/",
             "https://www.yelp.com/biz/omorfia-salon-and-spa-poughkeepsie",
@@ -659,7 +659,7 @@ PAGES.append(dict(path="",nav="Home",
       ("Where is Omorfia Salon & Day Spa located?","We're at 751 Dutchess Turnpike (Route 44), Poughkeepsie, NY 12603 — the former Marlene Weber building, the grey and white building sharing a parking lot with Adams Fairacre Farms, minutes from Arlington and Vassar College."),
       ("Do I need an appointment?","Booking online is the best way to guarantee your time and provider, but call the front desk at (845) 694-4952 and we'll fit you in whenever we can."),
       ("Can I book multiple services in one visit?","Yes — that's the point of a day spa. Stack hair, nails, massage and a facial into one appointment, or let us design the day for you with a package."),
-      ("Is Omorfia the former Marlene Weber Day Spa?","Yes — Omorfia opened in 2023 in the former Marlene Weber Day Spa building at 751 Dutchess Turnpike, under new, local ownership. Same landmark location, a new team and a full salon and spa menu."),
+      ("Is Omorfia the former Marlene Weber Day Spa?","Yes — Omorfia opened in July 2024 in the former Marlene Weber Day Spa building at 751 Dutchess Turnpike, under new, local ownership. Same landmark location, a new team and a full salon and spa menu."),
       ("Do you offer couples massage?","Yes — book two massages for the same time and you'll be side by side, or choose the For Two spa package, which pairs massages, facials and pedicures for two guests.")]))
 
 # ---------------------------------------------------------------- services
@@ -1357,7 +1357,7 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
 # ---------------------------------------------------------------- about
 PAGES.append(dict(path="about",nav="About",
  title="About Omorfia Salon & Day Spa | Poughkeepsie, NY",
- desc="Est. 2023 — Omorfia, from the Greek word for beauty, is a locally owned salon and day spa in the former Marlene Weber building in Poughkeepsie, NY, where artistry, wellness and luxury converge.",
+ desc="Est. 2024 — Omorfia, from the Greek word for beauty, is a locally owned salon and day spa in the former Marlene Weber building in Poughkeepsie, NY, where artistry, wellness and luxury converge.",
  body="""
 <section class="wrap story">
   <div class="story-media story-slides" id="aboutSlides" aria-label="Photos of Omorfia">
@@ -1384,7 +1384,7 @@ PAGES.append(dict(path="about",nav="About",
   })();
   </script>
   <div class="story-copy">
-    <h1 class="eyebrow">About Omorfia &middot; Poughkeepsie&rsquo;s Salon &amp; Day Spa &middot; Est. 2023</h1>
+    <h1 class="eyebrow">About Omorfia &middot; Poughkeepsie&rsquo;s Salon &amp; Day Spa &middot; Est. 2024</h1>
     <p class="ph-title">Where Beauty Meets Relaxation</p>
     <p>The name <em>Omorfia</em> comes from the Greek word for beauty &mdash; and it&rsquo;s this timeless pursuit that inspires everything we do. Founded with a vision to create a sanctuary where artistry, wellness, and luxury converge, Omorfia has become a beloved destination for those who seek more than just a service.</p>
     <p>Our founders envisioned a place where clients could escape the pace of everyday life and step into a world of calm, beauty, and rejuvenation. That vision found its home in the <strong>former Marlene Weber Day Spa building</strong> on Dutchess Turnpike &mdash; a Poughkeepsie spa landmark for decades, now reimagined under new, local ownership. If you knew Marlene Weber, you know the address; Omorfia is what it has become. Today, it lives on through our dedicated team of artisans who treat every client as a canvas worthy of their finest work.</p>
@@ -1405,7 +1405,7 @@ PAGES.append(dict(path="about",nav="About",
 </section>
 """,
  faq=[("What does Omorfia mean?","Omorfia (ομορφιά) is the Greek word for beauty — the name reflects the family's Greek roots and the standard the salon is built around."),
-      ("Is Omorfia the old Marlene Weber Day Spa?","Omorfia occupies the former Marlene Weber Day Spa building at 751 Dutchess Turnpike in Poughkeepsie. Marlene Weber closed; Omorfia opened in 2023 under new, local ownership with its own team and a full salon and spa menu."),
+      ("Is Omorfia the old Marlene Weber Day Spa?","Omorfia occupies the former Marlene Weber Day Spa building at 751 Dutchess Turnpike in Poughkeepsie. Marlene Weber closed; Omorfia opened in July 2024 under new, local ownership with its own team and a full salon and spa menu."),
       ("Who owns Omorfia?","Omorfia is founder-owned by the Kyriacou family and is the flagship day spa of Kyriacou Beauty Group, which also operates OMO Med Spa and Kyriacou Cosmetics."),
       ("Is Omorfia a chain?","No — it's a single, locally owned salon and day spa in Poughkeepsie, NY.")]))
 
