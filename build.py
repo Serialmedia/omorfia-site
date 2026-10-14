@@ -26,6 +26,8 @@ SAMEAS   = ["https://www.instagram.com/omorfiadayspa/",
 # Nearby towns we draw guests from — used for areaServed schema and the "serving" line.
 NEARBY   = ["Poughkeepsie","Hyde Park","Wappingers Falls","LaGrange","Pleasant Valley",
             "Fishkill","Hopewell Junction","Rhinebeck","Beacon","New Paltz","Highland"]
+def slugify(s):
+    return re.sub(r'[^a-z0-9]+','-',s.lower()).strip('-')
 OUT = os.path.join(os.path.dirname(__file__), "site")
 TODAY = __import__("datetime").date.today().isoformat()
 
@@ -123,9 +125,23 @@ def page_schema(p):
         g.append(svc)
     if p.get("persons"):
         for nm,rl,img in p["persons"]:
-            node={"@type":"Person","name":nm,"jobTitle":rl,"worksFor":{"@id":DOMAIN+"/#business"}}
+            node={"@type":"Person","name":nm,"jobTitle":rl,"worksFor":{"@id":DOMAIN+"/#business"},
+                  "url":f"{DOMAIN}/team/{slugify(nm)}/"}
             if img: node["image"]=DOMAIN+"/images/team/"+img
             g.append(node)
+    if p.get("person"):
+        ps=p["person"]
+        node={"@type":"Person","@id":url+"#person","name":ps["name"],"jobTitle":ps["role"],
+              "description":ps["desc"],"url":url,"worksFor":{"@id":DOMAIN+"/#business"},
+              "workLocation":{"@type":"Place","address":{"@type":"PostalAddress","streetAddress":STREET,
+                 "addressLocality":CITY,"addressRegion":STATE,"postalCode":ZIP,"addressCountry":"US"}},
+              "knowsAbout":ps["knows"],"telephone":PHONE_TEL}
+        if ps.get("img"): node["image"]=DOMAIN+"/images/team/"+ps["img"]
+        if ps.get("credential"):
+            node["hasCredential"]={"@type":"EducationalOccupationalCredential","credentialCategory":"license","name":ps["credential"]}
+        g.append(node)
+        g[2]["about"]={"@id":url+"#person"}   # WebPage is about the person
+        g[2]["mainEntity"]={"@id":url+"#person"}
     if p.get("faq"):
         g.append({"@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,
             "acceptedAnswer":{"@type":"Answer","text":a}} for q,a in p["faq"]]})
@@ -416,8 +432,19 @@ def related_html(slug):
     items = " &middot; ".join(f'<a href="{u}">{t}</a>' for u,t in links)
     return f'<section class="wrap related"><p class="eyebrow">Explore</p><h2>You might also be looking for</h2><p class="related-links">{items}</p></section>'
 
-def service_page(slug,nav,service,title,desc,h1,intro,groups,faq,img,note=None,kw=None):
+def service_page(slug,nav,service,title,desc,h1,intro,groups,faq,img,note=None,kw=None,reviews=None,team=None):
     kw = kw or f"{service} in Poughkeepsie, NY"
+    rv = ""
+    if reviews:
+        rv = (f'<section class="wrap reviews-wrap"><p class="eyebrow">Google reviews</p>'
+              f'<h2>What guests say about {nav.lower()} at Omorfia</h2>{review_cards(reviews)}'
+              f'<p class="menu-note"><a class="btn-link" href="/reviews/">Read more reviews &rarr;</a> &middot; '
+              f'<a class="btn-link" href="https://www.google.com/maps/place/?q=place_id:{PLACE_ID}" rel="noopener">See all on Google &rarr;</a></p></section>')
+    tm = ""
+    if team:
+        tm = (f'<section class="wrap team-links"><p class="eyebrow">{team[0]}</p><h2>{team[1]}</h2>'
+              f'<p class="related-links">' + " &middot; ".join(f'<a href="/team/{slugify(n)}/">{n.split()[0]}</a> <span class="tl-role">({r})</span>' for n,r in team[2]) +
+              f'</p><p class="menu-note"><a class="btn-link" href="/team/">Meet the whole team &rarr;</a></p></section>')
     body=f"""
 <section class="page-hero has-photo" style="background-image:url('{img}')">
   <div class="ph-inner">
@@ -434,6 +461,8 @@ def service_page(slug,nav,service,title,desc,h1,intro,groups,faq,img,note=None,k
   {('<p class="menu-note brand-note">'+note+'</p>') if note else ''}
   <p class="menu-note">Prices are starting points and may vary with length, density, and service time &mdash; your provider confirms an exact quote before beginning. Book online or call <a href="tel:{PHONE_TEL}">{PHONE}</a>.</p>
 </section>
+{tm}
+{rv}
 {faq_html(faq)}
 {related_html(slug)}
 """
@@ -485,6 +514,11 @@ REVIEWS = [
  ("Erin was my hair stylist, and she was so kind and sweet. We chatted throughout the appointment and I had a lot of fun with her. My hair turned out so great, I&rsquo;m so happy with it! If you come to Omorfia, I hope you&rsquo;re lucky enough to get Erin as your hair stylist.","Kristina L. &middot; Google Review"),
  ("Wonderful massage by Debbie who is very experienced. Has a 90 minute deep tissue. Staff is very friendly and they offer a lot of other services. I will be back!!","Google Review &middot; Deep Tissue Massage")
 ]
+MASSAGE_REVIEWS = [r for r in REVIEWS if "massage" in (r[0]+r[1]).lower()]
+HAIR_REVIEWS    = [r for r in REVIEWS if re.search(r'hair|cut|color|blow', (r[0]+r[1]), re.I) and "massage" not in r[0].lower()]
+def person_reviews(first):
+    return [r for r in REVIEWS if re.search(r'\b'+re.escape(first)+r'\b', r[0], re.I)]
+
 def review_cards(rs):
     slides = "".join(
       f'<figure class="rvl">'
@@ -744,10 +778,18 @@ PAGES.append(service_page("hair","Hair","Hair Salon",
    ("Japanese Head Spa Conditioning Treatment (60 Min)","$150+","A meditative scalp ritual &mdash; cleanse, massage, and condition."),
    ("Japanese Head Spa Facial Treatment (60 Min)","$150+","The head spa ritual, paired with facial care."),
    ("Express Japanese Head Spa","$75+","The signature ritual, condensed.")])],
- [("How do I choose a stylist?","Tell us what you're looking for when you book — the front desk matches new guests with the stylist whose strengths fit the service."),
+ [("How do I choose a stylist?","Tell us what you're looking for when you book — the front desk matches new guests with the stylist whose strengths fit the service. Or browse the stylists above and book by name."),
   ("Why are some prices 'starting points'?","Length, density and color history change how much product and time a service takes; your stylist confirms the exact quote before starting."),
-  ("Do you do consultations?","Yes — haircut, balayage, vivid, keratin and extension consultations are all complimentary.")],IMG["hair"],
- kw="Hair Salon in Poughkeepsie, NY &mdash; Cuts, Color, Balayage &amp; Extensions"))
+  ("Do you do consultations?","Yes — haircut, balayage, vivid, keratin and extension consultations are all complimentary."),
+  ("Where is the hair salon?","751 Dutchess Turnpike (Route 44) in Poughkeepsie — the grey and white building that shares a parking lot with Adams Fairacre Farms, about five minutes from Vassar College and Arlington and ten from Marist. Free parking in the lot."),
+  ("Do you take walk-ins for haircuts?","When a chair is open, gladly — but booking online or calling (845) 694-4952 is the only way to guarantee a time. We're open seven days, 9 AM to 8 PM, including Sundays."),
+  ("Can I get hair and a massage or nails in one visit?","Yes — that's the point of a salon and day spa under one roof. Book them back to back, or pick a spa package and save.")],IMG["hair"],
+ kw="Hair Salon in Poughkeepsie, NY &mdash; Cuts, Color, Balayage &amp; Extensions",
+ reviews=HAIR_REVIEWS,
+ team=("Our stylists","Book a stylist by name",
+       [("Georgia Kyriacou","Lead Stylist"),("Hugo Lutin","Master Stylist &amp; Colorist"),("Christie Russell","Senior Stylist &amp; Colorist"),
+        ("Patsy Estrada","Stylist, Lash Tech &amp; Makeup"),("Hailey Reed","Senior Stylist &amp; Colorist"),("Katie Obrein","Senior Stylist &amp; Colorist"),
+        ("Erin Ohlandt","Stylist &amp; Extension Specialist"),("Juliana Angeles","Stylist"),("Lindy Wilkinson","Master Stylist &amp; Colorist")])))
 
 PAGES.append(service_page("nails","Nails","Nail Salon",
  "Nail Salon in Poughkeepsie, NY | Omorfia Salon & Day Spa",
@@ -805,8 +847,14 @@ PAGES.append(service_page("massage","Massage","Massage Therapy",
   ("Which length should I book?","60 minutes handles full-body maintenance; 90 gives real focus time on problem areas; 120 is the full reset. Whatever you pick, the style is chosen when you're here."),
   ("Can I get a massage on a Sunday?","Yes — we're open seven days a week, Sundays included, and Sunday massages are a guest favorite. Book online to lock in your time."),
   ("Do you offer gift cards?","Yes — massage is our most-gifted service. Grab one on our gift cards page or at the front desk."),
-  ("Do you offer couples massage?","Yes — book two massages for the same time and you'll be treated side by side. For the full afternoon together, the For Two spa package adds facials and pedicures for both of you.")],IMG["massage"],
- kw="Massage in Poughkeepsie, NY &mdash; Swedish, Deep Tissue, Hot Stone &amp; Prenatal"))
+  ("Do you offer couples massage?","Yes — book two massages for the same time and you'll be treated side by side. For the full afternoon together, the For Two spa package adds facials and pedicures for both of you."),
+  ("Are your massage therapists licensed?","Yes — every massage at Omorfia is given by a New York State licensed massage therapist. You can read about Debbie and Nadya on our team page and book either by name."),
+  ("Where is Omorfia for massage?","751 Dutchess Turnpike (Route 44) in Poughkeepsie — the grey and white building that shares a parking lot with Adams Fairacre Farms, about five minutes from Vassar College and Arlington and ten from Marist. Free parking, private massage rooms."),
+  ("Can I book a same-day massage?","Often, yes — we're open 9 AM to 8 PM seven days a week, so evening and Sunday slots are easier to find here than most places. Book online to see live availability.")],IMG["massage"],
+ kw="Massage in Poughkeepsie, NY &mdash; Swedish, Deep Tissue, Hot Stone &amp; Prenatal",
+ reviews=MASSAGE_REVIEWS,
+ team=("Our therapists","Book a licensed massage therapist by name",
+       [("Debbie Cameron","Master Massage Therapist, LMT"),("Nadya Deddrick","Massage Therapist, LMT")])))
 
 PAGES.append(service_page("facials","Facials","Facials & Esthetics",
  "Facials & Waxing in Poughkeepsie, NY | Omorfia Salon & Day Spa",
@@ -1093,7 +1141,8 @@ def team_section():
               f'<div class="tm-media">{mmedia}</div>'
               f'<div class="tm-info"><p class="eyebrow">{role}</p><h3>{name}</h3>'
               f'<p class="tm-bio">{bio}</p>'
-              f'<a class="btn btn-primary" href="{{book}}">Book with {first}</a></div>'
+              f'<a class="btn btn-primary" href="{{book}}">Book with {first}</a> '
+              f'<a class="btn-link tm-more" href="/team/{slugify(name)}/">Full profile &rarr;</a></div>'
               f'</div></div>')
             idx+=1
     js = """<script>
@@ -1144,8 +1193,87 @@ PAGES.append(dict(path="team",nav="Meet the Team",
     <p>We&rsquo;re always glad to meet exceptional stylists, therapists and nail artists. Introduce yourself at the front desk, reach out through <a href="https://www.instagram.com/omorfiadayspa/" rel="noopener">Instagram</a>, or email <a href="mailto:Stavros@kyriacoubeauty.com">Stavros@kyriacoubeauty.com</a>.</p>
   </div>
 </section>
+<section class="wrap team-index">
+  <p class="eyebrow">Profiles</p>
+  <h2>Book by name</h2>
+  """+"".join(f'<p class="team-index-group"><strong>{label}:</strong> '+" &middot; ".join(f'<a href="/team/{slugify(n)}/">{n}</a>' for n,_r,_i,_b in members)+'</p>' for _k,label,members in TEAM_GROUPS)+"""
+</section>
 """,
  faq=None))
+
+# ---------------------------------------------------------------- team bio pages (/team/<name>/)
+# One landing page per provider: Person schema + real reviews + services. These are the pages
+# practitioner Google Business Profiles (e.g. "Debbie Cameron, LMT") link to.
+_BIO_SVC = {
+ "sty": ("Hair Stylist", "hair", [("/hair/","Cuts &amp; blowouts"),("/balayage/","Balayage &amp; highlights"),("/hair/","Color"),
+                                  ("/keratin-treatment/","Keratin smoothing"),("/hair-extensions/","Hair extensions"),("/wedding/","Bridal &amp; event hair")],
+         ["Haircuts","Hair color","Balayage","Highlights","Blowouts","Keratin smoothing","Hair extensions","Updos"], None),
+ "mas": ("Licensed Massage Therapist", "massage", [("/massage/","60 / 90 / 120 minute massage"),("/deep-tissue-massage/","Deep tissue"),
+                                  ("/massage/","Swedish &amp; hot stone"),("/prenatal-massage/","Prenatal massage"),("/couples-massage/","Couples massage"),("/packages/","Spa packages")],
+         ["Swedish massage","Deep tissue massage","Hot stone massage","Prenatal massage","Couples massage","Therapeutic massage"],
+         "New York State Licensed Massage Therapist (LMT)"),
+ "est": ("Esthetician", "facials", [("/facials/","Facials"),("/brazilian-wax/","Waxing"),("/lashes-brows/","Lashes &amp; brows"),("/makeup/","Makeup")],
+         ["Facials","Skin care","Waxing","Lash extensions","Brow shaping","Makeup"], None),
+ "nai": ("Nail Technician", "nails", [("/nails/","Manicures &amp; pedicures"),("/nails/","Gel, acrylic &amp; dip"),("/memberships/","Mani &amp; Pedi Club")],
+         ["Manicures","Pedicures","Gel nails","Acrylic nails","Dip powder","Nail art"], None),
+ "mgmt": ("Salon &amp; Spa", "hero", [("/hair/","Hair"),("/massage/","Massage"),("/facials/","Facials"),("/nails/","Nails")],
+         ["Salon management","Hair styling","Guest experience"], None),
+}
+def bio_page(group, name, role, img, bio):
+    first = name.split()[0]
+    slug  = slugify(name)
+    kind, imgkey, links, knows, cred = _BIO_SVC[group]
+    role_plain = html.unescape(role)
+    if group=="mgmt" and "Stylist" in role: kind, imgkey, links, knows = "Hair Stylist", "hair", _BIO_SVC["sty"][2], _BIO_SVC["sty"][3]
+    if group=="sty" and "Nail" in role: links = links + [("/nails/","Manicures &amp; pedicures")]; knows = knows + ["Manicures","Pedicures"]
+    if group=="sty" and "Lash" in role: links = links + [("/lashes-brows/","Lashes &amp; brows"),("/makeup/","Makeup")]; knows = knows + ["Lash extensions","Makeup"]
+    kw = f"{name} &mdash; {kind} in Poughkeepsie, NY"
+    rvs = person_reviews(first)
+    rv = ""
+    if rvs:
+        rv = (f'<section class="wrap reviews-wrap"><p class="eyebrow">Google reviews</p><h2>What guests say about {first}</h2>'
+              f'{review_cards(rvs)}<p class="menu-note"><a class="btn-link" href="/reviews/">More reviews &rarr;</a></p></section>')
+    menu_url   = f"/{imgkey}/" if imgkey!="hero" else "/menu/"
+    menu_label = {"hair":"Full hair menu &amp; prices","massage":"Massage menu &amp; prices","facials":"Facials &amp; waxing menu","nails":"Nail menu &amp; prices"}.get(imgkey,"Services &amp; prices")
+    media = f'<img class="bio-photo" src="/images/team/{img}" alt="{name}, {html.escape(role_plain)} at Omorfia Salon &amp; Day Spa in Poughkeepsie, NY" width="900" height="900">' if img else ""
+    svc = " &middot; ".join(f'<a href="{u}">{t}</a>' for u,t in links)
+    faq = [(f"How do I book with {first}?", f"Book online and choose {first} as your provider, or call (845) 694-4952 and ask for {first}. We're open seven days, 9 AM to 8 PM."),
+           (f"Where does {first} work?", f"At Omorfia Salon & Day Spa, 751 Dutchess Turnpike (Route 44), Poughkeepsie, NY 12603 — the grey and white building sharing a lot with Adams Fairacre Farms, minutes from Arlington, Vassar College and Marist. Free parking."),
+           (f"What does {first} specialize in?", f"{html.unescape(re.sub('<[^>]+>','',bio))}")]
+    body=f"""
+<section class="page-hero has-photo ph-noslides bio-hero" style="background-image:url('{IMG[imgkey]}')">
+  <div class="ph-inner">
+    <h1 class="eyebrow">{kw}</h1>
+    <p class="ph-title">{first}, {role}</p>
+    <p class="lead">{bio}</p>
+    <a class="btn btn-primary" href="{{book}}">Book with {first}</a>
+  </div>
+</section>
+<section class="wrap split bio-wrap">
+  <div class="bio-media">{media}</div>
+  <div>
+    <p class="eyebrow">{kind} &middot; Omorfia Salon &amp; Day Spa</p>
+    <h2>{first} at Omorfia</h2>
+    <p>{bio}</p>
+    <p><strong>Book {first} for:</strong> {svc}</p>
+    <p class="serving">Serving guests from Poughkeepsie, Hyde Park, Wappingers Falls, LaGrange, Fishkill, Rhinebeck, Beacon and across the Hudson Valley.</p>
+    <p class="bio-cta"><a class="btn btn-primary" href="{{book}}">Book with {first}</a> <a class="btn-link" href="tel:{PHONE_TEL}">or call {PHONE}</a></p>
+  </div>
+</section>
+{rv}
+{faq_html(faq)}
+<section class="wrap related"><p class="eyebrow">Explore</p><h2>You might also be looking for</h2><p class="related-links"><a href="/team/">Meet the whole team</a> &middot; <a href="{menu_url}">{menu_label}</a> &middot; <a href="/reviews/">Reviews</a> &middot; <a href="/contact/">Contact &amp; hours</a></p></section>
+"""
+    if img: OG_IMG[f"team/{slug}"] = f"/images/team/{img}"
+    return dict(path=f"team/{slug}", nav=name, parent="team",
+        title=f"{name} – {role_plain} in Poughkeepsie, NY | Omorfia Salon & Day Spa",
+        desc=f"{name} is a {role_plain.lower()} at Omorfia Salon & Day Spa, 751 Dutchess Turnpike, Poughkeepsie, NY. Read reviews and book with {first} online or call (845) 694-4952.",
+        body=body, faq=faq, faq_done=True,
+        person=dict(name=name, role=role_plain, desc=html.unescape(re.sub('<[^>]+>','',bio)), img=img, knows=knows, credential=cred))
+
+for _k,_label,_members in TEAM_GROUPS:
+    for _n,_r,_i,_b in _members:
+        PAGES.append(bio_page(_k,_n,_r,_i,_b))
 
 # ---------------------------------------------------------------- reviews
 PAGES.append(dict(path="reviews",nav="Reviews",kw="Omorfia Reviews &mdash; Poughkeepsie Salon &amp; Day Spa",

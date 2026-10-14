@@ -432,6 +432,30 @@
       "@type": "Answer",
       "text": "Yes \u2014 book two massages for the same time and you'll be treated side by side. For the full afternoon together, the For Two spa package adds facials and pedicures for both of you."
      }
+    },
+    {
+     "@type": "Question",
+     "name": "Are your massage therapists licensed?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes \u2014 every massage at Omorfia is given by a New York State licensed massage therapist. You can read about Debbie and Nadya on our team page and book either by name."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Where is Omorfia for massage?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "751 Dutchess Turnpike (Route 44) in Poughkeepsie \u2014 the grey and white building that shares a parking lot with Adams Fairacre Farms, about five minutes from Vassar College and Arlington and ten from Marist. Free parking, private massage rooms."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Can I book a same-day massage?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Often, yes \u2014 we're open 9 AM to 8 PM seven days a week, so evening and Sunday slots are easier to find here than most places. Book online to see live availability."
+     }
     }
    ]
   }
@@ -557,12 +581,37 @@
   
   <p class="menu-note">Prices are starting points and may vary with length, density, and service time &mdash; your provider confirms an exact quote before beginning. Book online or call <a href="tel:+18456944952">(845) 694-4952</a>.</p>
 </section>
+<section class="wrap team-links"><p class="eyebrow">Our therapists</p><h2>Book a licensed massage therapist by name</h2><p class="related-links"><a href="/team/debbie-cameron/">Debbie</a> <span class="tl-role">(Master Massage Therapist, LMT)</span> &middot; <a href="/team/nadya-deddrick/">Nadya</a> <span class="tl-role">(Massage Therapist, LMT)</span></p><p class="menu-note"><a class="btn-link" href="/team/">Meet the whole team &rarr;</a></p></section>
+<section class="wrap reviews-wrap"><p class="eyebrow">Google reviews</p><h2>What guests say about massage at Omorfia</h2><div class="rvl-wrap"><div class="rvl-scroll"><figure class="rvl"><div class="rvl-stars" aria-label="Rated 5 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</div><blockquote>&ldquo;This was my first visit to Omorfia for a massage, and I couldn&rsquo;t have asked for a better experience. Debbie was absolutely amazing from start to finish. Her hands are truly magical &mdash; every touch was both deeply therapeutic and incredibly relaxing.&rdquo;</blockquote><hr class="rvl-rule"><figcaption>Massage &middot; Google review</figcaption></figure><figure class="rvl"><div class="rvl-stars" aria-label="Rated 5 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</div><blockquote>&ldquo;She is incredibly professional, attentive, and truly skilled at what she does. Her massages are not only relaxing but also therapeutic &mdash; she knows exactly how to target areas of tension and provide lasting relief.&rdquo;</blockquote><hr class="rvl-rule"><figcaption>Massage with Debbie &middot; Google review</figcaption></figure><figure class="rvl"><div class="rvl-stars" aria-label="Rated 5 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</div><blockquote>&ldquo;Where do I start? Omorfia Spa is a hidden gem that I&rsquo;m so excited I found. I couldn&rsquo;t believe they were open on a SUNDAY for an appointment! I was able to book online without a problem and was greeted by Debby when I arrived&hellip; She has incorporated the use of crystals with my deep tissue body work and the difference with my mind and body being grounding is noticeable. The massage room is huge with ambiance that is perfect for peace.&rdquo;</blockquote><hr class="rvl-rule"><figcaption>Cassandra T. &middot; Google Review</figcaption></figure><figure class="rvl"><div class="rvl-stars" aria-label="Rated 5 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</div><blockquote>&ldquo;My full body massage with Debbie today was both therapeutic and relaxing at the same time. She targeted my tight muscles with great skill and left me feeling completely refreshed. I highly recommend a session with her.&rdquo;</blockquote><hr class="rvl-rule"><figcaption>Google Review &middot; Massage</figcaption></figure><figure class="rvl"><div class="rvl-stars" aria-label="Rated 5 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</div><blockquote>&ldquo;What a beautiful experience. This was my first hot stone combo massage and it was incredible&hellip; Between the stones and Debbie&rsquo;s skill, I felt my muscles relaxing and elongating. Debbie is very in tune and intuitive and this was absolutely one of my favorite massage experiences. My body feels soft and relaxed, but also energized. Highly recommend!&rdquo;</blockquote><hr class="rvl-rule"><figcaption>Google Review &middot; Hot Stone Massage</figcaption></figure><figure class="rvl"><div class="rvl-stars" aria-label="Rated 5 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</div><blockquote>&ldquo;Wonderful massage by Debbie who is very experienced. Has a 90 minute deep tissue. Staff is very friendly and they offer a lot of other services. I will be back!!&rdquo;</blockquote><hr class="rvl-rule"><figcaption>Google Review &middot; Deep Tissue Massage</figcaption></figure></div></div><script>
+(function(){
+  document.querySelectorAll('.rvl-wrap').forEach(function(w){
+    if(w.dataset.rvl)return; w.dataset.rvl='1';
+    var sc=w.querySelector('.rvl-scroll');
+    var n=sc.children.length; if(n<2)return;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var i=0,paused=false;
+    sc.addEventListener('pointerenter',function(){paused=true;});
+    sc.addEventListener('pointerleave',function(){paused=false;});
+    sc.addEventListener('touchstart',function(){paused=true;},{passive:true});
+    sc.addEventListener('touchend',function(){setTimeout(function(){paused=false;},9000);},{passive:true});
+    sc.addEventListener('scroll',function(){var w2=sc.clientWidth||1;i=Math.round(sc.scrollLeft/w2);},{passive:true});
+    setInterval(function(){
+      if(paused||document.hidden)return;
+      i=(i+1)%n;
+      sc.scrollTo({left:i*sc.clientWidth,behavior:'smooth'});
+    },6000);
+  });
+})();
+</script><p class="menu-note"><a class="btn-link" href="/reviews/">Read more reviews &rarr;</a> &middot; <a class="btn-link" href="https://www.google.com/maps/place/?q=place_id:ChIJa3T8WRM_3YkR99abqa-Z1dQ" rel="noopener">See all on Google &rarr;</a></p></section>
 <section class="wrap faq"><p class="eyebrow">Questions</p><h2>Good to know</h2><details><summary>How should I prepare for a massage?</summary><p>Arrive a few minutes early, hydrate, and tell your therapist about problem areas and pressure preference — then let them work.</p></details>
 <details><summary>Do I need to choose Swedish or deep tissue when I book?</summary><p>No — you book the time, not the type. Choose Swedish, deep tissue, hot stone or a blend with your therapist when you arrive, and change your mind on the table if you like. Same price for any style.</p></details>
 <details><summary>Which length should I book?</summary><p>60 minutes handles full-body maintenance; 90 gives real focus time on problem areas; 120 is the full reset. Whatever you pick, the style is chosen when you&#x27;re here.</p></details>
 <details><summary>Can I get a massage on a Sunday?</summary><p>Yes — we&#x27;re open seven days a week, Sundays included, and Sunday massages are a guest favorite. Book online to lock in your time.</p></details>
 <details><summary>Do you offer gift cards?</summary><p>Yes — massage is our most-gifted service. Grab one on our gift cards page or at the front desk.</p></details>
-<details><summary>Do you offer couples massage?</summary><p>Yes — book two massages for the same time and you&#x27;ll be treated side by side. For the full afternoon together, the For Two spa package adds facials and pedicures for both of you.</p></details></section>
+<details><summary>Do you offer couples massage?</summary><p>Yes — book two massages for the same time and you&#x27;ll be treated side by side. For the full afternoon together, the For Two spa package adds facials and pedicures for both of you.</p></details>
+<details><summary>Are your massage therapists licensed?</summary><p>Yes — every massage at Omorfia is given by a New York State licensed massage therapist. You can read about Debbie and Nadya on our team page and book either by name.</p></details>
+<details><summary>Where is Omorfia for massage?</summary><p>751 Dutchess Turnpike (Route 44) in Poughkeepsie — the grey and white building that shares a parking lot with Adams Fairacre Farms, about five minutes from Vassar College and Arlington and ten from Marist. Free parking, private massage rooms.</p></details>
+<details><summary>Can I book a same-day massage?</summary><p>Often, yes — we&#x27;re open 9 AM to 8 PM seven days a week, so evening and Sunday slots are easier to find here than most places. Book online to see live availability.</p></details></section>
 <section class="wrap related"><p class="eyebrow">Explore</p><h2>You might also be looking for</h2><p class="related-links"><a href="/couples-massage/">Couples Massage</a> &middot; <a href="/deep-tissue-massage/">Deep Tissue Massage</a> &middot; <a href="/prenatal-massage/">Prenatal Massage</a> &middot; <a href="/packages/">Spa Packages</a> &middot; <a href="/memberships/">Massage Club</a></p></section>
 </main>
 <section class="cta-band">

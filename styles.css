@@ -676,3 +676,16 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 @media (max-width:720px){.area-grid{grid-template-columns:1fr}}
 .menu-all{padding-top:40px;padding-bottom:30px;border-top:1px solid var(--hair)}
 .page-hero .related-links{margin:18px auto 0;max-width:46em}
+/* team bio pages + provider links */
+.team-links,.reviews-wrap{padding-top:30px}
+.team-links .tl-role{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mist)}
+.team-index{padding-top:10px}
+.team-index-group{font-size:15px;line-height:2;color:var(--mist)}
+.team-index-group a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--hair)}
+.tm-more{display:inline-block;margin-left:14px;font-size:13px}
+.bio-wrap{align-items:center}
+.bio-media{max-width:420px}
+.bio-photo{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;object-position:top;border-radius:2px;display:block}
+.bio-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.bio-wrap .serving{margin:14px 0 0;text-align:left}
+@media (max-width:720px){.bio-media{max-width:300px;margin:0 auto}}
