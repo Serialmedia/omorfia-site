@@ -1064,12 +1064,12 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
 
 # ---------------------------------------------------------------- gift cards
 GC_VIDEO = dict(name="How to buy an Omorfia gift card online",
-  desc="A 30-second walkthrough of buying an Omorfia Salon & Day Spa gift card online: open the gift card page, choose $50, $100 or $250, add it to your cart, and check out. The gift card is emailed to you.",
+  desc="A 30-second walkthrough of buying an Omorfia Salon & Day Spa gift card online: open the gift card page, choose $50, $100, $250, $500 or a custom amount, add it to your cart, and check out. The gift card is emailed to you.",
   src="/images/video/gift-card-how-to.mp4", poster="/images/video/gift-card-how-to.jpg", date="2026-10-15", dur="PT33S")
 GC_STEPS = [
   ("Open the gift card page","Go to omorfiabeauty.nyc/gift-cards and tap “Buy a Gift Card”."),
-  ("Pick an amount","Choose a $50, $100 or $250 gift card."),
-  ("Add it to your cart","Tap “Add”. Want more than $250? Add another card."),
+  ("Pick an amount","Choose $50, $100, $250 or $500 — or tap Custom Amount and type any amount from $50 to $500."),
+  ("Add it to your cart","Tap “Add”."),
   ("Review your cart","Tap “Next”. You can pay over time with Affirm if you like."),
   ("Enter your phone or email","Then follow the checkout to pay."),
   ("Get it by email","Your gift card is emailed to you — forward it, print it, or tuck it in a card."),
@@ -1088,16 +1088,17 @@ GC_AMOUNTS = """
   <h2>Omorfia gift cards</h2>
   <div class="gc-grid">
     <a class="gc-card" href="{gift}"><span class="gc-amt">$50</span><span class="gc-what">A pedicure or a gel manicure</span><span class="gc-buy">Buy $50</span></a>
-    <a class="gc-card gc-feat" href="{gift}"><span class="gc-amt">$100</span><span class="gc-what">A classic mani-pedi, or most of a 60-minute massage or facial</span><span class="gc-buy">Buy $100</span></a>
+    <a class="gc-card" href="{gift}"><span class="gc-amt">$100</span><span class="gc-what">A classic mani-pedi, or most of a 60-minute massage or facial</span><span class="gc-buy">Buy $100</span></a>
     <a class="gc-card" href="{gift}"><span class="gc-amt">$250</span><span class="gc-what">A 90-minute massage, a partial balayage, or a facial with a spa mani-pedi</span><span class="gc-buy">Buy $250</span></a>
+    <a class="gc-card gc-feat" href="{gift}"><span class="gc-amt">Any</span><span class="gc-what">Type your own amount from $50 to $500 &mdash; match it to a service, like $135 for a 60-minute massage. $500 card also available.</span><span class="gc-buy">Custom amount</span></a>
   </div>
-  <p class="menu-note">Gift cards are sold online in $50, $100 and $250 &mdash; add more than one to reach any total. Redeemable on every service, package and product. Want a card for a specific service? Call <a href="tel:{tel}">{phone}</a>.</p>
+  <p class="menu-note">Buy online in $50, $100, $250 or $500 &mdash; or enter any custom amount from $50 to $500. Redeemable on every service, package and product. Want a card for a specific service? Call <a href="tel:{tel}">{phone}</a>.</p>
 </section>
 """
 
 PAGES.append(dict(path="gift-cards",nav="Gift Cards",service="Gift Cards",
  title="Gift Cards in Poughkeepsie, NY | Buy Online | Omorfia Salon & Day Spa",
- desc="Buy Omorfia Salon & Day Spa gift cards online in $50, $100 or $250 — emailed instantly. Good for massage, hair, facials, nails and spa packages in Poughkeepsie, NY.",
+ desc="Buy Omorfia Salon & Day Spa gift cards online — $50 to $500, any amount, emailed instantly. Good for massage, hair, facials, nails and spa packages in Poughkeepsie, NY.",
  video=GC_VIDEO, howto=("How to buy an Omorfia gift card online", GC_STEPS), giftcard=True,
  body="""
 <section class="page-hero">
@@ -1122,8 +1123,8 @@ PAGES.append(dict(path="gift-cards",nav="Gift Cards",service="Gift Cards",
 <section class="wrap related"><p class="eyebrow">Gift ideas</p><h2>Not sure what to give?</h2><p class="related-links"><a href="/spa-day-gifts/">Spa day gift ideas</a> &middot; <a href="/packages/">Spa packages</a> &middot; <a href="/couples-massage/">Couples massage</a> &middot; <a href="/memberships/">Memberships</a></p></section>
 """,
  kw="Gift Cards in Poughkeepsie, NY &mdash; Salon &amp; Spa Gift Cards",
- faq=[("How do I buy an Omorfia gift card online?","Tap “Buy a Gift Card”, choose $50, $100 or $250, tap Add, then Next, enter your phone or email and check out. The gift card is emailed to you. The video above walks through it."),
-      ("What amounts are available?","Online gift cards come in $50, $100 and $250. Add more than one to reach any total, or call the front desk for a card loaded for a specific service."),
+ faq=[("How do I buy an Omorfia gift card online?","Tap “Buy a Gift Card”, choose an amount (or enter a custom amount from $50 to $500), tap Add, then Next, enter your phone or email and check out. The gift card is emailed to you. The video above walks through it."),
+      ("What amounts are available?","Online: $50, $100, $250 or $500, or tap Custom Amount and enter anything from $50 to $500. For more than $500, buy two cards or call the front desk."),
       ("What can a gift card be used for?","Every service, package and product at Omorfia — hair, massage, facials, nails, waxing, lashes, brows and spa-day packages."),
       ("Do gift cards expire?","Ask the front desk for current terms — we keep them as generous as New York law allows."),
       ("Can I pay over time?","Yes — Affirm is offered at checkout for eligible purchases."),
@@ -1148,16 +1149,16 @@ PAGES.append(dict(path="spa-day-gifts",nav="Spa Day Gifts",service="Spa Gift Car
   <p class="eyebrow">Spa gift ideas</p>
   <h2>Gifts by budget</h2>
   <div class="gi-grid">
-"""+_idea("A pedicure","$45 &middot; $50 card","Soak, shape, callus care and polish &mdash; the small luxury everyone actually uses.","/nails/","Nail menu")+
-_idea("A spa mani-pedi","$110 &middot; $100 + $50 cards","Spa manicure and spa pedicure with exfoliation, mask and massage, in one visit.","/nails/","Nail menu")+
-_idea("A 60-minute massage","$135 &middot; $100 + $50 cards","Licensed massage therapists &mdash; Swedish, deep tissue or hot stone, chosen on the day.","/massage/","Massage menu")+
-_idea("A European facial","$135 &middot; $100 + $50 cards","Cleanse, exfoliate, facial massage and a hydrating mask &mdash; skin that glows for days.","/facials/","Facials menu")+
-_idea("A 90-minute massage","$195 &middot; $250 card","Full body plus real time on the shoulders, neck and back.","/massage/","Massage menu")+
-_idea("Japanese head spa","$150 &middot; $100 + $50 cards","A meditative scalp ritual &mdash; cleanse, massage, condition. The gift they didn&rsquo;t know existed.","/japanese-head-spa/","About head spa")+
-_idea("Couples massage","$270 &middot; $250 + $50 cards","Two massages, side by side. The anniversary and date-night favorite.","/couples-massage/","Couples massage")+
-_idea("A full spa day","$370&ndash;$550 &middot; combine cards","Massage, facial, mani-pedi and a blowout in one booking &mdash; or the For Two package for a pair.","/packages/","Spa packages")+"""
+"""+_idea("A pedicure","$45 &middot; $50 gift card","Soak, shape, callus care and polish &mdash; the small luxury everyone actually uses.","/nails/","Nail menu")+
+_idea("A spa mani-pedi","$110 &middot; $110 gift card","Spa manicure and spa pedicure with exfoliation, mask and massage, in one visit.","/nails/","Nail menu")+
+_idea("A 60-minute massage","$135 &middot; $135 gift card","Licensed massage therapists &mdash; Swedish, deep tissue or hot stone, chosen on the day.","/massage/","Massage menu")+
+_idea("A European facial","$135 &middot; $135 gift card","Cleanse, exfoliate, facial massage and a hydrating mask &mdash; skin that glows for days.","/facials/","Facials menu")+
+_idea("A 90-minute massage","$195 &middot; $195 gift card","Full body plus real time on the shoulders, neck and back.","/massage/","Massage menu")+
+_idea("Japanese head spa","$150 &middot; $150 gift card","A meditative scalp ritual &mdash; cleanse, massage, condition. The gift they didn&rsquo;t know existed.","/japanese-head-spa/","About head spa")+
+_idea("Couples massage","$270 &middot; $270 gift card","Two massages, side by side. The anniversary and date-night favorite.","/couples-massage/","Couples massage")+
+_idea("A full spa day","$370&ndash;$550 &middot; custom gift card","Massage, facial, mani-pedi and a blowout in one booking &mdash; or the For Two package for a pair.","/packages/","Spa packages")+"""
   </div>
-  <p class="menu-note">Gift cards are sold online in $50, $100 and $250 and can be combined. Prices are our current menu prices; some services are &ldquo;starting at&rdquo;. Every gift card works on any service, so they can always choose something else.</p>
+  <p class="menu-note">Gift cards can be bought online for any amount from $50 to $500, so you can match the card to the exact service. Prices are our current menu prices; some services are &ldquo;starting at&rdquo;. Every gift card works on any service, so they can always choose something else.</p>
 </section>
 <section class="wrap prose-wrap">
   <div class="prose">
@@ -1175,8 +1176,8 @@ _idea("A full spa day","$370&ndash;$550 &middot; combine cards","Massage, facial
  kw="Spa Day Gifts in Poughkeepsie, NY &mdash; Massage &amp; Spa Gift Cards",
  faq=[("What is the best spa gift in Poughkeepsie?","A massage is our most-gifted service, followed by mani-pedis, facials and the couples massage. If you're not sure, a gift card lets them choose — it works on every service at Omorfia."),
       ("How much is a spa day gift?","A pedicure is $45, a 60-minute massage or European facial is $135, couples massage is $270, and our spa-day packages run $370 to $550."),
-      ("Can I buy a spa gift card online?","Yes — online gift cards come in $50, $100 and $250, can be combined, and are emailed to you right after checkout. The video above shows how."),
-      ("Can I gift a specific service like a massage?","Buy a gift card that covers it (for example $100 + $50 for a 60-minute massage), or call (845) 694-4952 and the front desk will set up a card for that service."),
+      ("Can I buy a spa gift card online?","Yes — choose $50, $100, $250 or $500, or any custom amount from $50 to $500. It is emailed to you right after checkout. The video above shows how."),
+      ("Can I gift a specific service like a massage?","Buy a custom-amount gift card for the exact price (for example $135 for a 60-minute massage), or call (845) 694-4952 and the front desk will set up a card for that service."),
       ("Where is Omorfia?","751 Dutchess Turnpike (Route 44), Poughkeepsie, NY 12603 — the grey and white building sharing a lot with Adams Fairacre Farms. Free parking, open 7 days 9 AM–8 PM.")]))
 
 
