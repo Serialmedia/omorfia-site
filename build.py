@@ -1064,8 +1064,8 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
 
 # ---------------------------------------------------------------- gift cards
 GC_VIDEO = dict(name="How to buy an Omorfia gift card online",
-  desc="A 30-second walkthrough of buying an Omorfia Salon & Day Spa gift card online: open the gift card page, choose $50, $100, $250, $500 or a custom amount, add it to your cart, and check out. The gift card is emailed to you.",
-  src="/images/video/gift-card-how-to.mp4", poster="/images/video/gift-card-how-to.jpg", date="2026-10-15", dur="PT33S")
+  desc="A narrated walkthrough of buying an Omorfia Salon & Day Spa gift card online: open the gift card page, choose $50, $100, $250, $500 or a custom amount, add it to your cart, and check out. The gift card is emailed to you.",
+  src="/images/video/gift-card-how-to.mp4", poster="/images/video/gift-card-how-to.jpg", date="2026-10-15", dur="PT51S")
 GC_STEPS = [
   ("Open the gift card page","Go to omorfiabeauty.nyc/gift-cards and tap “Buy a Gift Card”."),
   ("Pick an amount","Choose $50, $100, $250 or $500 — or tap Custom Amount and type any amount from $50 to $500."),
