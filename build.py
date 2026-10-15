@@ -142,6 +142,22 @@ def page_schema(p):
         g.append(node)
         g[2]["about"]={"@id":url+"#person"}   # WebPage is about the person
         g[2]["mainEntity"]={"@id":url+"#person"}
+    if p.get("video"):
+        v=p["video"]
+        g.append({"@type":"VideoObject","@id":url+"#video","name":v["name"],"description":v["desc"],
+                  "thumbnailUrl":DOMAIN+v["poster"],"contentUrl":DOMAIN+v["src"],"uploadDate":v["date"],
+                  "duration":v["dur"],"publisher":{"@id":DOMAIN+"/#business"}})
+    if p.get("howto"):
+        g.append({"@type":"HowTo","name":p["howto"][0],"totalTime":"PT2M",
+                  "video":{"@id":url+"#video"} if p.get("video") else None,
+                  "step":[{"@type":"HowToStep","position":i+1,"name":n,"text":t,"url":f"{url}#how-{i+1}"} for i,(n,t) in enumerate(p["howto"][1])]})
+        if g[-1]["video"] is None: del g[-1]["video"]
+    if p.get("giftcard"):
+        g.append({"@type":"Product","@id":url+"#giftcard","name":"Omorfia Salon & Day Spa Gift Card",
+                  "description":"Digital gift card for Omorfia Salon & Day Spa in Poughkeepsie, NY — redeemable for hair, massage, facials, nails, waxing, lashes and spa packages.",
+                  "image":DOMAIN+"/images/slides/s08.jpg","brand":{"@type":"Brand","name":"Omorfia"},
+                  "offers":{"@type":"AggregateOffer","priceCurrency":"USD","lowPrice":"50","highPrice":"250","offerCount":"3",
+                            "availability":"https://schema.org/InStock","url":url,"seller":{"@id":DOMAIN+"/#business"}}})
     if p.get("faq"):
         g.append({"@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,
             "acceptedAnswer":{"@type":"Answer","text":a}} for q,a in p["faq"]]})
@@ -239,6 +255,7 @@ HEAD = """<!DOCTYPE html>
         <a href="/memberships/">Memberships</a>
         <a href="/menu/">Services &amp; Prices</a>
         <a href="/gift-cards/">Gift Cards</a>
+        <a href="/spa-day-gifts/">Spa Day Gifts</a>
         <a href="/specials/">New Guest Offer</a>
       </div>
     </div>
@@ -301,7 +318,7 @@ FOOT = """</main>
     <div>
       <p class="foot-h">Explore</p>
       <p><a href="/packages/">Packages</a> &middot; <a href="/memberships/">Memberships</a><br>
-      <a href="/specials/">Specials</a> &middot; <a href="/gift-cards/">Gift Cards</a><br>
+      <a href="/specials/">Specials</a> &middot; <a href="/gift-cards/">Gift Cards</a> &middot; <a href="/spa-day-gifts/">Spa Gifts</a><br>
       <a href="/team/">Team</a> &middot; <a href="/reviews/">Reviews</a> &middot; <a href="/contact/">Contact</a><br>
       <a href="/menu/">Services &amp; Prices</a> &middot; <a href="/hudson-valley/">Areas We Serve</a></p>
     </div>
@@ -1046,33 +1063,121 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
       ("How do I hear about specials first?","Follow us on Instagram — seasonal offers post there the day they launch.")]))
 
 # ---------------------------------------------------------------- gift cards
+GC_VIDEO = dict(name="How to buy an Omorfia gift card online",
+  desc="A 30-second walkthrough of buying an Omorfia Salon & Day Spa gift card online: open the gift card page, choose $50, $100 or $250, add it to your cart, and check out. The gift card is emailed to you.",
+  src="/images/video/gift-card-how-to.mp4", poster="/images/video/gift-card-how-to.jpg", date="2026-10-15", dur="PT33S")
+GC_STEPS = [
+  ("Open the gift card page","Go to omorfiabeauty.nyc/gift-cards and tap “Buy a Gift Card”."),
+  ("Pick an amount","Choose a $50, $100 or $250 gift card."),
+  ("Add it to your cart","Tap “Add”. Want more than $250? Add another card."),
+  ("Review your cart","Tap “Next”. You can pay over time with Affirm if you like."),
+  ("Enter your phone or email","Then follow the checkout to pay."),
+  ("Get it by email","Your gift card is emailed to you — forward it, print it, or tuck it in a card."),
+]
+def video_block(heading="Watch: buy a gift card in under a minute"):
+    v = GC_VIDEO
+    return (f'<section class="wrap gc-video"><p class="eyebrow">How it works</p><h2>{heading}</h2>'
+            f'<div class="vid"><video controls playsinline preload="none" poster="{v["poster"]}" width="1280" height="720" '
+            f'aria-label="{v["name"]}"><source src="{v["src"]}" type="video/mp4"></video></div>'
+            '<ol class="howto">' + "".join(f'<li id="how-{i+1}"><strong>{html.escape(n)}.</strong> {html.escape(t)}</li>' for i,(n,t) in enumerate(GC_STEPS)) +
+            '</ol></section>')
+
+GC_AMOUNTS = """
+<section class="wrap gc-amounts">
+  <p class="eyebrow">Choose an amount</p>
+  <h2>Omorfia gift cards</h2>
+  <div class="gc-grid">
+    <a class="gc-card" href="{gift}"><span class="gc-amt">$50</span><span class="gc-what">A pedicure or a gel manicure</span><span class="gc-buy">Buy $50</span></a>
+    <a class="gc-card gc-feat" href="{gift}"><span class="gc-amt">$100</span><span class="gc-what">A classic mani-pedi, or most of a 60-minute massage or facial</span><span class="gc-buy">Buy $100</span></a>
+    <a class="gc-card" href="{gift}"><span class="gc-amt">$250</span><span class="gc-what">A 90-minute massage, a partial balayage, or a facial with a spa mani-pedi</span><span class="gc-buy">Buy $250</span></a>
+  </div>
+  <p class="menu-note">Gift cards are sold online in $50, $100 and $250 &mdash; add more than one to reach any total. Redeemable on every service, package and product. Want a card for a specific service? Call <a href="tel:{tel}">{phone}</a>.</p>
+</section>
+"""
+
 PAGES.append(dict(path="gift-cards",nav="Gift Cards",service="Gift Cards",
- title="Gift Cards | Omorfia Salon & Day Spa, Poughkeepsie NY",
- desc="Give the gift of a spa day in Poughkeepsie, NY. Omorfia gift cards work across every service — hair, massage, facials, nails and packages.",
+ title="Gift Cards in Poughkeepsie, NY | Buy Online | Omorfia Salon & Day Spa",
+ desc="Buy Omorfia Salon & Day Spa gift cards online in $50, $100 or $250 — emailed instantly. Good for massage, hair, facials, nails and spa packages in Poughkeepsie, NY.",
+ video=GC_VIDEO, howto=("How to buy an Omorfia gift card online", GC_STEPS), giftcard=True,
  body="""
 <section class="page-hero">
   <p class="eyebrow">Gift cards</p>
   <h1>The gift nobody returns.</h1>
-  <p class="lead">An Omorfia gift card works across everything we do &mdash; a massage, a color appointment, a full spa-day package, or simply a card loaded with an amount and left to their imagination.</p>
+  <p class="lead">An Omorfia gift card works across everything we do &mdash; a massage, a color appointment, a facial, a mani-pedi or a full spa-day package. Buy online and it&rsquo;s in your inbox in about a minute.</p>
   <a class="btn btn-primary" href="{gift}">Buy a Gift Card</a>
 </section>
+"""+GC_AMOUNTS+video_block()+"""
 <section class="wrap split">
   <div>
     <p class="eyebrow">Online</p>
-    <h2>Buy in a minute</h2>
-    <p>Purchase online and it&rsquo;s delivered by email &mdash; perfect for the birthday you remembered at 11 PM. Any amount, redeemable across all services.</p>
+    <h2>Delivered by email</h2>
+    <p>Your gift card arrives by email right after checkout &mdash; perfect for the birthday you remembered at 11 PM. Forward it, print it, or slip it into a card.</p>
   </div>
   <div>
     <p class="eyebrow">In person</p>
     <h2>Or from the front desk</h2>
-    <p>Prefer a physical card in an envelope? Stop by 751 Dutchess Turnpike or call <a href="tel:{tel}">{phone}</a> and we&rsquo;ll have it ready for pickup.</p>
+    <p>Prefer a physical card in an envelope? Stop by 751 Dutchess Turnpike in Poughkeepsie or call <a href="tel:{tel}">{phone}</a> and we&rsquo;ll have it ready for pickup. Open seven days, 9 AM&ndash;8 PM.</p>
   </div>
 </section>
+<section class="wrap related"><p class="eyebrow">Gift ideas</p><h2>Not sure what to give?</h2><p class="related-links"><a href="/spa-day-gifts/">Spa day gift ideas</a> &middot; <a href="/packages/">Spa packages</a> &middot; <a href="/couples-massage/">Couples massage</a> &middot; <a href="/memberships/">Memberships</a></p></section>
 """,
- kw="Spa Gift Cards in Poughkeepsie, NY",
- faq=[("Do gift cards expire?","Ask the front desk for current terms — we keep them as generous as New York law allows."),
-      ("Can a gift card be used on packages?","Yes — gift cards apply to any service, package or product we offer."),
-      ("Can I gift a specific service?","Absolutely — tell us the service (a couples massage is the crowd favorite) and we'll load the card to match.")]))
+ kw="Gift Cards in Poughkeepsie, NY &mdash; Salon &amp; Spa Gift Cards",
+ faq=[("How do I buy an Omorfia gift card online?","Tap “Buy a Gift Card”, choose $50, $100 or $250, tap Add, then Next, enter your phone or email and check out. The gift card is emailed to you. The video above walks through it."),
+      ("What amounts are available?","Online gift cards come in $50, $100 and $250. Add more than one to reach any total, or call the front desk for a card loaded for a specific service."),
+      ("What can a gift card be used for?","Every service, package and product at Omorfia — hair, massage, facials, nails, waxing, lashes, brows and spa-day packages."),
+      ("Do gift cards expire?","Ask the front desk for current terms — we keep them as generous as New York law allows."),
+      ("Can I pay over time?","Yes — Affirm is offered at checkout for eligible purchases."),
+      ("Can I buy a gift card in person?","Yes — at the front desk, 751 Dutchess Turnpike, Poughkeepsie, open seven days 9 AM–8 PM, or call (845) 694-4952.")]))
+
+# ---------------------------------------------------------------- spa day gifts (gift guide / SEO landing page)
+def _idea(title, price, what, link, label):
+    return (f'<div class="gift-idea"><p class="gi-price">{price}</p><h3>{title}</h3><p>{what}</p>'
+            f'<p class="gi-links"><a class="btn btn-primary" href="{{gift}}">Buy a gift card</a> <a class="btn-link" href="{link}">{label} &rarr;</a></p></div>')
+PAGES.append(dict(path="spa-day-gifts",nav="Spa Day Gifts",service="Spa Gift Cards",
+ title="Spa Day Gifts in Poughkeepsie, NY | Massage & Spa Gift Cards | Omorfia",
+ desc="Spa day gift ideas in Poughkeepsie, NY — massage, facial, mani-pedi, couples and full spa-day gifts at Omorfia Salon & Day Spa. Buy a gift card online, emailed instantly.",
+ video=GC_VIDEO, howto=("How to buy an Omorfia gift card online", GC_STEPS),
+ body="""
+<section class="page-hero">
+  <p class="eyebrow">Gift guide</p>
+  <h1>Give them a day off.</h1>
+  <p class="lead">The best spa gifts in Poughkeepsie, sorted by who they&rsquo;re for and what you want to spend &mdash; each one a gift card away. Buy online, it&rsquo;s emailed to you in about a minute.</p>
+  <a class="btn btn-primary" href="{gift}">Buy a Gift Card</a>
+</section>
+<section class="wrap gift-ideas">
+  <p class="eyebrow">Spa gift ideas</p>
+  <h2>Gifts by budget</h2>
+  <div class="gi-grid">
+"""+_idea("A pedicure","$45 &middot; $50 card","Soak, shape, callus care and polish &mdash; the small luxury everyone actually uses.","/nails/","Nail menu")+
+_idea("A spa mani-pedi","$110 &middot; $100 + $50 cards","Spa manicure and spa pedicure with exfoliation, mask and massage, in one visit.","/nails/","Nail menu")+
+_idea("A 60-minute massage","$135 &middot; $100 + $50 cards","Licensed massage therapists &mdash; Swedish, deep tissue or hot stone, chosen on the day.","/massage/","Massage menu")+
+_idea("A European facial","$135 &middot; $100 + $50 cards","Cleanse, exfoliate, facial massage and a hydrating mask &mdash; skin that glows for days.","/facials/","Facials menu")+
+_idea("A 90-minute massage","$195 &middot; $250 card","Full body plus real time on the shoulders, neck and back.","/massage/","Massage menu")+
+_idea("Japanese head spa","$150 &middot; $100 + $50 cards","A meditative scalp ritual &mdash; cleanse, massage, condition. The gift they didn&rsquo;t know existed.","/japanese-head-spa/","About head spa")+
+_idea("Couples massage","$270 &middot; $250 + $50 cards","Two massages, side by side. The anniversary and date-night favorite.","/couples-massage/","Couples massage")+
+_idea("A full spa day","$370&ndash;$550 &middot; combine cards","Massage, facial, mani-pedi and a blowout in one booking &mdash; or the For Two package for a pair.","/packages/","Spa packages")+"""
+  </div>
+  <p class="menu-note">Gift cards are sold online in $50, $100 and $250 and can be combined. Prices are our current menu prices; some services are &ldquo;starting at&rdquo;. Every gift card works on any service, so they can always choose something else.</p>
+</section>
+<section class="wrap prose-wrap">
+  <div class="prose">
+    <h3>Spa gifts for every occasion</h3>
+    <p><strong>Birthdays:</strong> a massage or facial is the gift that gets used, not re-gifted. <strong>Mother&rsquo;s Day:</strong> a mani-pedi or the Classic Spa Day &mdash; or book the <a href="/couples-massage/">couples massage</a> and go together. <strong>Holidays:</strong> gift cards arrive by email, so they work for last-minute stockings and out-of-town family visiting the Hudson Valley. <strong>Anniversaries and Valentine&rsquo;s Day:</strong> couples massage or the For Two package. <strong>Brides and bridesmaids:</strong> a pre-wedding facial, massage or mani-pedi &mdash; see our <a href="/wedding/">bridal menu</a>. <strong>Thank-yous for teachers, nurses and coworkers:</strong> a $50 card covers a pedicure or a gel manicure.</p>
+    <h3>Gifts for her, for him, for anyone</h3>
+    <p>Hair, massage, facials, nails, waxing, lashes and brows all live under one roof, so one gift card covers whatever they love most &mdash; a <a href="/balayage/">balayage</a> refresh, a <a href="/deep-tissue-massage/">deep tissue massage</a> after a long season, or a men&rsquo;s cut and a massage in the same visit.</p>
+    <h3>Local to Poughkeepsie and the Hudson Valley</h3>
+    <p>Omorfia is at 751 Dutchess Turnpike (Route 44) in Poughkeepsie, sharing a parking lot with Adams Fairacre Farms, minutes from Vassar, Arlington and Marist, and an easy drive from Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Rhinebeck and Beacon. We&rsquo;re open seven days a week, 9 AM to 8 PM, so the person you gift can book a Sunday or an evening.</p>
+  </div>
+</section>
+"""+GC_AMOUNTS+video_block("How to buy a spa gift card online")+"""
+<section class="wrap related"><p class="eyebrow">Explore</p><h2>You might also be looking for</h2><p class="related-links"><a href="/gift-cards/">Gift cards</a> &middot; <a href="/packages/">Spa packages</a> &middot; <a href="/couples-massage/">Couples massage</a> &middot; <a href="/massage/">Massage</a> &middot; <a href="/facials/">Facials</a> &middot; <a href="/memberships/">Memberships</a></p></section>
+""",
+ kw="Spa Day Gifts in Poughkeepsie, NY &mdash; Massage &amp; Spa Gift Cards",
+ faq=[("What is the best spa gift in Poughkeepsie?","A massage is our most-gifted service, followed by mani-pedis, facials and the couples massage. If you're not sure, a gift card lets them choose — it works on every service at Omorfia."),
+      ("How much is a spa day gift?","A pedicure is $45, a 60-minute massage or European facial is $135, couples massage is $270, and our spa-day packages run $370 to $550."),
+      ("Can I buy a spa gift card online?","Yes — online gift cards come in $50, $100 and $250, can be combined, and are emailed to you right after checkout. The video above shows how."),
+      ("Can I gift a specific service like a massage?","Buy a gift card that covers it (for example $100 + $50 for a 60-minute massage), or call (845) 694-4952 and the front desk will set up a card for that service."),
+      ("Where is Omorfia?","751 Dutchess Turnpike (Route 44), Poughkeepsie, NY 12603 — the grey and white building sharing a lot with Adams Fairacre Farms. Free parking, open 7 days 9 AM–8 PM.")]))
 
 
 # ---------------------------------------------------------------- team
@@ -1626,7 +1731,7 @@ PAGES.append(topic_page("couples-massage","Couples Massage","Couples Massage","m
    "Hot stones, amethyst crystals, Reiki or aromatherapy can be added to either table. Arrive a few minutes early, hydrate, and leave the rest to us."]),
   ("Make it a whole afternoon",[
    "The <strong>For Two spa package ($550, a $670 value)</strong> is our most-booked couples experience: two 60-minute massages, two European facials and two spa pedicures, about three and a half hours together for $275 a person. It's the anniversary, birthday, mother-and-daughter or best-friend plan that requires zero decisions.",
-   "Couples massage is also our most-gifted service &mdash; a <a href=\"/gift-cards/\">gift card</a> loaded for two massages or the For Two package arrives by email in a minute."]),
+   "Couples massage is also our most-gifted service &mdash; see our <a href=\"/spa-day-gifts/\">spa day gift ideas</a> or buy a <a href=\"/gift-cards/\">gift card</a> online in a minute."]),
   ("Poughkeepsie's day spa for two",[
    "We're on Dutchess Turnpike with free parking, minutes from Arlington, Vassar and the Taconic, and open seven days a week including Sundays and evenings &mdash; so a couples massage fits a weekend, a date night or a day off without rearranging anything."])],
  [("Massage &middot; Per person, choose your style when you arrive",[

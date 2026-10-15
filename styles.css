@@ -689,3 +689,20 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 .bio-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 .bio-wrap .serving{margin:14px 0 0;text-align:left}
 @media (max-width:720px){.bio-media{max-width:300px;margin:0 auto}}
+/* gift cards */
+.gc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:24px}
+.gc-card{display:flex;flex-direction:column;gap:10px;padding:34px 26px;border:1px solid var(--hair);text-decoration:none;color:var(--ink);text-align:center;transition:border-color .3s,transform .3s}
+.gc-card:hover{border-color:var(--ink);transform:translateY(-2px)}
+.gc-feat{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gc-amt{font-family:var(--disp);font-size:56px;line-height:1}
+.gc-what{font-size:14px;line-height:1.6;opacity:.8;flex:1}
+.gc-buy{font-size:12px;letter-spacing:.18em;text-transform:uppercase;border-bottom:1px solid currentColor;align-self:center;padding-bottom:2px}
+.vid{position:relative;max-width:960px;margin:22px auto 0;aspect-ratio:16/9;background:#0b0b0b}
+.vid video{width:100%;height:100%;display:block}
+.howto{max-width:760px;margin:26px auto 0;padding-left:1.2em;line-height:1.9}
+.gi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 34px;margin-top:24px}
+.gift-idea{border-top:1px solid var(--hair);padding-top:18px}
+.gift-idea h3{margin:4px 0 8px}
+.gi-price{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin:0}
+.gi-links{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+@media (max-width:720px){.gc-grid,.gi-grid{grid-template-columns:1fr}}
