@@ -156,7 +156,7 @@ def page_schema(p):
         g.append({"@type":"Product","@id":url+"#giftcard","name":"Omorfia Salon & Day Spa Gift Card",
                   "description":"Digital gift card for Omorfia Salon & Day Spa in Poughkeepsie, NY — redeemable for hair, massage, facials, nails, waxing, lashes and spa packages.",
                   "image":DOMAIN+"/images/slides/s08.jpg","brand":{"@type":"Brand","name":"Omorfia"},
-                  "offers":{"@type":"AggregateOffer","priceCurrency":"USD","lowPrice":"50","highPrice":"250","offerCount":"3",
+                  "offers":{"@type":"AggregateOffer","priceCurrency":"USD","lowPrice":"50","highPrice":"500","offerCount":"5",
                             "availability":"https://schema.org/InStock","url":url,"seller":{"@id":DOMAIN+"/#business"}}})
     if p.get("faq"):
         g.append({"@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,
