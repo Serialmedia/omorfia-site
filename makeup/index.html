@@ -552,6 +552,7 @@
     var href=a.getAttribute('href')||'';
     var opts={path:a.getAttribute('data-blvd-path'),type:a.getAttribute('data-blvd-type')};
     if(href==='#gift'&&!opts.path){opts={path:'/cart/menu/Gift%20Cards',type:'GIFT_CARD'};}
+    if(href==='#book'&&!opts.path){opts={path:'/cart/menu',type:'SELF_VISIT'};}   // reset: widget otherwise reopens on the last screen (e.g. gift cards)
     if(!openWidget(opts)){window.location.href=TEL;}
   });
 })();
