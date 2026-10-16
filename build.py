@@ -20,6 +20,63 @@ PLACE_ID = "ChIJa3T8WRM_3YkR99abqa-Z1dQ"
 MAPS_URL = f"https://www.google.com/maps/place/?q=place_id:{PLACE_ID}"
 FOUNDED  = "2024-07"
 PRICE_RANGE = "$20 - $450"
+
+# ---------------------------------------------------------------- card pricing (NY surcharge disclosure)
+# Every price on the site is the CASH price. At build time each one is shown with its CARD price
+# (cash x (1 + CARD_SURCHARGE), rounded to the cent). Change the rate or wording here only.
+CARD_SURCHARGE = 0.035
+CARD_NOTICE = (f"A {CARD_SURCHARGE*100:g}% card processing fee applies to credit card payments. "
+               "It is not charged on debit cards or cash. Prices shown as cash / card.")
+NODUAL = "⁠"   # put this right before a "$" to keep an amount single (gift card face values)
+
+from decimal import Decimal, ROUND_HALF_UP
+def card_price(cash):
+    v = (Decimal(cash.replace(",", "")) * (Decimal(1) + Decimal(str(CARD_SURCHARGE)))).quantize(Decimal("0.01"), ROUND_HALF_UP)
+    return f"{v:,.2f}"
+
+_AMT = r'\$(\d{1,3}(?:,\d{3})*(?:\.\d\d)?|\d+(?:\.\d\d)?)(\+?)'
+_RANGE = re.compile(r'(?<!' + NODUAL + r')' + _AMT + r'(\s*(?:&ndash;|–|-)\s*)' + _AMT)
+_ONE = re.compile(r'(?<![' + NODUAL + r'\w])' + _AMT + r'(?!\d|,\d)')
+_SKIP_AFTER = re.compile(r'\s*(?:off\b|OFF\b|Off\b|value\b|gift card|cash\b|<span class="pr-sep">)')
+_SKIP_BEFORE = re.compile(r'(?:save|Save|SAVE)\s*$')
+DUAL_LOG = []   # (page, cash, card, context) — for review
+
+def _dual_markup(cash_s, card_s, html_out):
+    if html_out:
+        return (f'<span class="pr"><span class="pr-cash">{cash_s}<span class="pr-w"> cash</span></span>'
+                f'<span class="pr-sep"> / </span><span class="pr-card">{card_s}<span class="pr-w"> card</span></span></span>')
+    return f"{cash_s} cash / {card_s} card"
+
+def dual_text(s, page="", html_out=True):
+    """Convert every cash price in a text run to 'cash / card'."""
+    def rng(m):
+        a,ap,sep,c,cp = m.group(1),m.group(2),m.group(3),m.group(4),m.group(5)
+        cash_s = f"${a}{ap}{sep}${c}{cp}"; card_s = f"${card_price(a)}{ap}{sep}${card_price(c)}{cp}"
+        DUAL_LOG.append((page, cash_s, card_s)); return _dual_markup(cash_s, card_s, html_out)
+    s = _RANGE.sub(rng, s)
+    out=[]; last=0
+    for m in _ONE.finditer(s):
+        after = s[m.end():m.end()+40]; before = s[max(0,m.start()-12):m.start()]
+        if _SKIP_AFTER.match(after) or _SKIP_BEFORE.search(before) or 'class="pr-' in s[max(0,m.start()-30):m.start()]:
+            continue
+        a,ap = m.group(1),m.group(2)
+        cash_s=f"${a}{ap}"; card_s=f"${card_price(a)}{ap}"
+        DUAL_LOG.append((page, cash_s, card_s))
+        out.append(s[last:m.start()]); out.append(_dual_markup(cash_s, card_s, html_out)); last=m.end()
+    out.append(s[last:]); return "".join(out)
+
+def dual_html(doc, page=""):
+    """Apply dual_text to text nodes only (never inside tags, scripts, styles or attributes)."""
+    parts = re.split(r'(<script\b.*?</script>|<style\b.*?</style>|<[^>]+>)', doc, flags=re.S)
+    for i in range(0, len(parts), 2):
+        if "$" in parts[i]: parts[i] = dual_text(parts[i], page)
+    doc = "".join(parts)
+    # notice: once at the end of every section that shows a dual price (right next to its Book/Join/Buy buttons)
+    note = f'<p class="card-note">{html.escape(CARD_NOTICE)}</p>'
+    def sec(m):
+        t = m.group(0)
+        return t[:-len("</section>")] + note + "</section>" if 'class="pr"' in t and 'card-note' not in t else t
+    return re.sub(r'<section\b(?:(?!<section\b).)*?</section>', sec, doc, flags=re.S)
 SAMEAS   = ["https://www.instagram.com/omorfiadayspa/",
             "https://www.yelp.com/biz/omorfia-salon-and-spa-poughkeepsie",
             MAPS_URL]
@@ -160,7 +217,7 @@ def page_schema(p):
                             "availability":"https://schema.org/InStock","url":url,"seller":{"@id":DOMAIN+"/#business"}}})
     if p.get("faq"):
         g.append({"@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,
-            "acceptedAnswer":{"@type":"Answer","text":a}} for q,a in p["faq"]]})
+            "acceptedAnswer":{"@type":"Answer","text":dual_text(a,"",False)}} for q,a in p["faq"]]})
     return json.dumps({"@context":"https://schema.org","@graph":g},indent=1)
 
 # ------------------------------------------------------------------ shell
@@ -1064,11 +1121,11 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
 
 # ---------------------------------------------------------------- gift cards
 GC_VIDEO = dict(name="How to buy an Omorfia gift card online",
-  desc="A narrated walkthrough of buying an Omorfia Salon & Day Spa gift card online: open the gift card page, choose $50, $100, $250, $500 or a custom amount, add it to your cart, and check out. The gift card is emailed to you.",
+  desc="A narrated walkthrough of buying an Omorfia Salon & Day Spa gift card online: open the gift card page, choose \u2060$50, \u2060$100, \u2060$250, \u2060$500 or a custom amount, add it to your cart, and check out. The gift card is emailed to you.",
   src="/images/video/gift-card-how-to.mp4", poster="/images/video/gift-card-how-to.jpg", date="2026-10-15", dur="PT46S")
 GC_STEPS = [
   ("Open the gift card page","Go to omorfiabeauty.nyc/gift-cards and tap “Buy a Gift Card”."),
-  ("Pick an amount","Choose $50, $100, $250 or $500 — or tap Custom Amount and type any amount from $50 to $500."),
+  ("Pick an amount","Choose \u2060$50, \u2060$100, \u2060$250 or \u2060$500 — or tap Custom Amount and type any amount from \u2060$50 to \u2060$500."),
   ("Add it to your cart","Tap “Add”."),
   ("Review your cart","Tap “Next”. You can pay over time with Affirm if you like."),
   ("Enter your phone or email","Then follow the checkout to pay."),
@@ -1087,18 +1144,18 @@ GC_AMOUNTS = """
   <p class="eyebrow">Choose an amount</p>
   <h2>Omorfia gift cards</h2>
   <div class="gc-grid">
-    <a class="gc-card" href="{gift}"><span class="gc-amt">$50</span><span class="gc-what">A pedicure or a gel manicure</span><span class="gc-buy">Buy $50</span></a>
-    <a class="gc-card" href="{gift}"><span class="gc-amt">$100</span><span class="gc-what">A classic mani-pedi, or most of a 60-minute massage or facial</span><span class="gc-buy">Buy $100</span></a>
-    <a class="gc-card" href="{gift}"><span class="gc-amt">$250</span><span class="gc-what">A 90-minute massage, a partial balayage, or a facial with a spa mani-pedi</span><span class="gc-buy">Buy $250</span></a>
-    <a class="gc-card gc-feat" href="{gift}"><span class="gc-amt">Any</span><span class="gc-what">Type your own amount from $50 to $500 &mdash; match it to a service, like $135 for a 60-minute massage. $500 card also available.</span><span class="gc-buy">Custom amount</span></a>
+    <a class="gc-card" href="{gift}"><span class="gc-amt">\u2060$50</span><span class="gc-what">A pedicure or a gel manicure</span><span class="gc-pay">You pay $50</span><span class="gc-buy">Buy \u2060$50</span></a>
+    <a class="gc-card" href="{gift}"><span class="gc-amt">\u2060$100</span><span class="gc-what">A classic mani-pedi, or most of a 60-minute massage or facial</span><span class="gc-pay">You pay $100</span><span class="gc-buy">Buy \u2060$100</span></a>
+    <a class="gc-card" href="{gift}"><span class="gc-amt">\u2060$250</span><span class="gc-what">A 90-minute massage, a partial balayage, or a facial with a spa mani-pedi</span><span class="gc-pay">You pay $250</span><span class="gc-buy">Buy \u2060$250</span></a>
+    <a class="gc-card gc-feat" href="{gift}"><span class="gc-amt">Any</span><span class="gc-what">Type your own amount from \u2060$50 to \u2060$500 &mdash; match it to a service, like $135 for a 60-minute massage. \u2060$500 card also available.</span><span class="gc-buy">Custom amount</span></a>
   </div>
-  <p class="menu-note">Buy online in $50, $100, $250 or $500 &mdash; or enter any custom amount from $50 to $500. Redeemable on every service, package and product. Want a card for a specific service? Call <a href="tel:{tel}">{phone}</a>.</p>
+  <p class="menu-note">Buy online in \u2060$50, \u2060$100, \u2060$250 or \u2060$500 &mdash; or enter any custom amount from \u2060$50 to \u2060$500. Redeemable on every service, package and product. Want a card for a specific service? Call <a href="tel:{tel}">{phone}</a>.</p>
 </section>
 """
 
 PAGES.append(dict(path="gift-cards",nav="Gift Cards",service="Gift Cards",
  title="Gift Cards in Poughkeepsie, NY | Buy Online | Omorfia Salon & Day Spa",
- desc="Buy Omorfia Salon & Day Spa gift cards online — $50 to $500, any amount, emailed instantly. Good for massage, hair, facials, nails and spa packages in Poughkeepsie, NY.",
+ desc="Buy Omorfia Salon & Day Spa gift cards online — \u2060$50 to \u2060$500, any amount, emailed instantly. Good for massage, hair, facials, nails and spa packages in Poughkeepsie, NY.",
  video=GC_VIDEO, howto=("How to buy an Omorfia gift card online", GC_STEPS), giftcard=True,
  body="""
 <section class="page-hero">
@@ -1123,8 +1180,8 @@ PAGES.append(dict(path="gift-cards",nav="Gift Cards",service="Gift Cards",
 <section class="wrap related"><p class="eyebrow">Gift ideas</p><h2>Not sure what to give?</h2><p class="related-links"><a href="/spa-day-gifts/">Spa day gift ideas</a> &middot; <a href="/packages/">Spa packages</a> &middot; <a href="/couples-massage/">Couples massage</a> &middot; <a href="/memberships/">Memberships</a></p></section>
 """,
  kw="Gift Cards in Poughkeepsie, NY &mdash; Salon &amp; Spa Gift Cards",
- faq=[("How do I buy an Omorfia gift card online?","Tap “Buy a Gift Card”, choose an amount (or enter a custom amount from $50 to $500), tap Add, then Next, enter your phone or email and check out. The gift card is emailed to you. The video above walks through it."),
-      ("What amounts are available?","Online: $50, $100, $250 or $500, or tap Custom Amount and enter anything from $50 to $500. For more than $500, buy two cards or call the front desk."),
+ faq=[("How do I buy an Omorfia gift card online?","Tap “Buy a Gift Card”, choose an amount (or enter a custom amount from \u2060$50 to \u2060$500), tap Add, then Next, enter your phone or email and check out. The gift card is emailed to you. The video above walks through it."),
+      ("What amounts are available?","Online: \u2060$50, \u2060$100, \u2060$250 or \u2060$500, or tap Custom Amount and enter anything from \u2060$50 to \u2060$500. For more than \u2060$500, buy two cards or call the front desk."),
       ("What can a gift card be used for?","Every service, package and product at Omorfia — hair, massage, facials, nails, waxing, lashes, brows and spa-day packages."),
       ("Do gift cards expire?","Ask the front desk for current terms — we keep them as generous as New York law allows."),
       ("Can I pay over time?","Yes — Affirm is offered at checkout for eligible purchases."),
@@ -1158,7 +1215,7 @@ _idea("Japanese head spa","$150 &middot; $150 gift card","A meditative scalp rit
 _idea("Couples massage","$270 &middot; $270 gift card","Two massages, side by side. The anniversary and date-night favorite.","/couples-massage/","Couples massage")+
 _idea("A full spa day","$370&ndash;$550 &middot; custom gift card","Massage, facial, mani-pedi and a blowout in one booking &mdash; or the For Two package for a pair.","/packages/","Spa packages")+"""
   </div>
-  <p class="menu-note">Gift cards can be bought online for any amount from $50 to $500, so you can match the card to the exact service. Prices are our current menu prices; some services are &ldquo;starting at&rdquo;. Every gift card works on any service, so they can always choose something else.</p>
+  <p class="menu-note">Gift cards can be bought online for any amount from \u2060$50 to \u2060$500, so you can match the card to the exact service. Prices are our current menu prices; some services are &ldquo;starting at&rdquo;. Every gift card works on any service, so they can always choose something else.</p>
 </section>
 <section class="wrap prose-wrap">
   <div class="prose">
@@ -1176,7 +1233,7 @@ _idea("A full spa day","$370&ndash;$550 &middot; custom gift card","Massage, fac
  kw="Spa Day Gifts in Poughkeepsie, NY &mdash; Massage &amp; Spa Gift Cards",
  faq=[("What is the best spa gift in Poughkeepsie?","A massage is our most-gifted service, followed by mani-pedis, facials and the couples massage. If you're not sure, a gift card lets them choose — it works on every service at Omorfia."),
       ("How much is a spa day gift?","A pedicure is $45, a 60-minute massage or European facial is $135, couples massage is $270, and our spa-day packages run $370 to $550."),
-      ("Can I buy a spa gift card online?","Yes — choose $50, $100, $250 or $500, or any custom amount from $50 to $500. It is emailed to you right after checkout. The video above shows how."),
+      ("Can I buy a spa gift card online?","Yes — choose \u2060$50, \u2060$100, \u2060$250 or \u2060$500, or any custom amount from \u2060$50 to \u2060$500. It is emailed to you right after checkout. The video above shows how."),
       ("Can I gift a specific service like a massage?","Buy a custom-amount gift card for the exact price (for example $135 for a 60-minute massage), or call (845) 694-4952 and the front desk will set up a card for that service."),
       ("Where is Omorfia?","751 Dutchess Turnpike (Route 44), Poughkeepsie, NY 12603 — the grey and white building sharing a lot with Adams Fairacre Farms. Free parking, open 7 days 9 AM–8 PM.")]))
 
@@ -2155,13 +2212,14 @@ def kw_h1(body, kw):
 
 def render(p):
     canon=DOMAIN+"/"+(p["path"]+"/" if p["path"] else "")
-    doc=HEAD.format(title=html.escape(p["title"]),desc=html.escape(p["desc"]),canon=canon,
+    doc=HEAD.format(title=html.escape(dual_text(p["title"],p["path"],False)),desc=html.escape(dual_text(p["desc"],p["path"],False)),canon=canon,
                     ogimg=DOMAIN+OG_IMG.get(p["path"],OG_IMG[""]),schema=page_schema(p),book=BOOK_URL,tel=PHONE_TEL,phone=PHONE,
                     lat=GEO[0],lng=GEO[1])
     body=(kw_h1(p["body"], p.get("kw")).replace("{book}",BOOK_URL).replace("{gift}",GIFT_URL)
                    .replace("{tel}",PHONE_TEL).replace("{phone}",PHONE))
     body=re.sub(r'(/images/[^"\')\s]+)\.jpg', r'\1.webp', body)   # browsers get WebP; meta/schema keep JPG
     if p.get("faq") and not p.get("faq_done"): body+=faq_html(p["faq"])
+    body=dual_html(body, p["path"] or "home")
     doc+=body
     doc+=FOOT.format(book=BOOK_URL,tel=PHONE_TEL,phone=PHONE,street=STREET,
                      city=CITY,state=STATE,zip=ZIP)
