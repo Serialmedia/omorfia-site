@@ -1466,6 +1466,10 @@ PAGES.append(dict(path="packages",nav="Packages",service="Spa Packages",
 
 # ---------------------------------------------------------------- memberships
 PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships",
+ video=dict(name="How to join the Omorfia Member Club",
+  desc="A narrated walkthrough of joining an Omorfia Salon & Day Spa membership online: open the memberships page, pick a club, tap Join and Add, then check out. Month to month, no contract.",
+  src="/images/video/membership-how-to.mp4", poster="/images/video/membership-how-to.jpg", date="2026-10-16", dur="PT54S"),
+ howto=("How to join the Omorfia Member Club online", [('Open the memberships page', 'Go to omorfiabeauty.nyc/memberships.'), ('Pick your club', 'Scroll to the clubs — massage, facial, mani-pedi, brow wax, blowout, cut, color and more — and tap “Join”.'), ('Tap “Add”', 'Your monthly price is shown on the button.'), ('Review your cart', 'Tap “Next”. Add more clubs if you like.'), ('Enter your phone or email', 'Then follow the checkout to start your membership.'), ('Enjoy member perks', 'Your club service every month, plus 10% off every other service and member pricing on products.')]),
  kw="Spa &amp; Salon Memberships in Poughkeepsie, NY",
  faq=[("Is there a contract or startup fee?","No. Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract."),
       ("How do I cancel?","Call Stavros directly at (845) 694-4952 and it's done — no questions asked."),
@@ -1539,6 +1543,9 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
   </div>
   <p class="club-foot">Every club includes an unlimited 10% off all other salon &amp; spa services and special member pricing on products. Month to month &mdash; no startup fee, no cancellation fee, no contract. <span class="club-fine">Memberships are applicable with participating service providers only.</span></p>
 </section>
+<section class="wrap gc-video"><p class="eyebrow">How it works</p><h2>Watch: join in under a minute</h2>
+<div class="vid"><video controls playsinline preload="none" poster="/images/video/membership-how-to.jpg" width="1280" height="720" aria-label="How to join the Omorfia Member Club"><source src="/images/video/membership-how-to.mp4" type="video/mp4"></video></div>
+<ol class="howto"><li id="how-1"><strong>Open the memberships page.</strong> Go to omorfiabeauty.nyc/memberships.</li><li id="how-2"><strong>Pick your club.</strong> Scroll to the clubs — massage, facial, mani-pedi, brow wax, blowout, cut, color and more — and tap “Join”.</li><li id="how-3"><strong>Tap “Add”.</strong> Your monthly price is shown on the button.</li><li id="how-4"><strong>Review your cart.</strong> Tap “Next”. Add more clubs if you like.</li><li id="how-5"><strong>Enter your phone or email.</strong> Then follow the checkout to start your membership.</li><li id="how-6"><strong>Enjoy member perks.</strong> Your club service every month, plus 10% off every other service and member pricing on products.</li></ol></section>
 <div class="tmodal" id="join-modal" role="dialog" aria-modal="true" aria-label="Become a Member" hidden>
   <div class="tm-back" data-tclose></div>
   <div class="tm-card tm-solo tm-form">
