@@ -24,7 +24,7 @@ PRICE_RANGE = "$20 - $450"
 # ---------------------------------------------------------------- card pricing (NY surcharge disclosure)
 # Every price on the site is the CASH price. At build time each one is shown with its CARD price
 # (cash x (1 + CARD_SURCHARGE), rounded to the cent). Change the rate or wording here only.
-CARD_SURCHARGE = 0.035
+CARD_SURCHARGE = 0.03
 CARD_NOTICE = (f"A {CARD_SURCHARGE*100:g}% card processing fee applies to credit card payments. "
                "It is not charged on debit cards or cash. Prices shown as cash/debit · credit.")
 CASH_LABEL = "cash/debit"   # word shown after the base price (same price for debit)
