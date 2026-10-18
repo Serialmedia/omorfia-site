@@ -26,8 +26,10 @@ PRICE_RANGE = "$20 - $450"
 # (cash x (1 + CARD_SURCHARGE), rounded to the cent). Change the rate or wording here only.
 CARD_SURCHARGE = 0.035
 CARD_NOTICE = (f"A {CARD_SURCHARGE*100:g}% card processing fee applies to credit card payments. "
-               "It is not charged on debit cards or cash. Prices shown as cash / credit.")
-CARD_LABEL = "credit"   # word shown after the card price
+               "It is not charged on debit cards or cash. Prices shown as cash/debit · credit.")
+CASH_LABEL = "cash/debit"   # word shown after the base price (same price for debit)
+CARD_LABEL = "credit"       # word shown after the credit price
+PRICE_SEP  = " · "
 NODUAL = "⁠"   # put this right before a "$" to keep an amount single (gift card face values)
 
 from decimal import Decimal, ROUND_HALF_UP
@@ -44,9 +46,9 @@ DUAL_LOG = []   # (page, cash, card, context) — for review
 
 def _dual_markup(cash_s, card_s, html_out):
     if html_out:
-        return (f'<span class="pr"><span class="pr-cash">{cash_s}<span class="pr-w"> cash</span></span>'
-                f'<span class="pr-sep"> / </span><span class="pr-card">{card_s}<span class="pr-w"> {CARD_LABEL}</span></span></span>')
-    return f"{cash_s} cash / {card_s} {CARD_LABEL}"
+        return (f'<span class="pr"><span class="pr-cash">{cash_s}<span class="pr-w"> {CASH_LABEL}</span></span>'
+                f'<span class="pr-sep">{PRICE_SEP}</span><span class="pr-card">{card_s}<span class="pr-w"> {CARD_LABEL}</span></span></span>')
+    return f"{cash_s} {CASH_LABEL}{PRICE_SEP}{card_s} {CARD_LABEL}"
 
 def dual_text(s, page="", html_out=True):
     """Convert every cash price in a text run to 'cash / card'."""
