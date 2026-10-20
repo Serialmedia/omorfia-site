@@ -660,10 +660,10 @@ PAGES.append(dict(path="",nav="Home",
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="8" width="18" height="4"/><rect x="5" y="12" width="14" height="9"/><line x1="12" y1="8" x2="12" y2="21"/><path d="M12 8c-2.5 0-4.5-1.2-4.5-2.8C7.5 3.9 8.6 3 9.9 3c1.7 0 2.1 2.4 2.1 5zm0 0c2.5 0 4.5-1.2 4.5-2.8C16.5 3.9 15.4 3 14.1 3 12.4 3 12 5.4 12 8z"/></svg>
       <p class="op-eyebrow">First-Time Guest Offer</p>
       <p class="op-big">$15 OFF</p>
-      <p class="op-sub">your first visit</p>
+      <p class="op-sub">your first service of \u2060$100 or more</p>
     </div>
     <div class="op-bottom">
-      <p>Book your first appointment and mention this offer at checkout &mdash; $15 off, no strings attached.</p>
+      <p>Book your first appointment and mention this offer at checkout &mdash; $15 off your first service of \u2060$100 or more.</p>
       <a class="btn btn-primary op-cta" href="{{book}}">Book My First Visit</a>
       <button class="op-no" data-close>No thanks</button>
     </div>
@@ -1101,14 +1101,14 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
 <section class="page-hero">
   <p class="eyebrow">Specials &middot; New guests</p>
   <h1>First time? We&rsquo;d love to meet you.</h1>
-  <p class="lead">New guests get <strong>$15 off their first visit</strong> &mdash; mention it when you book, or ask the front desk. Seasonal specials rotate throughout the year and land on this page and our Instagram first.</p>
+  <p class="lead">New guests get <strong>$15 off their first service of \u2060$100 or more</strong> &mdash; mention it when you book, or ask the front desk. Seasonal specials rotate throughout the year and land on this page and our Instagram first.</p>
   <a class="btn btn-primary" href="{book}">Book Your First Visit</a>
 </section>
 <section class="wrap split">
   <div>
     <p class="eyebrow">Introductory offer</p>
     <h2>Your first visit, welcomed</h2>
-    <p><strong>$15 off your first visit.</strong> It&rsquo;s our way of making the first appointment an easy yes. One per guest, on your first visit &mdash; mention it when you book.</p>
+    <p><strong>$15 off your first service of \u2060$100 or more.</strong> It&rsquo;s our way of making the first appointment an easy yes. One per guest, on a first-visit service priced \u2060$100 or more &mdash; mention it when you book.</p>
   </div>
   <div>
     <p class="eyebrow">Seasonal</p>
@@ -1119,6 +1119,7 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
 """,
  kw="New Guest Offer &amp; Specials &mdash; Poughkeepsie Salon &amp; Day Spa",
  faq=[("Who counts as a new guest?","Anyone visiting Omorfia for the first time — welcome!"),
+      ("Which services qualify?","Any single service priced \u2060$100 or more on your first visit — for example a 60-minute massage, a facial, color or highlights."),
       ("Can I combine specials?","One offer per visit; the front desk will always apply whichever saves you the most."),
       ("How do I hear about specials first?","Follow us on Instagram — seasonal offers post there the day they launch.")]))
 
