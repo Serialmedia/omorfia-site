@@ -332,7 +332,7 @@ HEAD = """<!DOCTYPE html>
     <div class="dd">
       <a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou <svg class="chev" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
       <div class="dd-menu">
-        <a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou Cosmetics</a>
+        <a href="https://kyriacoucosmetics.com" target="_blank" rel="noopener">Kyriacou Cosmetics</a>
         <a href="https://omomedspa.com" target="_blank" rel="noopener">OMO Med Spa</a>
         <a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou Beauty Group</a>
       </div>
@@ -1712,7 +1712,7 @@ PAGES.append(dict(path="about",nav="About",
   <div>
     <p class="eyebrow">The family</p>
     <h2>Part of Kyriacou Beauty Group</h2>
-    <p>Omorfia is the flagship day spa of <a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou Beauty Group</a>, a Hudson Valley beauty and wellness family that also includes <a href="https://omomedspa.com" target="_blank" rel="noopener">OMO Med Spa</a> for medical aesthetics and Kyriacou Cosmetics. One standard, three doors.</p>
+    <p>Omorfia is the flagship day spa of <a href="https://kyriacoubeauty.com" rel="noopener">Kyriacou Beauty Group</a>, a Hudson Valley beauty and wellness family that also includes <a href="https://omomedspa.com" target="_blank" rel="noopener">OMO Med Spa</a> for medical aesthetics and <a href="https://kyriacoucosmetics.com" target="_blank" rel="noopener">Kyriacou Cosmetics</a>. One standard, three doors.</p>
   </div>
 </section>
 """,
