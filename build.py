@@ -2115,7 +2115,7 @@ OFFER_POP = f"""
     <button class="op-x" data-close aria-label="Close">&times;</button>
     <p class="op-brand" aria-hidden="true">OMORFIA</p>
     <div class="op-grid">
-      <div class="op-photo" role="img" aria-label="A treatment room at Omorfia Salon &amp; Day Spa"></div>
+      <div class="op-photo" role="img" aria-label="The spa hallway at Omorfia Salon &amp; Day Spa"></div>
       <div class="op-side">
         <h2 class="op-title" id="opTitle">Book today &amp; get {WELCOME_PCT} off your first service.</h2>
         <p class="op-lead">Enter your details to receive your promo code</p>
