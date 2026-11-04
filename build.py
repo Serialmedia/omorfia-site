@@ -1071,14 +1071,14 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
 <section class="page-hero">
   <p class="eyebrow">Specials &middot; New guests</p>
   <h1>First time? We&rsquo;d love to meet you.</h1>
-  <p class="lead">New guests get <strong>$15 off their first service of \u2060$100 or more</strong> &mdash; mention it when you book, or ask the front desk. Seasonal specials rotate throughout the year and land on this page and our Instagram first.</p>
+  <p class="lead">New guests get <strong>10% off their first service</strong> &mdash; use promo code <strong>OMORFIA10</strong> when you book, or show it at checkout. Seasonal specials rotate throughout the year and land on this page and our Instagram first.</p>
   <a class="btn btn-primary" href="{book}">Book Your First Visit</a>
 </section>
 <section class="wrap split">
   <div>
     <p class="eyebrow">Introductory offer</p>
     <h2>Your first visit, welcomed</h2>
-    <p><strong>$15 off your first service of \u2060$100 or more.</strong> It&rsquo;s our way of making the first appointment an easy yes. One per guest, on a first-visit service priced \u2060$100 or more &mdash; mention it when you book.</p>
+    <p><strong>10% off your first service with code OMORFIA10.</strong> It&rsquo;s our way of making the first appointment an easy yes. Any service, one per guest, on your first visit &mdash; enter the code when you book online or show it at checkout.</p>
   </div>
   <div>
     <p class="eyebrow">Seasonal</p>
@@ -1089,7 +1089,7 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
 """,
  kw="New Guest Offer &amp; Specials &mdash; Poughkeepsie Salon &amp; Day Spa",
  faq=[("Who counts as a new guest?","Anyone visiting Omorfia for the first time — welcome!"),
-      ("Which services qualify?","Any single service priced \u2060$100 or more on your first visit — for example a 60-minute massage, a facial, color or highlights."),
+      ("Which services qualify?","Any service on your first visit — hair, massage, facials, nails, waxing, lashes and more. Use code OMORFIA10 when you book online or show it at checkout."),
       ("Can I combine specials?","One offer per visit; the front desk will always apply whichever saves you the most."),
       ("How do I hear about specials first?","Follow us on Instagram — seasonal offers post there the day they launch.")]))
 
