@@ -652,36 +652,6 @@ PAGES.append(dict(path="",nav="Home",
     <a class="btn-link" href="/gift-cards/">Gift Cards</a>
   </div>
 </section>
-<div class="offer-pop" id="offerPop" role="dialog" aria-modal="true" aria-label="First-time guest offer" hidden>
-  <div class="op-backdrop" data-close></div>
-  <div class="op-card">
-    <button class="op-x" data-close aria-label="Close">&times;</button>
-    <div class="op-top">
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="8" width="18" height="4"/><rect x="5" y="12" width="14" height="9"/><line x1="12" y1="8" x2="12" y2="21"/><path d="M12 8c-2.5 0-4.5-1.2-4.5-2.8C7.5 3.9 8.6 3 9.9 3c1.7 0 2.1 2.4 2.1 5zm0 0c2.5 0 4.5-1.2 4.5-2.8C16.5 3.9 15.4 3 14.1 3 12.4 3 12 5.4 12 8z"/></svg>
-      <p class="op-eyebrow">First-Time Guest Offer</p>
-      <p class="op-big">$15 OFF</p>
-      <p class="op-sub">your first service of \u2060$100 or more</p>
-    </div>
-    <div class="op-bottom">
-      <p>Book your first appointment and mention this offer at checkout &mdash; $15 off your first service of \u2060$100 or more.</p>
-      <a class="btn btn-primary op-cta" href="{{book}}">Book My First Visit</a>
-      <button class="op-no" data-close>No thanks</button>
-    </div>
-  </div>
-</div>
-<script>
-(function(){{
-  var pop=document.getElementById('offerPop');if(!pop)return;
-  var KEY='omorfiaOfferSeen';
-  function seen(){{try{{return sessionStorage.getItem(KEY)==='1';}}catch(e){{return false;}}}}
-  function mark(){{try{{sessionStorage.setItem(KEY,'1');}}catch(e){{}}}}
-  function close(){{pop.hidden=true;document.documentElement.classList.remove('op-lock');mark();}}
-  if(seen())return;
-  setTimeout(function(){{pop.hidden=false;document.documentElement.classList.add('op-lock');}},1400);
-  pop.addEventListener('click',function(e){{if(e.target.closest('[data-close]'))close();}});
-  document.addEventListener('keydown',function(e){{if(e.key==='Escape'&&!pop.hidden)close();}});
-}})();
-</script>
 <script>
 (function(){{
   var imgs=["/images/slides/s01.jpg","/images/slides/s02.jpg","/images/slides/s03.jpg","/images/slides/s04.jpg","/images/slides/s05.jpg","/images/slides/s06.jpg","/images/slides/s07.jpg","/images/slides/s08.jpg","/images/slides/s09.jpg","/images/slides/s10.jpg","/images/slides/s11.jpg","/images/slides/s12.jpg","/images/slides/s13.jpg","/images/slides/s14.jpg","/images/slides/s15.jpg","/images/slides/s16.jpg","/images/slides/s17.jpg","/images/slides/s18.jpg","/images/slides/s19.jpg","/images/slides/s20.jpg"];
@@ -1116,6 +1086,7 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
     <p>Back-to-school, holiday and seasonal specials are posted here and on <a href="https://www.instagram.com/omorfiadayspa/" rel="noopener">Instagram</a> as they run. Follow along or ask the front desk what&rsquo;s on this month.</p>
   </div>
 </section>
+<script>(function(){if(!/[?&]welcome=1/.test(location.search))return;var l=document.querySelector('.page-hero .lead');if(l){var p=document.createElement('p');p.className='welcome-code';p.innerHTML='Your promo code: <strong>OMORFIA10</strong> &mdash; 10% off your first service. Mention it when you book or show it at checkout.';l.parentNode.insertBefore(p,l);}try{sessionStorage.setItem('omorfiaOfferSeen','1');localStorage.setItem('omorfiaOfferDone',String(Date.now()));}catch(e){}})();</script>
 """,
  kw="New Guest Offer &amp; Specials &mdash; Poughkeepsie Salon &amp; Day Spa",
  faq=[("Who counts as a new guest?","Anyone visiting Omorfia for the first time — welcome!"),
@@ -2134,6 +2105,80 @@ PAGES.append(dict(path="menu",nav="Services & Prices",
       ("Can I book several services in one visit?","Yes — that's the point of a day spa. Stack hair, nails, massage and a facial into one appointment, or choose a spa package and save over à la carte."),
       ("Do you take walk-ins?","When the book allows, gladly — booking online or calling (845) 694-4952 is the only way to guarantee a time.")]))
 
+# ---------------------------------------------------------------- first-visit offer popup (site-wide)
+WELCOME_CODE  = "OMORFIA10"
+WELCOME_PCT   = "10%"
+OFFER_EMAIL   = "stavros@kyriacoubeauty.com"          # where popup sign-ups are emailed (FormSubmit)
+OFFER_POP = f"""
+<div class="offer-pop" id="offerPop" role="dialog" aria-modal="true" aria-labelledby="opTitle" hidden>
+  <div class="op-backdrop" data-close></div>
+  <div class="op-card">
+    <button class="op-x" data-close aria-label="Close">&times;</button>
+    <p class="op-brand" aria-hidden="true">OMORFIA</p>
+    <div class="op-grid">
+      <div class="op-photo" role="img" aria-label="A treatment room at Omorfia Salon &amp; Day Spa"></div>
+      <div class="op-side">
+        <h2 class="op-title" id="opTitle">Book today &amp; get {WELCOME_PCT} off your first service.</h2>
+        <p class="op-lead">Enter your details to receive your promo code</p>
+        <form class="op-form" id="opForm" action="https://formsubmit.co/{OFFER_EMAIL}" method="POST" novalidate>
+          <input type="hidden" name="_subject" value="New guest offer sign-up (website popup)">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_next" value="{DOMAIN}/specials/?welcome=1">
+          <input type="text" name="_honey" class="op-honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <input type="hidden" name="Page" value="">
+          <input name="First name" type="text" placeholder="First Name" aria-label="First name" autocomplete="given-name" required>
+          <input name="Last name" type="text" placeholder="Last Name" aria-label="Last name" autocomplete="family-name" required>
+          <input name="Phone" type="tel" placeholder="Phone Number" aria-label="Phone number" autocomplete="tel" inputmode="tel" pattern="[0-9()+\\-.\\s]{{7,}}" required>
+          <button class="op-submit" type="submit">Submit</button>
+          <p class="op-err" hidden>Something went wrong. Call <a href="tel:{PHONE_TEL}">{PHONE}</a> and we&rsquo;ll set you up.</p>
+          <p class="op-fine">By providing your phone number you agree that Omorfia Salon &amp; Day Spa may contact you via mobile phone messaging.</p>
+        </form>
+        <div class="op-done" hidden>
+          <p class="op-eyebrow">You&rsquo;re in</p>
+          <p class="op-code">{WELCOME_CODE}</p>
+          <p class="op-lead">Your promo code for {WELCOME_PCT} off your first service. Mention it when you book, or show it at checkout.</p>
+          <a class="op-book" href="{{book}}">Book Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){{
+  var pop=document.getElementById('offerPop');if(!pop)return;
+  if(location.pathname.indexOf('/specials')===0)return;
+  var SKEY='omorfiaOfferSeen',DKEY='omorfiaOfferDone';
+  function get(st,k){{try{{return st.getItem(k);}}catch(e){{return null;}}}}
+  function set(st,k,v){{try{{st.setItem(k,v);}}catch(e){{}}}}
+  if(get(sessionStorage,SKEY)==='1')return;
+  var done=parseInt(get(localStorage,DKEY)||'0',10);
+  if(done&&Date.now()-done<90*864e5)return;
+  function close(){{pop.hidden=true;document.documentElement.classList.remove('op-lock');set(sessionStorage,SKEY,'1');}}
+  var pre=new Image();pre.src='/images/offer.webp';
+  setTimeout(function(){{pop.hidden=false;document.documentElement.classList.add('op-lock');}},2500);
+  pop.addEventListener('click',function(e){{if(e.target.closest('[data-close]'))close();}});
+  document.addEventListener('keydown',function(e){{if(e.key==='Escape'&&!pop.hidden)close();}});
+  var form=document.getElementById('opForm'),btn=form.querySelector('.op-submit'),err=form.querySelector('.op-err');
+  form.querySelector('[name=Page]').value=location.href;
+  form.addEventListener('submit',function(e){{
+    e.preventDefault();
+    if(!form.checkValidity()){{form.reportValidity();return;}}
+    btn.disabled=true;btn.textContent='Sending…';err.hidden=true;
+    var data={{}};new FormData(form).forEach(function(v,k){{data[k]=v;}});
+    delete data._next;delete data._captcha;
+    data._subject='New guest offer: '+data['First name']+' '+data['Last name'];
+    data['Submitted']=new Date().toLocaleString('en-US',{{timeZone:'America/New_York'}});
+    fetch('https://formsubmit.co/ajax/{OFFER_EMAIL}',{{method:'POST',headers:{{'Content-Type':'application/json','Accept':'application/json'}},body:JSON.stringify(data)}})
+      .then(function(r){{return r.json();}})
+      .then(function(j){{if(j&&(j.success===true||j.success==='true'))finish();else throw new Error('formsubmit');}})
+      .catch(function(){{btn.disabled=false;btn.textContent='Submit';err.hidden=false;}});
+  }});
+  function finish(){{form.hidden=true;pop.querySelector('.op-done').hidden=false;set(localStorage,DKEY,String(Date.now()));set(sessionStorage,SKEY,'1');}}
+}})();
+</script>
+"""
+
 # ------------------------------------------------------------------ build
 os.makedirs(OUT,exist_ok=True)
 PH_SLIDES_SCRIPT = """<script>
@@ -2227,7 +2272,7 @@ def render(p):
     doc+=body
     doc+=FOOT.format(book=BOOK_URL,tel=PHONE_TEL,phone=PHONE,street=STREET,
                      city=CITY,state=STATE,zip=ZIP)
-    doc=doc.replace("</body>", BLVD_JS+"</body>")
+    doc=doc.replace("</body>", OFFER_POP.replace("{book}",BOOK_URL)+BLVD_JS+"</body>")
     d=os.path.join(OUT,p["path"]) if p["path"] else OUT
     os.makedirs(d,exist_ok=True)
     open(os.path.join(d,"index.html"),"w").write(inject_hero_slides(doc))

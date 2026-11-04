@@ -489,6 +489,74 @@
   </div>
   <p class="foot-legal">&copy; 2026 Omorfia Salon &amp; Day Spa &middot; A Kyriacou Beauty Group company &middot; Poughkeepsie, NY</p>
 </footer>
+
+<div class="offer-pop" id="offerPop" role="dialog" aria-modal="true" aria-labelledby="opTitle" hidden>
+  <div class="op-backdrop" data-close></div>
+  <div class="op-card">
+    <button class="op-x" data-close aria-label="Close">&times;</button>
+    <p class="op-brand" aria-hidden="true">OMORFIA</p>
+    <div class="op-grid">
+      <div class="op-photo" role="img" aria-label="A treatment room at Omorfia Salon &amp; Day Spa"></div>
+      <div class="op-side">
+        <h2 class="op-title" id="opTitle">Book today &amp; get 10% off your first service.</h2>
+        <p class="op-lead">Enter your details to receive your promo code</p>
+        <form class="op-form" id="opForm" action="https://formsubmit.co/stavros@kyriacoubeauty.com" method="POST" novalidate>
+          <input type="hidden" name="_subject" value="New guest offer sign-up (website popup)">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_next" value="https://www.omorfiabeauty.nyc/specials/?welcome=1">
+          <input type="text" name="_honey" class="op-honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <input type="hidden" name="Page" value="">
+          <input name="First name" type="text" placeholder="First Name" aria-label="First name" autocomplete="given-name" required>
+          <input name="Last name" type="text" placeholder="Last Name" aria-label="Last name" autocomplete="family-name" required>
+          <input name="Phone" type="tel" placeholder="Phone Number" aria-label="Phone number" autocomplete="tel" inputmode="tel" pattern="[0-9()+\-.\s]{7,}" required>
+          <button class="op-submit" type="submit">Submit</button>
+          <p class="op-err" hidden>Something went wrong. Call <a href="tel:+18456944952">(845) 694-4952</a> and we&rsquo;ll set you up.</p>
+          <p class="op-fine">By providing your phone number you agree that Omorfia Salon &amp; Day Spa may contact you via mobile phone messaging.</p>
+        </form>
+        <div class="op-done" hidden>
+          <p class="op-eyebrow">You&rsquo;re in</p>
+          <p class="op-code">OMORFIA10</p>
+          <p class="op-lead">Your promo code for 10% off your first service. Mention it when you book, or show it at checkout.</p>
+          <a class="op-book" href="#book">Book Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var pop=document.getElementById('offerPop');if(!pop)return;
+  if(location.pathname.indexOf('/specials')===0)return;
+  var SKEY='omorfiaOfferSeen',DKEY='omorfiaOfferDone';
+  function get(st,k){try{return st.getItem(k);}catch(e){return null;}}
+  function set(st,k,v){try{st.setItem(k,v);}catch(e){}}
+  if(get(sessionStorage,SKEY)==='1')return;
+  var done=parseInt(get(localStorage,DKEY)||'0',10);
+  if(done&&Date.now()-done<90*864e5)return;
+  function close(){pop.hidden=true;document.documentElement.classList.remove('op-lock');set(sessionStorage,SKEY,'1');}
+  var pre=new Image();pre.src='/images/offer.webp';
+  setTimeout(function(){pop.hidden=false;document.documentElement.classList.add('op-lock');},2500);
+  pop.addEventListener('click',function(e){if(e.target.closest('[data-close]'))close();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pop.hidden)close();});
+  var form=document.getElementById('opForm'),btn=form.querySelector('.op-submit'),err=form.querySelector('.op-err');
+  form.querySelector('[name=Page]').value=location.href;
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!form.checkValidity()){form.reportValidity();return;}
+    btn.disabled=true;btn.textContent='Sending…';err.hidden=true;
+    var data={};new FormData(form).forEach(function(v,k){data[k]=v;});
+    delete data._next;delete data._captcha;
+    data._subject='New guest offer: '+data['First name']+' '+data['Last name'];
+    data['Submitted']=new Date().toLocaleString('en-US',{timeZone:'America/New_York'});
+    fetch('https://formsubmit.co/ajax/stavros@kyriacoubeauty.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+      .then(function(r){return r.json();})
+      .then(function(j){if(j&&(j.success===true||j.success==='true'))finish();else throw new Error('formsubmit');})
+      .catch(function(){btn.disabled=false;btn.textContent='Submit';err.hidden=false;});
+  });
+  function finish(){form.hidden=true;pop.querySelector('.op-done').hidden=false;set(localStorage,DKEY,String(Date.now()));set(sessionStorage,SKEY,'1');}
+})();
+</script>
 <script>
 (function(){
   var LOC='07df9e76-5ce7-4010-92d2-34fbc5ae7929', TEL='tel:+18456944952';
