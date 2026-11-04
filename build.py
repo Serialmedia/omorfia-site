@@ -1086,7 +1086,6 @@ PAGES.append(dict(path="specials",nav="Specials",service="New Guest Offers",
     <p>Back-to-school, holiday and seasonal specials are posted here and on <a href="https://www.instagram.com/omorfiadayspa/" rel="noopener">Instagram</a> as they run. Follow along or ask the front desk what&rsquo;s on this month.</p>
   </div>
 </section>
-<script>(function(){if(!/[?&]welcome=1/.test(location.search))return;var l=document.querySelector('.page-hero .lead');if(l){var p=document.createElement('p');p.className='welcome-code';p.innerHTML='Your promo code: <strong>OMORFIA10</strong> &mdash; 10% off your first service. Mention it when you book or show it at checkout.';l.parentNode.insertBefore(p,l);}try{sessionStorage.setItem('omorfiaOfferSeen','1');localStorage.setItem('omorfiaOfferDone',String(Date.now()));}catch(e){}})();</script>
 """,
  kw="New Guest Offer &amp; Specials &mdash; Poughkeepsie Salon &amp; Day Spa",
  faq=[("Who counts as a new guest?","Anyone visiting Omorfia for the first time — welcome!"),
@@ -2120,16 +2119,17 @@ OFFER_POP = f"""
       <div class="op-side">
         <h2 class="op-title" id="opTitle">Book today &amp; get {WELCOME_PCT} off your first service.</h2>
         <p class="op-lead">Enter your details to receive your promo code</p>
-        <form class="op-form" id="opForm" action="https://formsubmit.co/{OFFER_EMAIL}" method="POST" novalidate>
+        <iframe name="opFrame" id="opFrame" class="op-honey" title="Form response" aria-hidden="true" tabindex="-1"></iframe>
+        <form class="op-form" id="opForm" action="https://formsubmit.co/{OFFER_EMAIL}" method="POST" target="opFrame" novalidate>
           <input type="hidden" name="_subject" value="New guest offer sign-up (website popup)">
           <input type="hidden" name="_template" value="table">
           <input type="hidden" name="_captcha" value="false">
-          <input type="hidden" name="_next" value="{DOMAIN}/specials/?welcome=1">
+          <input type="hidden" name="Submitted" value="">
           <input type="text" name="_honey" class="op-honey" tabindex="-1" autocomplete="off" aria-hidden="true">
           <input type="hidden" name="Page" value="">
           <input name="First name" type="text" placeholder="First Name" aria-label="First name" autocomplete="given-name" required>
           <input name="Last name" type="text" placeholder="Last Name" aria-label="Last name" autocomplete="family-name" required>
-          <input name="Phone" type="tel" placeholder="Phone Number" aria-label="Phone number" autocomplete="tel" inputmode="tel" pattern="[0-9()+\\-.\\s]{{7,}}" required>
+          <input name="Phone" type="tel" placeholder="Phone Number" aria-label="Phone number" autocomplete="tel" inputmode="tel" required>
           <button class="op-submit" type="submit">Submit</button>
           <p class="op-err" hidden>Something went wrong. Call <a href="tel:{PHONE_TEL}">{PHONE}</a> and we&rsquo;ll set you up.</p>
           <p class="op-fine">By providing your phone number you agree that Omorfia Salon &amp; Day Spa may contact you via mobile phone messaging.</p>
@@ -2161,20 +2161,19 @@ OFFER_POP = f"""
   document.addEventListener('keydown',function(e){{if(e.key==='Escape'&&!pop.hidden)close();}});
   var form=document.getElementById('opForm'),btn=form.querySelector('.op-submit'),err=form.querySelector('.op-err');
   form.querySelector('[name=Page]').value=location.href;
+  var phone=form.querySelector('[name=Phone]'),sent=false,timer=null;
+  phone.addEventListener('input',function(){{phone.setCustomValidity('');}});
   form.addEventListener('submit',function(e){{
-    e.preventDefault();
-    if(!form.checkValidity()){{form.reportValidity();return;}}
-    btn.disabled=true;btn.textContent='Sending…';err.hidden=true;
-    var data={{}};new FormData(form).forEach(function(v,k){{data[k]=v;}});
-    delete data._next;delete data._captcha;
-    data._subject='New guest offer: '+data['First name']+' '+data['Last name'];
-    data['Submitted']=new Date().toLocaleString('en-US',{{timeZone:'America/New_York'}});
-    fetch('https://formsubmit.co/ajax/{OFFER_EMAIL}',{{method:'POST',headers:{{'Content-Type':'application/json','Accept':'application/json'}},body:JSON.stringify(data)}})
-      .then(function(r){{return r.json();}})
-      .then(function(j){{if(j&&(j.success===true||j.success==='true'))finish();else throw new Error('formsubmit');}})
-      .catch(function(){{btn.disabled=false;btn.textContent='Submit';err.hidden=false;}});
+    if(phone.value.replace(/\\D/g,'').length<7)phone.setCustomValidity('Please enter a phone number.');
+    if(!form.checkValidity()){{e.preventDefault();form.reportValidity();return;}}
+    var first=form.querySelector('[name="First name"]').value.trim(),last=form.querySelector('[name="Last name"]').value.trim();
+    form.querySelector('[name=_subject]').value='New guest offer: '+first+' '+last;
+    form.querySelector('[name=Submitted]').value=new Date().toLocaleString('en-US',{{timeZone:'America/New_York'}});
+    btn.disabled=true;btn.textContent='Sending\u2026';sent=true;
+    timer=setTimeout(finish,6000);
   }});
-  function finish(){{form.hidden=true;pop.querySelector('.op-done').hidden=false;set(localStorage,DKEY,String(Date.now()));set(sessionStorage,SKEY,'1');}}
+  document.getElementById('opFrame').addEventListener('load',function(){{if(sent)finish();}});
+  function finish(){{if(form.hidden)return;clearTimeout(timer);form.hidden=true;pop.querySelector('.op-done').hidden=false;set(localStorage,DKEY,String(Date.now()));set(sessionStorage,SKEY,'1');}}
 }})();
 </script>
 """
