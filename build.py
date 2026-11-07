@@ -2105,6 +2105,9 @@ PAGES.append(dict(path="menu",nav="Services & Prices",
 # ---------------------------------------------------------------- first-visit offer popup (site-wide)
 WELCOME_CODE  = "OMORFIA10"
 WELCOME_PCT   = "10%"
+RUSH_CODE     = "NOW15"                                # $15 off if booked within RUSH_MIN of signing up
+RUSH_AMT      = "\u2060$15"
+RUSH_MIN      = 10
 OFFER_EMAIL   = "stavros@kyriacoubeauty.com"          # where popup sign-ups are emailed (FormSubmit)
 OFFER_POP = f"""
 <div class="offer-pop" id="offerPop" role="dialog" aria-modal="true" aria-labelledby="opTitle" hidden>
@@ -2133,26 +2136,49 @@ OFFER_POP = f"""
           <p class="op-fine">By providing your phone number you agree that Omorfia Salon &amp; Day Spa may contact you via mobile phone messaging.</p>
         </form>
         <div class="op-done" hidden>
-          <p class="op-eyebrow">You&rsquo;re in</p>
-          <p class="op-code">{WELCOME_CODE}</p>
-          <p class="op-lead">Your promo code for {WELCOME_PCT} off your first service. Mention it when you book, or show it at checkout.</p>
+          <div class="op-rush">
+            <p class="op-eyebrow">You&rsquo;re in &middot; bonus unlocked</p>
+            <p class="op-timer" aria-live="off"><span class="op-clock">{RUSH_MIN}:00</span></p>
+            <p class="op-lead">Book in the next {RUSH_MIN} minutes and get <strong>{RUSH_AMT} off</strong> your first service instead. Use code:</p>
+            <p class="op-code">{RUSH_CODE}</p>
+            <p class="op-fine">First-time guests only. One code per visit.</p>
+          </div>
+          <div class="op-std" hidden>
+            <p class="op-eyebrow">You&rsquo;re in</p>
+            <p class="op-code">{WELCOME_CODE}</p>
+            <p class="op-lead">Your promo code for {WELCOME_PCT} off your first service. Mention it when you book, or show it at checkout.</p>
+            <p class="op-fine">First-time guests only.</p>
+          </div>
           <a class="op-book" href="{{book}}">Book Now</a>
         </div>
       </div>
     </div>
   </div>
 </div>
+<a class="op-bar" id="opBar" href="{{book}}" hidden>Book in <span class="op-clock">{RUSH_MIN}:00</span> &middot; code <strong>{RUSH_CODE}</strong> for {RUSH_AMT} off</a>
 <script>
 (function(){{
   var pop=document.getElementById('offerPop');if(!pop)return;
-  if(location.pathname.indexOf('/specials')===0)return;
-  var SKEY='omorfiaOfferSeen',DKEY='omorfiaOfferDone';
+  var SKEY='omorfiaOfferSeen',DKEY='omorfiaOfferDone',RKEY='omorfiaRushEnd',RMS={RUSH_MIN}*60000;
   function get(st,k){{try{{return st.getItem(k);}}catch(e){{return null;}}}}
   function set(st,k,v){{try{{st.setItem(k,v);}}catch(e){{}}}}
+  var bar=document.getElementById('opBar'),rushEnd=parseInt(get(localStorage,RKEY)||'0',10),tick=null;
+  function fmt(ms){{var t=Math.max(0,Math.ceil(ms/1000));return Math.floor(t/60)+':'+('0'+t%60).slice(-2);}}
+  function runClock(){{
+    clearInterval(tick);
+    function step(){{
+      var left=rushEnd-Date.now(),txt=fmt(left);
+      document.querySelectorAll('.op-clock').forEach(function(c){{c.textContent=txt;}});
+      if(left<=0){{clearInterval(tick);bar.hidden=true;var r=pop.querySelector('.op-rush'),st=pop.querySelector('.op-std');if(r){{r.hidden=true;st.hidden=false;}}}}
+    }}
+    step();tick=setInterval(step,1000);
+  }}
+  if(rushEnd&&rushEnd>Date.now()){{if(location.pathname.indexOf('/specials')!==0){{bar.hidden=false;}}runClock();}}
+  if(location.pathname.indexOf('/specials')===0)return;
   if(get(sessionStorage,SKEY)==='1')return;
   var done=parseInt(get(localStorage,DKEY)||'0',10);
   if(done&&Date.now()-done<90*864e5)return;
-  function close(){{pop.hidden=true;document.documentElement.classList.remove('op-lock');set(sessionStorage,SKEY,'1');}}
+  function close(){{pop.hidden=true;document.documentElement.classList.remove('op-lock');set(sessionStorage,SKEY,'1');if(rushEnd>Date.now())bar.hidden=false;}}
   var pre=new Image();pre.src='/images/offer.webp';
   setTimeout(function(){{pop.hidden=false;document.documentElement.classList.add('op-lock');}},2500);
   pop.addEventListener('click',function(e){{if(e.target.closest('[data-close]'))close();}});
@@ -2171,7 +2197,7 @@ OFFER_POP = f"""
     timer=setTimeout(finish,6000);
   }});
   document.getElementById('opFrame').addEventListener('load',function(){{if(sent)finish();}});
-  function finish(){{if(form.hidden)return;clearTimeout(timer);form.hidden=true;pop.querySelector('.op-done').hidden=false;set(localStorage,DKEY,String(Date.now()));set(sessionStorage,SKEY,'1');}}
+  function finish(){{if(form.hidden)return;clearTimeout(timer);form.hidden=true;pop.classList.add('op-isdone');pop.querySelector('.op-done').hidden=false;set(localStorage,DKEY,String(Date.now()));set(sessionStorage,SKEY,'1');rushEnd=Date.now()+RMS;set(localStorage,RKEY,String(rushEnd));runClock();}}
 }})();
 </script>
 """

@@ -757,3 +757,12 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 .prose .pr,.lead .pr,.club-desc .pr,.faq .pr,.menu-note .pr,.related .pr,.gc-what .pr{white-space:normal}
 .gc-card .pr,.gc-card .pr span{display:inline;flex:none;font-size:inherit;letter-spacing:inherit;text-transform:none;border:0;padding:0;align-self:auto;opacity:1}
 .gc-feat .pr-card{color:rgba(255,255,255,.7)}
+/* 10-minute bonus countdown */
+.op-timer{margin:4px 0 6px}
+.op-clock{font-variant-numeric:tabular-nums}
+.op-timer .op-clock{display:inline-block;font-size:44px;line-height:1;letter-spacing:.06em;font-weight:300;color:#fff}
+.op-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9998;background:#0b0b0b;color:#fff;border:1px solid rgba(255,255,255,.35);padding:12px 18px;font-size:14px;letter-spacing:.04em;text-decoration:none;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.op-bar[hidden]{display:none}
+.op-bar strong{letter-spacing:.12em}
+@media (max-width:520px){.op-bar{font-size:12.5px;padding:11px 14px;bottom:12px}}
+.op-isdone .op-title,.op-isdone .op-side>.op-lead{display:none}
