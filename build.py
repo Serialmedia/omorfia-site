@@ -587,8 +587,6 @@ REVIEWS = [
  ("Patsy is absolutely the best for your eyebrows. She will take care of them like they are her own!!!! I haven&rsquo;t had eyebrows in years and I have to tell you how much I love them. I actually cried when I looked in the mirror!!!! I had my doubts. I was scared, but I&rsquo;m so glad I went. Thank you, Patsy.","Debbie S. &middot; Google Review"),
  ("What a beautiful experience. This was my first hot stone combo massage and it was incredible&hellip; Between the stones and Debbie&rsquo;s skill, I felt my muscles relaxing and elongating. Debbie is very in tune and intuitive and this was absolutely one of my favorite massage experiences. My body feels soft and relaxed, but also energized. Highly recommend!","Google Review &middot; Hot Stone Massage"),
  ("Got a curly cut from Hailey! Excellent job, very efficient, awesome shape and provided some education on how to maintain my hair&rsquo;s health!","Quelania J. &middot; Google Review"),
- ("I go to Erin here for my touch ups and color services. She&rsquo;s always going above and beyond to make sure I leave happy :) she&rsquo;s so trendy and chic! I can truly say that every time I go here, I leave with my expectations blown out of the water. Erin truly knows my hair by now too and that makes me so comfortable knowing she gets me.","Mitchie &middot; Google Review"),
- ("Erin was my hair stylist, and she was so kind and sweet. We chatted throughout the appointment and I had a lot of fun with her. My hair turned out so great, I&rsquo;m so happy with it! If you come to Omorfia, I hope you&rsquo;re lucky enough to get Erin as your hair stylist.","Kristina L. &middot; Google Review"),
  ("Wonderful massage by Debbie who is very experienced. Has a 90 minute deep tissue. Staff is very friendly and they offer a lot of other services. I will be back!!","Google Review &middot; Deep Tissue Massage")
 ]
 MASSAGE_REVIEWS = [r for r in REVIEWS if "massage" in (r[0]+r[1]).lower()]
@@ -836,7 +834,7 @@ PAGES.append(service_page("hair","Hair","Hair Salon",
  team=("Our stylists","Book a stylist by name",
        [("Georgia Kyriacou","Lead Stylist"),("Hugo Lutin","Master Stylist &amp; Colorist"),("Christie Russell","Senior Stylist &amp; Colorist"),
         ("Patsy Estrada","Stylist, Lash Tech &amp; Makeup"),("Hailey Reed","Senior Stylist &amp; Colorist"),("Katie Obrein","Senior Stylist &amp; Colorist"),
-        ("Erin Ohlandt","Stylist &amp; Extension Specialist"),("Juliana Angeles","Stylist"),("Lindy Wilkinson","Master Stylist &amp; Colorist")])))
+        ("Juliana Angeles","Stylist"),("Lindy Wilkinson","Master Stylist &amp; Colorist")])))
 
 PAGES.append(service_page("nails","Nails","Nail Salon",
  "Nail Salon in Poughkeepsie, NY | Omorfia Salon & Day Spa",
@@ -1231,8 +1229,6 @@ TEAM_GROUPS = [
     "Senior stylist and colorist with an eye for wearable, modern color."),
    ("Katie Obrein","Senior Stylist &amp; Colorist","katie.jpg",
     "Senior stylist and colorist focused on cuts that grow out as well as they photograph."),
-   ("Erin Ohlandt","Junior Stylist, Colorist &amp; Extension Specialist","erin.jpg",
-    "Stylist, colorist, and our extension specialist &mdash; length and fullness that pass the touch test."),
    ("Juliana Angeles","Stylist",None,
     "Stylist with fresh technique and an easy chair-side manner &mdash; ask for Juliana for cuts, color and blowouts."),
    ("Nevaeh Pittman","Junior Stylist &amp; Nail Tech",None,
