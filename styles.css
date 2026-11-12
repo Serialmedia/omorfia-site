@@ -766,3 +766,15 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 .op-bar strong{letter-spacing:.12em}
 @media (max-width:520px){.op-bar{font-size:12.5px;padding:11px 14px;bottom:12px}}
 .op-isdone .op-title,.op-isdone .op-side>.op-lead{display:none}
+
+/* ================= holiday gift card popup (Nov 2026) ================= */
+.gift-pop{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:18px}
+.gift-pop[hidden]{display:none}
+.gp-card{position:relative;width:min(440px,100%);background:#fcfcfa;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:opIn .45s cubic-bezier(.2,.8,.2,1)}
+.gp-img{display:block;width:100%;height:auto;max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);object-fit:contain;background:#fcfcfa}
+.gp-x{position:absolute;top:8px;right:8px;z-index:2;width:38px;height:38px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(11,11,11,.08);color:#0b0b0b;font-size:24px;line-height:38px;text-align:center}
+.gp-x:hover{background:rgba(11,11,11,.16)}
+.gp-buy{display:block;padding:18px 24px;background:#0b0b0b;color:#fcfcfa;text-align:center;text-decoration:none;
+  font-family:var(--body);font-size:13px;letter-spacing:.28em;text-transform:uppercase;transition:background .25s,color .25s}
+.gp-buy:hover{background:#C0A264;color:#0b0b0b}

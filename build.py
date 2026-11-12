@@ -2198,6 +2198,34 @@ OFFER_POP = f"""
 </script>
 """
 
+# ---------------------------------------------------------------- holiday gift card popup (site-wide, Nov 2026)
+# Replaces OFFER_POP while ACTIVE_POP = "gift". Set ACTIVE_POP = "offer" to bring back the OMORFIA10 sign-up popup.
+ACTIVE_POP = "gift"
+GIFT_BLVD_URL = "https://www.joinblvd.com/booking/businesses/549d4738-8602-4141-b4b4-f1b11bb4f2a4/widget#/cart/menu/Gift%20Cards/GIFT_CARD"
+GIFT_POP = f"""
+<div class="gift-pop" id="giftPop" role="dialog" aria-modal="true" aria-label="Holiday gift cards" hidden>
+  <div class="op-backdrop" data-close></div>
+  <div class="gp-card">
+    <button class="gp-x" data-close aria-label="Close">&times;</button>
+    <img class="gp-img" src="/images/gift-a-spa-day.webp" width="1080" height="1350" alt="For the ones you love: gift a spa day for them. Hair, massage, facials, nails and spa days. Buy online, emailed in a minute. Omorfia Salon &amp; Day Spa, Poughkeepsie.">
+    <a class="gp-buy" href="{GIFT_BLVD_URL}">Buy now</a>
+  </div>
+</div>
+<script>
+(function(){{
+  var pop=document.getElementById('giftPop');if(!pop)return;
+  if(location.pathname.indexOf('/gift-cards')===0)return;
+  var KEY='omorfiaGiftPopSeen';
+  try{{if(sessionStorage.getItem(KEY)==='1')return;var t=+localStorage.getItem(KEY)||0;if(Date.now()-t<3*864e5)return;}}catch(e){{}}
+  function close(){{pop.hidden=true;document.documentElement.classList.remove('op-lock');try{{sessionStorage.setItem(KEY,'1');localStorage.setItem(KEY,String(Date.now()));}}catch(e){{}}}}
+  var pre=new Image();pre.src='/images/gift-a-spa-day.webp';
+  setTimeout(function(){{pop.hidden=false;document.documentElement.classList.add('op-lock');}},2500);
+  pop.addEventListener('click',function(e){{if(e.target.closest('[data-close]')||e.target.closest('.gp-buy'))close();}});
+  document.addEventListener('keydown',function(e){{if(e.key==='Escape'&&!pop.hidden)close();}});
+}})();
+</script>
+"""
+
 # ------------------------------------------------------------------ build
 os.makedirs(OUT,exist_ok=True)
 PH_SLIDES_SCRIPT = """<script>
@@ -2291,7 +2319,7 @@ def render(p):
     doc+=body
     doc+=FOOT.format(book=BOOK_URL,tel=PHONE_TEL,phone=PHONE,street=STREET,
                      city=CITY,state=STATE,zip=ZIP)
-    doc=doc.replace("</body>", OFFER_POP.replace("{book}",BOOK_URL)+BLVD_JS+"</body>")
+    doc=doc.replace("</body>", (GIFT_POP if ACTIVE_POP=="gift" else OFFER_POP.replace("{book}",BOOK_URL))+BLVD_JS+"</body>")
     d=os.path.join(OUT,p["path"]) if p["path"] else OUT
     os.makedirs(d,exist_ok=True)
     open(os.path.join(d,"index.html"),"w").write(inject_hero_slides(doc))
