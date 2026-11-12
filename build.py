@@ -313,6 +313,7 @@ HEAD = """<!DOCTYPE html>
       <div class="dd-menu">
         <a href="/packages/">Packages</a>
         <a href="/memberships/">Memberships</a>
+        <a href="/quiz/">Find Your Match</a>
         <a href="/menu/">Services &amp; Prices</a>
         <a href="/gift-cards/">Gift Cards</a>
         <a href="/spa-day-gifts/">Spa Day Gifts</a>
@@ -378,7 +379,7 @@ FOOT = """</main>
     <div>
       <p class="foot-h">Explore</p>
       <p><a href="/packages/">Packages</a> &middot; <a href="/memberships/">Memberships</a><br>
-      <a href="/specials/">Specials</a> &middot; <a href="/gift-cards/">Gift Cards</a> &middot; <a href="/spa-day-gifts/">Spa Gifts</a><br>
+      <a href="/specials/">Specials</a> &middot; <a href="/quiz/">Find Your Match</a> &middot; <a href="/gift-cards/">Gift Cards</a> &middot; <a href="/spa-day-gifts/">Spa Gifts</a><br>
       <a href="/team/">Team</a> &middot; <a href="/reviews/">Reviews</a> &middot; <a href="/contact/">Contact</a><br>
       <a href="/menu/">Services &amp; Prices</a> &middot; <a href="/hudson-valley/">Areas We Serve</a></p>
     </div>
@@ -681,6 +682,7 @@ PAGES.append(dict(path="",nav="Home",
   <p class="lead">We&rsquo;re glad you&rsquo;re here. From precision cuts, dimensional color and bridal beauty to massage, facials, nails and a sunless glow, Omorfia brings every service under one roof in Poughkeepsie &mdash; delivered by hand-picked providers with a thoughtful approach to every guest.</p>
   <div class="welcome-ctas">
     <a class="btn btn-outline" href="#services">Explore Services</a>
+    <a class="btn btn-outline" href="/quiz/">Find Your Match</a>
     <a class="btn btn-outline" href="/specials/">New Guest Offer</a>
     <a class="btn btn-outline" href="/gift-cards/">Gift Cards</a>
   </div>
@@ -1508,6 +1510,7 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
   <h1>Omorfia Member Club</h1>
   <p class="lead mem-statement">Omorfia memberships are month to month &mdash; no startup fee, no cancellation fee, no contract. Members receive an <strong>unlimited 10% off every other salon and spa service</strong>, plus special discounted pricing on products. If you ever want to cancel, call Stavros directly and it&rsquo;s done &mdash; no questions asked. That&rsquo;s the whole agreement.</p>
   <p class="mem-cta"><a class="btn btn-primary" href="#book" data-blvd-path="/cart/menu/Other Memberships" data-blvd-type="MEMBERSHIP">Become a Member</a></p>
+  <p class="mem-quiz">Not sure which club? <a href="/quiz/">Take the 30-second quiz</a></p>
   <p class="mem-phone">Questions? Call <a href="tel:{tel}">{phone}</a> &middot; <a href="#join" role="button" data-open="join-modal">Ask Stavros</a></p>
   <p class="mem-thanks" id="memThanks" hidden>Thank you &mdash; your request is in. Stavros will be in touch shortly to set up your membership.</p>
 </section>
@@ -1629,6 +1632,207 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
       ("How do I cancel?","Call Stavros directly at (845) 694-4952 and it&rsquo;s done &mdash; no questions asked."),
       ("What else do members get?","Beyond the monthly service, every club includes an unlimited 10% off all other salon and spa services and special member pricing on products."),
       ("Does the membership work with every provider?","Memberships are applicable with participating service providers &mdash; ask the front desk when you book.")]),faq_done=True))
+
+# ---------------------------------------------------------------- service-finder quiz (Nov 2026)
+# /quiz/ — three taps, then first name + phone (+ optional email) unlock a personal match:
+# the first service to book (10% off with OMORFIA10) and the Member Club that fits.
+# Each finished quiz is emailed to QUIZ_EMAIL through FormSubmit, same as the other site forms.
+QUIZ_EMAIL = "stavros@kyriacoubeauty.com"
+QUIZ_BODY = """
+<section class="page-hero quiz-hero">
+  <p class="eyebrow">30-second quiz</p>
+  <h1>Find your Omorfia match</h1>
+  <p class="lead">Three quick taps and we&rsquo;ll match you with the right first service and the membership that fits how you live &mdash; plus 10% off your first visit.</p>
+</section>
+<section class="wrap quiz" id="quiz" aria-live="polite">
+  <div class="qz-prog" aria-hidden="true"><span id="qzBar"></span></div>
+
+  <div class="qz-step" data-step="1">
+    <p class="qz-n">1 of 3</p>
+    <h2>What would you book first?</h2>
+    <div class="qz-opts" data-q="service">
+      <button type="button" data-v="massage">Massage</button>
+      <button type="button" data-v="facial">Facial</button>
+      <button type="button" data-v="nails">Manicure &amp; pedicure</button>
+      <button type="button" data-v="brow">Brows</button>
+      <button type="button" data-v="blowout">Wash &amp; blowout</button>
+      <button type="button" data-v="cut">Women&rsquo;s haircut</button>
+      <button type="button" data-v="retouch">Color &amp; roots</button>
+      <button type="button" data-v="menscut">Men&rsquo;s haircut</button>
+      <button type="button" data-v="spaday">A full spa day</button>
+    </div>
+  </div>
+
+  <div class="qz-step" data-step="2" hidden>
+    <p class="qz-n">2 of 3</p>
+    <h2>What are you after?</h2>
+    <div class="qz-opts" data-q="goal">
+      <button type="button" data-v="relax">Relax &amp; reset</button>
+      <button type="button" data-v="polished">Always look polished</button>
+      <button type="button" data-v="concern">Fix something specific</button>
+      <button type="button" data-v="event">Getting ready for an event</button>
+      <button type="button" data-v="gift">It&rsquo;s a gift for someone</button>
+    </div>
+    <button type="button" class="qz-back">&larr; Back</button>
+  </div>
+
+  <div class="qz-step" data-step="3" hidden>
+    <p class="qz-n">3 of 3</p>
+    <h2>How often would you like this?</h2>
+    <div class="qz-opts" data-q="freq">
+      <button type="button" data-v="once">Just this once</button>
+      <button type="button" data-v="few">A few times a year</button>
+      <button type="button" data-v="monthly">Every month</button>
+      <button type="button" data-v="more">More than once a month</button>
+    </div>
+    <button type="button" class="qz-back">&larr; Back</button>
+  </div>
+
+  <div class="qz-step" data-step="4" hidden>
+    <p class="qz-n">Your match is ready</p>
+    <h2>Where should we send it?</h2>
+    <p class="qz-sub">We&rsquo;ll text your match and your 10% off code so you have it when you book.</p>
+    <iframe name="qzFrame" id="qzFrame" class="op-honey" title="Form response" aria-hidden="true" tabindex="-1"></iframe>
+    <form class="qz-form" id="qzForm" action="https://formsubmit.co/QUIZ_EMAIL" method="POST" target="qzFrame" novalidate>
+      <input type="hidden" name="_subject" value="New quiz lead">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="text" name="_honey" class="op-honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <input type="hidden" name="First service">
+      <input type="hidden" name="Goal">
+      <input type="hidden" name="How often">
+      <input type="hidden" name="Recommended service">
+      <input type="hidden" name="Recommended membership">
+      <input type="hidden" name="Submitted">
+      <label>First name<input name="First name" type="text" autocomplete="given-name" required></label>
+      <label>Phone<input name="Phone" type="tel" autocomplete="tel" inputmode="tel" required></label>
+      <label>Email <span class="qz-opt">(optional)</span><input name="Email" type="email" autocomplete="email"></label>
+      <button class="btn btn-primary qz-submit" type="submit">See my match</button>
+      <p class="op-err" hidden>Something went wrong. Call <a href="tel:{tel}">{phone}</a> and we&rsquo;ll set you up.</p>
+      <p class="qz-fine">By providing your phone number you agree that Omorfia Salon &amp; Day Spa may contact you via mobile phone messaging.</p>
+    </form>
+    <button type="button" class="qz-back">&larr; Back</button>
+  </div>
+
+  <div class="qz-step qz-result" data-step="5" hidden>
+    <p class="eyebrow" id="qzHi">Your match</p>
+    <h2 id="qzSvc"></h2>
+    <p class="qz-why" id="qzWhy"></p>
+    <div class="qz-code"><span>Your first-visit code</span><strong>OMORFIA10</strong><span>10% off your first service</span></div>
+    <a class="btn btn-primary" id="qzBook" href="#book">Book my first visit</a>
+    <div class="qz-club" id="qzClub">
+      <p class="eyebrow" id="qzClubEy"></p>
+      <h3 id="qzClubName"></h3>
+      <p class="qz-price" id="qzClubPrice"></p>
+      <p id="qzClubDesc"></p>
+      <p class="qz-perk">Every club also gets an unlimited 10% off all other services and member product pricing. Month to month &mdash; no startup fee, no cancellation fee, no contract.</p>
+      <a class="btn btn-outline" id="qzJoin" href="#book">Join</a>
+    </div>
+    <p class="card-note">A 3% card processing fee applies to credit card payments. It is not charged on debit cards or cash.</p>
+    <button type="button" class="qz-again" id="qzAgain">Retake the quiz</button>
+  </div>
+</section>
+<script>
+(function(){
+  var M='/cart/menu/Other Memberships/';
+  var CLUBS={
+    massage:{ey:'Poughkeepsie Spa Club',name:'Massage Club',price:100,per:'/month',path:M+'p_e3c56e3b-ccd2-44dd-86e9-1fda3300ba88',desc:'A massage every month at $35 off: 60 minutes $100, 90 minutes $160, 120 minutes $235. Any style, chosen when you arrive.'},
+    facial:{ey:'Poughkeepsie Spa Club',name:'Facial Club',price:100,per:'/month',path:M+'p_c70b58ae-7f91-464c-84c6-93c16ae236f1',desc:'A European Facial every month, $35 off the regular price. Other facials at the member 10% off.'},
+    nails:{ey:'Poughkeepsie Spa Club',name:'Mani & Pedi Club',price:25,per:'/month each',path:M+'p_5e0915c6-11be-43bd-982c-9046f5a50d07',desc:'A regular manicure or pedicure every month for $25. Take both for $50.'},
+    brow:{ey:'Poughkeepsie Spa Club',name:'Brow Wax Club',price:22,per:'/month',path:M+'p_c9d04097-0ef6-45d1-bff9-a4e16366be4c',desc:'A brow wax every month: shaped, defined and never overdue. $8 off the regular price.'},
+    blowout:{ey:'Poughkeepsie Salon Club',name:'Blowout Club',price:120,per:'/month',path:M+'p_8391bbe4-6747-4b78-b81b-275e768b836d',desc:'Four wash & blowouts every month, $30 each instead of $60+.'},
+    cut:{ey:'Poughkeepsie Salon Club',name:'Women’s Cut Club',price:45,per:'/month',path:M+'p_045847b9-36df-49a4-847e-1738a5674b84',desc:'A women’s cut every other month: always fresh, never grown out. $25 off the regular price.'},
+    retouch:{ey:'Poughkeepsie Salon Club',name:'Color Retouch Club',price:80,per:'/month',path:M+'p_284276c7-b64e-4e45-aec7-6bb3911f3831',desc:'A root retouch every month: regrowth handled before anyone notices. $20 off the regular price.'},
+    menscut:{ey:'Poughkeepsie Salon Club',name:'Men’s Cut Club',price:30,per:'/month',path:M+'p_dc15dc77-d61e-4bf6-a9d0-91ec2f217b86',desc:'A men’s cut every month: sharp on a schedule. $25 off the regular price.'}
+  };
+  var SVC={
+    massage:{relax:'60 Minute Hot Stone Massage',polished:'60 Minute Massage',concern:'90 Minute Massage, deep tissue pressure',event:'60 Minute Massage the week before',gift:'A massage gift card'},
+    facial:{relax:'European Facial',polished:'European Facial',concern:'Skincare Consultation + facial',event:'European Facial 3 to 5 days before',gift:'A facial gift card'},
+    nails:{relax:'Spa Pedicure',polished:'Regular Manicure & Pedicure',concern:'Spa Manicure & Pedicure',event:'Gel Manicure & Pedicure',gift:'A mani-pedi gift card'},
+    brow:{relax:'Brow Wax',polished:'Brow Wax',concern:'Brow Wax + Brow Tint',event:'Brow Lamination & Tint',gift:'A brow gift card'},
+    blowout:{relax:'Wash & Blow Dry + Scalp Treatment',polished:'Wash & Blow Dry',concern:'Wash & Blow Dry + Conditioning Treatment',event:'Wash & Blow Dry + Hot Tool Finish',gift:'A blowout gift card'},
+    cut:{relax:'Women\u2019s Cut',polished:'Women\u2019s Cut',concern:'Haircut Consultation + Women\u2019s Cut',event:'Women\u2019s Cut + Hot Tool Finish',gift:'A haircut gift card'},
+    retouch:{relax:'Color Retouch + Aveda Hot Oil Treatment',polished:'Color Retouch (Roots)',concern:'Color Retouch + Olaplex Treatment',event:'Color Retouch + Toner / Glaze',gift:'A color gift card'},
+    menscut:{relax:'Men\u2019s Cut',polished:'Men\u2019s Cut',concern:'Men\u2019s Cut',event:'Men\u2019s Cut',gift:'A men\u2019s cut gift card'},
+    spaday:{relax:'The Classic Spa Day',polished:'The Classic Spa Day',concern:'The Full Spa Day',event:'The Full Spa Day',gift:'A spa day gift card'}
+  };
+  var LABEL={service:{},goal:{},freq:{}};
+  document.querySelectorAll('.qz-opts').forEach(function(g){g.querySelectorAll('button').forEach(function(b){LABEL[g.dataset.q][b.dataset.v]=b.textContent;});});
+  var ans={},step=1,quiz=document.getElementById('quiz'),bar=document.getElementById('qzBar');
+  function money(n){return '$'+n;}
+  function card(n){return '$'+(Math.round(n*103)/100).toFixed(2);}
+  function show(n){
+    step=n;
+    quiz.querySelectorAll('.qz-step').forEach(function(s){s.hidden=+s.dataset.step!==n;});
+    bar.style.width=Math.min(100,(n-1)*25)+'%';
+    if(n>1){var t=quiz.getBoundingClientRect().top+window.pageYOffset-90;window.scrollTo({top:t,behavior:'smooth'});}
+  }
+  function pick(){
+    var s=ans.service,g=ans.goal,f=ans.freq;
+    var club=s==='spaday'?(g==='concern'?'facial':'massage'):s;
+    return {svc:(SVC[s]||{})[g]||'Your first visit',club:club,lead:(f==='monthly'||f==='more')};
+  }
+  function result(){
+    var r=pick(),c=CLUBS[r.club],first=(document.querySelector('#qzForm [name="First name"]').value||'').trim();
+    document.getElementById('qzHi').textContent=first?first+', your match':'Your match';
+    document.getElementById('qzSvc').textContent=r.svc;
+    var why;
+    if(ans.goal==='gift'){
+      why='A gift card is emailed in about a minute and works for anything on the menu. Want one for yourself too? Your first visit is 10% off.';
+      var bk=document.getElementById('qzBook');bk.textContent='Buy a gift card';bk.setAttribute('href','#gift');
+    }else if(r.lead){
+      why='You want this every month, so the '+c.name+' saves you the most from your very first visit. Start with the service below at 10% off, or join now and book it at member pricing.';
+    }else{
+      why='Start here with 10% off your first service. If you find yourself coming back, the '+c.name+' below is the way to keep it going for less.';
+    }
+    document.getElementById('qzWhy').textContent=why;
+    document.getElementById('qzClubEy').textContent=r.lead?'Best value for you':'When you’re ready';
+    document.getElementById('qzClubName').textContent=c.name;
+    document.getElementById('qzClubPrice').innerHTML=money(c.price)+c.per+' <span class="qz-cc">cash/debit &middot; '+card(c.price)+' credit</span>';
+    document.getElementById('qzClubDesc').textContent=c.desc;
+    var j=document.getElementById('qzJoin');j.textContent='Join the '+c.name;
+    j.setAttribute('data-blvd-path',c.path);j.setAttribute('data-blvd-type','MEMBERSHIP');
+    var club=document.getElementById('qzClub');club.classList.toggle('qz-lead',r.lead);
+    if(r.lead){club.parentNode.insertBefore(club,document.getElementById('qzBook'));}
+    else{club.parentNode.insertBefore(club,document.getElementById('qzAgain'));}
+    show(5);
+    try{localStorage.setItem('omorfiaQuiz',JSON.stringify({a:ans,n:first,t:Date.now()}));}catch(e){}
+  }
+  quiz.addEventListener('click',function(e){
+    var b=e.target.closest('.qz-opts button');
+    if(b){ans[b.parentNode.dataset.q]=b.dataset.v;b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+      if(step===2&&b.dataset.v==='gift'){ans.freq='once';}
+      setTimeout(function(){show(step===2&&ans.goal==='gift'?4:step+1);},160);return;}
+    if(e.target.closest('.qz-back')){show(step===4&&ans.goal==='gift'?2:Math.max(1,step-1));return;}
+    if(e.target.closest('#qzAgain')){ans={};quiz.querySelectorAll('.qz-opts button').forEach(function(x){x.classList.remove('on');});
+      var bk=document.getElementById('qzBook');bk.textContent='Book my first visit';bk.setAttribute('href','#book');show(1);}
+  });
+  var form=document.getElementById('qzForm'),btn=form.querySelector('.qz-submit'),phone=form.querySelector('[name=Phone]'),sent=false,timer=null;
+  phone.addEventListener('input',function(){phone.setCustomValidity('');});
+  form.addEventListener('submit',function(e){
+    if(phone.value.replace(/\\D/g,'').length<7)phone.setCustomValidity('Please enter a phone number.');
+    if(!form.checkValidity()){e.preventDefault();form.reportValidity();return;}
+    var r=pick(),c=CLUBS[r.club],first=form.querySelector('[name="First name"]').value.trim();
+    form.querySelector('[name="First service"]').value=LABEL.service[ans.service]||'';
+    form.querySelector('[name="Goal"]').value=LABEL.goal[ans.goal]||'';
+    form.querySelector('[name="How often"]').value=LABEL.freq[ans.freq]||'';
+    form.querySelector('[name="Recommended service"]').value=r.svc;
+    form.querySelector('[name="Recommended membership"]').value=c.name+(r.lead?' (lead with it: wants monthly)':' (later)');
+    form.querySelector('[name="Submitted"]').value=new Date().toLocaleString('en-US',{timeZone:'America/New_York'});
+    form.querySelector('[name=_subject]').value='Quiz lead: '+first+' — '+c.name+(r.lead?' (monthly)':'');
+    btn.disabled=true;btn.textContent='Matching…';sent=true;timer=setTimeout(finish,6000);
+  });
+  document.getElementById('qzFrame').addEventListener('load',function(){if(sent)finish();});
+  function finish(){if(!sent)return;sent=false;clearTimeout(timer);btn.disabled=false;btn.textContent='See my match';result();}
+})();
+</script>
+""".replace("QUIZ_EMAIL", QUIZ_EMAIL)
+
+PAGES.append(dict(path="quiz",nav="Find Your Match",
+ title="Find Your Service: 30-Second Quiz | Omorfia Salon & Day Spa, Poughkeepsie NY",
+ desc="Not sure what to book? Answer three quick questions and Omorfia will match you with the right first service and membership, plus 10% off your first visit.",
+ body=QUIZ_BODY))
+
 
 # ---------------------------------------------------------------- about
 PAGES.append(dict(path="about",nav="About",

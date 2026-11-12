@@ -778,3 +778,38 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 .gp-buy{display:block;padding:18px 24px;background:#0b0b0b;color:#fcfcfa;text-align:center;text-decoration:none;
   font-family:var(--body);font-size:13px;letter-spacing:.28em;text-transform:uppercase;transition:background .25s,color .25s}
 .gp-buy:hover{background:#C0A264;color:#0b0b0b}
+/* ---------- service-finder quiz (/quiz/) ---------- */
+.mem-quiz{margin-top:14px;font-size:15px;color:rgba(255,255,255,.85)}
+.mem-quiz a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.55)}
+.quiz{max-width:720px;text-align:center}
+.qz-prog{height:2px;background:var(--hair);margin:0 auto 40px;max-width:420px}
+.qz-prog span{display:block;height:100%;width:0;background:var(--ink);transition:width .35s ease}
+.qz-n{font-size:12px;letter-spacing:var(--track);text-transform:uppercase;color:var(--mist)}
+.quiz h2{font-family:var(--disp);font-weight:500;font-size:clamp(30px,4.6vw,44px);line-height:1.12;margin:10px 0 28px}
+.qz-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.qz-opts button{font-family:var(--body);font-size:16px;font-weight:400;padding:18px 16px;background:#fff;border:1px solid var(--hair);color:var(--ink);cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.qz-opts button:hover{border-color:var(--ink)}
+.qz-opts button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.qz-back,.qz-again{margin-top:24px;background:none;border:0;font-family:var(--body);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);cursor:pointer}
+.qz-back:hover,.qz-again:hover{color:var(--ink)}
+.qz-sub{color:var(--mist);margin:-14px auto 24px;max-width:32em}
+.qz-form{display:flex;flex-direction:column;gap:14px;max-width:420px;margin:0 auto;text-align:left}
+.qz-form label{display:flex;flex-direction:column;gap:6px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mist)}
+.qz-form input{font-family:var(--body);font-size:17px;padding:13px 14px;border:1px solid var(--hair);background:#fff;color:var(--ink);letter-spacing:0;text-transform:none}
+.qz-form input:focus{outline:none;border-color:var(--ink)}
+.qz-opt{letter-spacing:0;text-transform:none}
+.qz-form .btn{margin-top:6px;border:0;cursor:pointer;text-align:center}
+.qz-form .op-err{color:#B3261E}
+.qz-form .op-err a{color:inherit}
+.qz-fine{font-size:12px;color:var(--mist);line-height:1.5}
+.qz-result h2{margin-bottom:14px}
+.qz-why{color:rgba(11,11,11,.75);max-width:34em;margin:0 auto 26px}
+.qz-code{display:flex;flex-direction:column;align-items:center;gap:4px;border:1px dashed var(--ink);padding:18px;max-width:320px;margin:0 auto 22px;font-size:13px;color:var(--mist)}
+.qz-code strong{font-family:var(--disp);font-size:34px;font-weight:600;letter-spacing:.08em;color:var(--ink)}
+.qz-club{margin:40px auto 0;padding:32px 26px;border:1px solid var(--hair);background:#fff;max-width:520px}
+.qz-club.qz-lead{margin:0 auto 28px;border-color:var(--ink)}
+.qz-club h3{font-family:var(--disp);font-weight:500;font-size:30px;margin:8px 0 4px}
+.qz-price{font-family:var(--disp);font-size:26px;margin-bottom:12px}
+.qz-cc{display:block;font-family:var(--body);font-size:12px;letter-spacing:.06em;color:var(--mist)}
+.qz-perk{font-size:14px;color:var(--mist);margin:12px 0 22px}
+.qz-result .card-note{margin:26px auto 0;text-align:center}
