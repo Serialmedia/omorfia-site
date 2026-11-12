@@ -2208,7 +2208,7 @@ GIFT_POP = f"""
   <div class="gp-card">
     <button class="gp-x" data-close aria-label="Close">&times;</button>
     <img class="gp-img" src="/images/gift-a-spa-day.webp" width="1080" height="1350" alt="For the ones you love: gift a spa day for them. Hair, massage, facials, nails and spa days. Buy online, emailed in a minute. Omorfia Salon &amp; Day Spa, Poughkeepsie.">
-    <a class="gp-buy" href="{GIFT_BLVD_URL}">Buy now</a>
+    <a class="gp-buy" href="#gift" data-blvd-path="/cart/menu/Gift%20Cards" data-blvd-type="GIFT_CARD" data-fallback="{GIFT_BLVD_URL}">Buy now</a>
   </div>
 </div>
 <script>
@@ -2294,7 +2294,7 @@ BLVD_JS = """<script>
     var opts={path:a.getAttribute('data-blvd-path'),type:a.getAttribute('data-blvd-type')};
     if(href==='#gift'&&!opts.path){opts={path:'/cart/menu/Gift%20Cards',type:'GIFT_CARD'};}
     if(href==='#book'&&!opts.path){opts={path:'/cart/menu',type:'SELF_VISIT'};}   // reset: widget otherwise reopens on the last screen (e.g. gift cards)
-    if(!openWidget(opts)){window.location.href=TEL;}
+    if(!openWidget(opts)){window.location.href=a.getAttribute('data-fallback')||TEL;}
   });
 })();
 </script>"""
