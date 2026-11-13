@@ -14,7 +14,7 @@ STATE    = "NY"
 ZIP      = "12603"
 PHONE    = "(845) 694-4952"
 PHONE_TEL= "+18456944952"
-EMAIL    = "stavros@omorfiadayspa.com"
+EMAIL    = "pk@omorfiaspas.com"
 GEO      = (41.7005477, -73.8771062)
 PLACE_ID = "ChIJa3T8WRM_3YkR99abqa-Z1dQ"
 MAPS_URL = f"https://www.google.com/maps/place/?q=place_id:{PLACE_ID}"
@@ -1312,7 +1312,7 @@ PAGES.append(dict(path="team",nav="Meet the Team",
   <div>
     <p class="eyebrow">Join us</p>
     <h2>Talent, welcome</h2>
-    <p>We&rsquo;re always glad to meet exceptional stylists, therapists and nail artists. Introduce yourself at the front desk, reach out through <a href="https://www.instagram.com/omorfiadayspa/" rel="noopener">Instagram</a>, or email <a href="mailto:stavros@omorfiadayspa.com">stavros@omorfiadayspa.com</a>.</p>
+    <p>We&rsquo;re always glad to meet exceptional stylists, therapists and nail artists. Introduce yourself at the front desk, reach out through <a href="https://www.instagram.com/omorfiadayspa/" rel="noopener">Instagram</a>, or email <a href="mailto:pk@omorfiaspas.com">pk@omorfiaspas.com</a>.</p>
   </div>
 </section>
 <section class="wrap team-index">
@@ -1900,7 +1900,7 @@ PAGES.append(dict(path="contact",nav="Contact",
   <div>
     <p class="eyebrow">Reach us</p>
     <h2><a href="tel:{tel}">{phone}</a></h2>
-    <p class="contact-email"><a href="mailto:stavros@omorfiadayspa.com">stavros@omorfiadayspa.com</a></p>
+    <p class="contact-email"><a href="mailto:pk@omorfiaspas.com">pk@omorfiaspas.com</a></p>
     <p><a class="btn btn-primary" href="{book}">Book Appointment</a></p>
   </div>
 </section>
