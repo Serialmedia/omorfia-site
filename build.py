@@ -3,7 +3,7 @@
 Edit constants, run `python3 build.py`, deploy /site."""
 import json, os, re, html
 
-DOMAIN   = "https://www.omorfiabeauty.nyc"   # must match the host Vercel serves (apex 30x -> www)
+DOMAIN   = "https://www.omorfiadayspa.com"   # must match the host Vercel serves (apex 30x -> www)
 BOOK_URL = "#book"      # Boulevard self-booking link
 GIFT_URL = "#gift"     # Boulevard gift card link (or leave = BOOK_URL)
 NAME     = "Omorfia Salon & Day Spa"
@@ -1085,7 +1085,7 @@ GC_VIDEO = dict(name="How to buy an Omorfia gift card online",
   desc="A narrated walkthrough of buying an Omorfia Salon & Day Spa gift card online: open the gift card page, choose \u2060$50, \u2060$100, \u2060$250, \u2060$500 or a custom amount, add it to your cart, and check out. The gift card is emailed to you.",
   src="/images/video/gift-card-how-to.mp4", poster="/images/video/gift-card-how-to.jpg", date="2026-10-15", dur="PT46S")
 GC_STEPS = [
-  ("Open the gift card page","Go to omorfiabeauty.nyc/gift-cards and tap “Buy a Gift Card”."),
+  ("Open the gift card page","Go to omorfiadayspa.com/gift-cards and tap “Buy a Gift Card”."),
   ("Pick an amount","Choose \u2060$50, \u2060$100, \u2060$250 or \u2060$500 — or tap Custom Amount and type any amount from \u2060$50 to \u2060$500."),
   ("Add it to your cart","Tap “Add”."),
   ("Review your cart","Tap “Next”. You can pay over time with Affirm if you like."),
@@ -1485,7 +1485,7 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
  video=dict(name="How to join the Omorfia Member Club",
   desc="A narrated walkthrough of joining an Omorfia Salon & Day Spa membership online: open the memberships page, pick a club, tap Join and Add, then check out. Month to month, no contract.",
   src="/images/video/membership-how-to.mp4", poster="/images/video/membership-how-to.jpg", date="2026-10-16", dur="PT52S"),
- howto=("How to join the Omorfia Member Club online", [('Open the memberships page', 'Go to omorfiabeauty.nyc/memberships.'), ('Pick your club', 'Scroll to the clubs — massage, facial, mani-pedi, brow wax, blowout, cut, color and more — and tap “Join”.'), ('Tap “Add”', 'Your monthly price is shown on the button.'), ('Review your cart', 'Tap “Next”. Add more clubs if you like.'), ('Enter your phone or email', 'Then follow the checkout to start your membership.'), ('Enjoy member perks', 'Your club service every month, plus 10% off every other service and member pricing on products.')]),
+ howto=("How to join the Omorfia Member Club online", [('Open the memberships page', 'Go to omorfiadayspa.com/memberships.'), ('Pick your club', 'Scroll to the clubs — massage, facial, mani-pedi, brow wax, blowout, cut, color and more — and tap “Join”.'), ('Tap “Add”', 'Your monthly price is shown on the button.'), ('Review your cart', 'Tap “Next”. Add more clubs if you like.'), ('Enter your phone or email', 'Then follow the checkout to start your membership.'), ('Enjoy member perks', 'Your club service every month, plus 10% off every other service and member pricing on products.')]),
  kw="Spa &amp; Salon Memberships in Poughkeepsie, NY",
  faq=[("Is there a contract or startup fee?","No. Omorfia memberships are month to month with no startup fee, no cancellation fee and no contract."),
       ("How do I cancel?","Call Stavros directly at (845) 694-4952 and it's done — no questions asked."),
@@ -1562,7 +1562,7 @@ PAGES.append(dict(path="memberships",nav="Memberships",service="Spa Memberships"
 </section>
 <section class="wrap gc-video"><p class="eyebrow">How it works</p><h2>Watch: join in under a minute</h2>
 <div class="vid"><video controls playsinline preload="none" poster="/images/video/membership-how-to.jpg" width="1280" height="720" aria-label="How to join the Omorfia Member Club"><source src="/images/video/membership-how-to.mp4" type="video/mp4"></video></div>
-<ol class="howto"><li id="how-1"><strong>Open the memberships page.</strong> Go to omorfiabeauty.nyc/memberships.</li><li id="how-2"><strong>Pick your club.</strong> Scroll to the clubs — massage, facial, mani-pedi, brow wax, blowout, cut, color and more — and tap “Join”.</li><li id="how-3"><strong>Tap “Add”.</strong> Your monthly price is shown on the button.</li><li id="how-4"><strong>Review your cart.</strong> Tap “Next”. Add more clubs if you like.</li><li id="how-5"><strong>Enter your phone or email.</strong> Then follow the checkout to start your membership.</li><li id="how-6"><strong>Enjoy member perks.</strong> Your club service every month, plus 10% off every other service and member pricing on products.</li></ol></section>
+<ol class="howto"><li id="how-1"><strong>Open the memberships page.</strong> Go to omorfiadayspa.com/memberships.</li><li id="how-2"><strong>Pick your club.</strong> Scroll to the clubs — massage, facial, mani-pedi, brow wax, blowout, cut, color and more — and tap “Join”.</li><li id="how-3"><strong>Tap “Add”.</strong> Your monthly price is shown on the button.</li><li id="how-4"><strong>Review your cart.</strong> Tap “Next”. Add more clubs if you like.</li><li id="how-5"><strong>Enter your phone or email.</strong> Then follow the checkout to start your membership.</li><li id="how-6"><strong>Enjoy member perks.</strong> Your club service every month, plus 10% off every other service and member pricing on products.</li></ol></section>
 <div class="tmodal" id="join-modal" role="dialog" aria-modal="true" aria-label="Become a Member" hidden>
   <div class="tm-back" data-tclose></div>
   <div class="tm-card tm-solo tm-form">
