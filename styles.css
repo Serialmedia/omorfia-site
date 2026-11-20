@@ -813,3 +813,6 @@ a:focus-visible,summary:focus-visible,.btn:focus-visible{outline:2px solid var(-
 .qz-cc{display:block;font-family:var(--body);font-size:12px;letter-spacing:.06em;color:var(--mist)}
 .qz-perk{font-size:14px;color:var(--mist);margin:12px 0 22px}
 .qz-result .card-note{margin:26px auto 0;text-align:center}
+.legal h2{font-family:var(--disp);font-weight:500;font-size:clamp(22px,2.4vw,28px);margin:36px 0 10px}
+.legal h2:first-of-type{margin-top:24px}
+.legal p{max-width:46em}

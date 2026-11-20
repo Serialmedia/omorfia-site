@@ -396,7 +396,7 @@ FOOT = """</main>
       <a href="https://www.instagram.com/omorfiadayspa/" rel="noopener">Instagram</a></p>
     </div>
   </div>
-  <p class="foot-legal">&copy; 2026 Omorfia Salon &amp; Day Spa &middot; A Kyriacou Beauty Group company &middot; {city}, {state}</p>
+  <p class="foot-legal">&copy; 2026 Omorfia Salon &amp; Day Spa &middot; A Kyriacou Beauty Group company &middot; {city}, {state} &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/terms/">Terms &amp; Conditions</a></p>
 </footer>
 </body>
 </html>
@@ -1926,6 +1926,113 @@ PAGES.append(dict(path="contact",nav="Contact",
       ("What's your cancellation policy?","Life happens — just give us as much notice as you can so we can offer the time to another guest. Full policy details are shared when you book."),
       ("Which areas do you serve?","Guests come from across the Hudson Valley — Poughkeepsie, Hyde Park, Wappingers Falls, LaGrange, Pleasant Valley, Fishkill, Hopewell Junction, Rhinebeck, Beacon, New Paltz and Highland — most within a 20-minute drive on Route 44, Route 9 or the Taconic.")]))
 
+
+# ---------------------------------------------------------------- legal pages (privacy + terms)
+# Needed for Meevo online booking and Twilio toll-free SMS verification (opt-in + privacy language).
+LEGAL_ENTITY  = "Omorfia Salon and Suites Poughkeepsie LLC"
+LEGAL_UPDATED = "November 20, 2026"
+
+PAGES.append(dict(path="privacy-policy",nav="Privacy Policy",
+ title="Privacy Policy | Omorfia Salon & Day Spa, Poughkeepsie NY",
+ desc="How Omorfia Salon & Day Spa collects, uses and protects your information, including text message and email reminders.",
+ body=f"""
+<section class="page-hero">
+  <h1 class="eyebrow">Privacy Policy</h1>
+  <p class="ph-title">Your privacy.</p>
+  <p class="lead">Last updated {LEGAL_UPDATED}</p>
+</section>
+<section class="wrap legal">
+  <p>This Privacy Policy explains how {LEGAL_ENTITY}, doing business as Omorfia Salon &amp; Day Spa (&ldquo;Omorfia,&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;), collects, uses and protects information when you visit our website, book an appointment, buy a gift card or membership, or receive messages from us.</p>
+
+  <h2>Information we collect</h2>
+  <p><strong>Information you give us:</strong> your name, mobile phone number, email address, birthday (optional), appointment history, service preferences and notes, and any information you share on intake or consultation forms.</p>
+  <p><strong>Payment information:</strong> card payments are processed by our payment processor. We do not store full card numbers on our own systems.</p>
+  <p><strong>Website information:</strong> basic technical data such as browser type, pages visited and general location, collected through cookies and similar tools that help the site and our booking widget work.</p>
+
+  <h2>How we use your information</h2>
+  <p>We use your information to book, confirm, remind you of and manage appointments; process payments, gift cards and memberships; respond to your questions; keep service records so your provider can give you the right care; send you offers if you have opted in; and run, secure and improve our business and website.</p>
+
+  <h2>Text messages (SMS)</h2>
+  <p>If you give us your mobile number and agree to receive texts, we may send appointment confirmations, reminders, waitlist and schedule updates, and, only if you separately opt in, promotional messages. Message frequency varies. Message and data rates may apply. Reply <strong>STOP</strong> to opt out at any time, or <strong>HELP</strong> for help. Consent to receive texts is not a condition of any purchase.</p>
+  <p><strong>We do not sell, rent or share your mobile phone number or SMS opt-in consent with third parties or affiliates for their marketing or promotional purposes.</strong> Text messaging originator opt-in data and consent will not be shared with any third parties, except the service providers that deliver messages on our behalf (such as our booking software and its messaging provider).</p>
+
+  <h2>Email</h2>
+  <p>We send appointment emails and receipts. Marketing emails go only to guests who have opted in, and every marketing email has an unsubscribe link.</p>
+
+  <h2>How we share information</h2>
+  <p>We do not sell your personal information. We share it only with service providers that help us run the business, such as our booking and point-of-sale software, payment processor, messaging and email providers, and website host, and only as needed for them to provide those services. We may also disclose information if required by law or to protect the rights and safety of our guests, staff and business.</p>
+
+  <h2>How we protect and keep information</h2>
+  <p>We use reasonable administrative, technical and physical safeguards to protect your information. We keep it for as long as needed to provide services, keep accurate business records and meet legal requirements. If a breach of computerized personal information occurs, we will notify affected guests as required by New York law.</p>
+
+  <h2>Your choices</h2>
+  <p>You can ask us to update or correct your information, stop marketing texts (reply STOP) or emails (use the unsubscribe link), or delete your client profile where we are not required to keep it. Contact us using the details below.</p>
+
+  <h2>Children</h2>
+  <p>Our website is not directed to children under 13, and we do not knowingly collect their information online. Services for minors are booked by a parent or guardian.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>We may update this policy from time to time. The date at the top shows when it was last changed.</p>
+
+  <h2>Contact us</h2>
+  <p>Omorfia Salon &amp; Day Spa<br>{STREET}, {CITY}, {STATE} {ZIP}<br><a href="tel:{PHONE_TEL}">{PHONE}</a> &middot; <a href="mailto:{EMAIL}">{EMAIL}</a></p>
+  <p>See also our <a href="/terms/">Terms &amp; Conditions</a>.</p>
+</section>
+"""))
+
+PAGES.append(dict(path="terms",nav="Terms & Conditions",
+ title="Terms & Conditions | Omorfia Salon & Day Spa, Poughkeepsie NY",
+ desc="Booking, payment, gift card, membership and text message terms for Omorfia Salon & Day Spa in Poughkeepsie, NY.",
+ body=f"""
+<section class="page-hero">
+  <h1 class="eyebrow">Terms &amp; Conditions</h1>
+  <p class="ph-title">The fine print.</p>
+  <p class="lead">Last updated {LEGAL_UPDATED}</p>
+</section>
+<section class="wrap legal">
+  <p>These Terms &amp; Conditions apply to your use of this website and to appointments, purchases and messages with {LEGAL_ENTITY}, doing business as Omorfia Salon &amp; Day Spa (&ldquo;Omorfia,&rdquo; &ldquo;we,&rdquo; &ldquo;us&rdquo;). By booking or buying from us, you agree to these terms.</p>
+
+  <h2>Booking</h2>
+  <p>You can book online, by phone or at the front desk. Please give accurate contact information so we can confirm and remind you of your appointment. A card may be required to hold some appointments. Please arrive a few minutes early; late arrivals may receive a shortened service so the next guest is not delayed, at the full service price.</p>
+
+  <h2>Cancellations and no-shows</h2>
+  <p>Please give as much notice as you can if you need to cancel or reschedule. Cancellation and no-show fees, if any, are shown when you book and may be charged to the card on file.</p>
+
+  <h2>Prices and payment</h2>
+  <p>Prices on this website are starting prices and may vary with hair length, density, service time and provider; your provider confirms the price before starting. Prices are shown as cash/debit &middot; credit. A {CARD_SURCHARGE*100:g}% card processing fee applies to credit card payments and is not charged on debit cards or cash. Prices may change without notice.</p>
+
+  <h2>Gift cards</h2>
+  <p>Gift cards are redeemable for services and retail at Omorfia, are not redeemable for cash except where required by law, and are treated as allowed under New York law. Please treat gift cards like cash; we are not responsible for lost or stolen cards.</p>
+
+  <h2>Memberships</h2>
+  <p>Memberships renew and bill automatically each month on the billing date shown at sign-up, using the card on file, until cancelled. Member benefits, pricing and cancellation terms are shown when you join.</p>
+
+  <h2>Your health and safety</h2>
+  <p>Please tell your provider about allergies, skin conditions, medications, pregnancy or other health conditions before your service. We may decline or change a service if we believe it is not safe for you.</p>
+
+  <h2>Text message program</h2>
+  <p><strong>Program:</strong> Omorfia Salon &amp; Day Spa appointment notifications. When you give us your mobile number and opt in, online, on a booking or intake form, or by telling our front desk, you agree to receive text messages from Omorfia about your appointments, such as confirmations, reminders, schedule changes and waitlist openings. Promotional texts are sent only if you separately opt in to them.</p>
+  <p><strong>Frequency:</strong> message frequency varies, usually a few messages per appointment.</p>
+  <p><strong>Cost:</strong> message and data rates may apply.</p>
+  <p><strong>Opt out:</strong> reply <strong>STOP</strong> to any message to stop receiving texts. You will get one message confirming you are unsubscribed. <strong>Help:</strong> reply <strong>HELP</strong> or call us at <a href="tel:{PHONE_TEL}">{PHONE}</a>.</p>
+  <p>Consent to receive text messages is not a condition of purchase. Carriers are not liable for delayed or undelivered messages. See our <a href="/privacy-policy/">Privacy Policy</a> for how we handle your information; we do not share your mobile number or opt-in consent with third parties for marketing.</p>
+
+  <h2>Website</h2>
+  <p>Content on this website is for general information and may change. Photos may show sample results; individual results vary. You may not copy or reuse site content without permission.</p>
+
+  <h2>Limitation of liability</h2>
+  <p>To the extent allowed by law, Omorfia is not liable for indirect or consequential damages arising from your use of the website or our services. Nothing in these terms limits rights you have under New York law.</p>
+
+  <h2>Governing law</h2>
+  <p>These terms are governed by the laws of the State of New York.</p>
+
+  <h2>Changes</h2>
+  <p>We may update these terms from time to time. The date at the top shows when they were last changed.</p>
+
+  <h2>Contact us</h2>
+  <p>Omorfia Salon &amp; Day Spa<br>{STREET}, {CITY}, {STATE} {ZIP}<br><a href="tel:{PHONE_TEL}">{PHONE}</a> &middot; <a href="mailto:{EMAIL}">{EMAIL}</a></p>
+</section>
+"""))
 
 # ---------------------------------------------------------------- long-tail pages
 # Each targets one high-intent search competitors don't have a page for. Copy stays inside
