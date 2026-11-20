@@ -2010,7 +2010,7 @@ PAGES.append(dict(path="terms",nav="Terms & Conditions",
   <h2>Your health and safety</h2>
   <p>Please tell your provider about allergies, skin conditions, medications, pregnancy or other health conditions before your service. We may decline or change a service if we believe it is not safe for you.</p>
 
-  <h2>Text message program</h2>
+  <h2 id="sms">Text message program</h2>
   <p><strong>Program:</strong> Omorfia Salon &amp; Day Spa appointment notifications. When you give us your mobile number and opt in, online, on a booking or intake form, or by telling our front desk, you agree to receive text messages from Omorfia about your appointments, such as confirmations, reminders, schedule changes and waitlist openings. Promotional texts are sent only if you separately opt in to them.</p>
   <p><strong>Frequency:</strong> message frequency varies, usually a few messages per appointment.</p>
   <p><strong>Cost:</strong> message and data rates may apply.</p>
